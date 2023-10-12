@@ -133,10 +133,13 @@ const StixCoreObjectFileExport = ({  entity }) => {
                        onSubmit={onSubmitExport}
                        onReset={() => setOpen(false)}
                    >
-                        <Form>
+                       {({ submitForm, handleReset, isSubmitting }) => (
+
+                           <Form>
                            <Dialog PaperProps={{ elevation: 1 }}
                                    open={open}
-                                   onClose={() => setOpen(false)}>
+                                   onClose={() => setOpen(false)}
+                                   fullWidth={true}>
                                 <DialogTitle>{t('Generate an export')}</DialogTitle>
                                <QueryRenderer
                                    query={markingDefinitionsLinesSearchQuery}
@@ -200,10 +203,18 @@ const StixCoreObjectFileExport = ({  entity }) => {
                                    }}
                                />
                                <DialogActions>
-                                   <Button onClick={handleCloseExport}>Cancel</Button>
+                                   <Button onClick={handleReset} disabled={isSubmitting}>Cancel</Button>
+                                   <Button
+                                       color="secondary"
+                                       onClick={submitForm}
+                                       disabled={isSubmitting}
+                                   >
+                                       {t('Create')}
+                                   </Button>
                                </DialogActions>
                            </Dialog>
                         </Form>
+                       )}
                    </Formik>
                </div>
            </div>
