@@ -14,15 +14,17 @@ import Paper from "@mui/material/Paper";
 import List from "@mui/material/List";
 import FileLine from "@components/common/files/FileLine";
 import {useFormatter} from "../../../../components/i18n";
+import {AccountBalanceOutlined} from "@mui/icons-material";
+import {truncate} from "../../../../utils/String";
+import Chip from "@mui/material/Chip";
+import ToggleButton from "@mui/material/ToggleButton";
+import {DialogTitle} from "@mui/material";
+import Dialog from "@mui/material/Dialog";
+import {Formik} from "formik";
 
 
 const useStyles = makeStyles((theme) => ({
-    drawerPaper: {
-        minHeight: '100vh',
-        width: '50%',
-        position: 'fixed',
-        padding: 0,
-    },
+
 }));
 
 
@@ -37,9 +39,9 @@ const StixCoreObjectFileExport = ({  entity }) => {
 
     const { id, exportFiles } = entity;
 
-        return (
+    return (
            <div>
-               <div style={{ float: 'left', marginTop: -15 }}>
+               <div>
                    <Tooltip
                        title={
                            isExportPossible
@@ -48,42 +50,25 @@ const StixCoreObjectFileExport = ({  entity }) => {
                        }
                        aria-label="generate-export"
                    >
-            <span>
-              <IconButton
-                  onClick={handleOpenExport}
-                  disabled={!isExportPossible}
-                  aria-haspopup="true"
-                  color="primary"
-                  size="medium"
-              >
-                <FileExportOutline />
-              </IconButton>
-            </span>
+                       <ToggleButton
+                          onClick={handleOpenExport}
+                          disabled={!isExportPossible}
+                          value="quick-export"
+                          aria-haspopup="true"
+                          color="primary"
+                          size="small"
+                          style={{ marginRight: 3 }}
+                      >
+                            <FileExportOutline
+                                fontSize="small"
+                                color= "primary"
+                            />
+                       </ToggleButton>
                    </Tooltip>
+                       <Dialog onClose={handleCloseExport}>
+                           <DialogTitle>{t('Generate an export')}</DialogTitle>
+                       </Dialog>
                </div>
-               <div className="clearfix" />
-               <Paper classes={{ root: classes.paper }} variant="outlined">
-                   {exportFiles?.edges?.length ? (
-                       <List>
-                           {exportFiles.edges.map((file) => {
-                               return (
-                                   file?.node && (
-                                       <FileLine
-                                           key={file?.node.id}
-                                           file={file?.node}
-                                           dense={true}
-                                           disableImport={true}
-                                       />
-                                   )
-                               );
-                           })}
-                       </List>
-                   ) : (
-                       <div style={{ display: 'table', height: '100%', width: '100%' }}>
-
-                       </div>
-                   )}
-               </Paper>
            </div>
 
         );
