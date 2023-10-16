@@ -37,6 +37,8 @@ import { truncate } from '../../../../utils/String';
 import { useIsEnforceReference } from '../../../../utils/hooks/useEntitySettings';
 import StixCoreObjectQuickSubscription from '../stix_core_objects/StixCoreObjectQuickSubscription';
 import { defaultValue } from '../../../../utils/Graph';
+import StixCoreObjectsExportCreation from "@components/common/stix_core_objects/StixCoreObjectsExportCreation";
+import StixCoreObjectFileExport from "@components/common/stix_core_objects/StixCoreObjectFileExport";
 
 const Transition = React.forwardRef((props, ref) => (
   <Slide direction="up" ref={ref} {...props} />
@@ -470,6 +472,7 @@ const StixDomainObjectHeader = (props) => {
               variant="header"
             />
           )}
+          <StixCoreObjectFileExport entity={container}/>
           {enableQuickSubscription && (
             <StixCoreObjectQuickSubscription
               instanceId={stixDomainObject.id}
