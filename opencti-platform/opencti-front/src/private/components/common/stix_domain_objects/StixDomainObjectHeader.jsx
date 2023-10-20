@@ -39,6 +39,7 @@ import StixCoreObjectQuickSubscription from '../stix_core_objects/StixCoreObject
 import { defaultValue } from '../../../../utils/Graph';
 import StixCoreObjectsExportCreation from "@components/common/stix_core_objects/StixCoreObjectsExportCreation";
 import StixCoreObjectFileExport from "@components/common/stix_core_objects/StixCoreObjectFileExport";
+import FileExportViewer from "@components/common/files/FileExportViewer";
 
 const Transition = React.forwardRef((props, ref) => (
   <Slide direction="up" ref={ref} {...props} />
@@ -195,6 +196,7 @@ const StixDomainObjectHeader = (props) => {
     noAliases,
     entityType, // Should migrate all the parent component to call the useIsEnforceReference as the top
     enableQuickSubscription,
+    entity
   } = props;
 
   const openAliasesCreate = false;
@@ -472,13 +474,13 @@ const StixDomainObjectHeader = (props) => {
               variant="header"
             />
           )}
-          <StixCoreObjectFileExport entity={container}/>
-          {enableQuickSubscription && (
+            <StixCoreObjectFileExport id={stixDomainObject.id}/>
+
             <StixCoreObjectQuickSubscription
               instanceId={stixDomainObject.id}
               instanceName={defaultValue(stixDomainObject)}
             />
-          )}
+
           <StixCoreObjectEnrichment stixCoreObjectId={stixDomainObject.id} />
         </ToggleButtonGroup>
       </div>
