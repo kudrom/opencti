@@ -102,6 +102,19 @@ interface BasicStoreBase extends BasicStoreIdentifier {
   representative: Representative
 }
 
+export interface BasicStoreIndicator extends BasicStoreBase {
+  entity_type: 'Indicator'
+  base_type: 'ENTITY'
+  name: string
+  x_opencti_score: number,
+  description: string
+  indicator_types: string[]
+  pattern: string
+  pattern_type: string
+  valid_from: Date
+  valid_until: Date
+}
+
 interface StoreMarkingDefinition extends BasicStoreEntity {
   definition: string;
   definition_type: string;
