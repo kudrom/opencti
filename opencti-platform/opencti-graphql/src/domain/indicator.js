@@ -28,6 +28,7 @@ import { elCount } from '../database/engine';
 import { isEmptyField, READ_INDEX_STIX_DOMAIN_OBJECTS } from '../database/utils';
 import { cleanupIndicatorPattern, extractObservablesFromIndicatorPattern } from '../utils/syntax';
 import { computeValidPeriod } from '../utils/indicator-utils';
+import { computeIndicatorBaseScore, computeIndicatorDecay } from '../modules/indicator/decay';
 
 export const findById = (context, user, indicatorId) => {
   return storeLoadById(context, user, indicatorId, ENTITY_TYPE_INDICATOR);
@@ -95,16 +96,20 @@ export const addIndicator = async (context, user, indicator) => {
   }
   const { validFrom, validUntil, revoked } = await computeValidPeriod(context, user, indicator);
   const indicatorToCreate = R.pipe(
+    // dissoc options
     R.dissoc('createObservables'),
     R.dissoc('basedOn'),
+    // associate data
     R.assoc('pattern', formattedPattern),
     R.assoc('x_opencti_main_observable_type', observableType),
-    R.assoc('x_opencti_score', indicator.x_opencti_score ?? 50),
+    R.assoc('x_opencti_score', computeIndicatorBaseScore(indicator)),
     R.assoc('x_opencti_detection', indicator.x_opencti_detection ?? false),
     R.assoc('valid_from', validFrom),
-    R.assoc('valid_until', validUntil),
+    R.assoc('valid_until', validUntil), // TODO, still need if decay model applied ??
     R.assoc('revoked', revoked),
   )(indicator);
+  // Add decay model based on indicator to create
+  indicatorToCreate.x_opencti_decay_model = await computeIndicatorDecay(context, indicatorToCreate);
   // create the linked observables
   let observablesToLink = [];
   if (indicator.basedOn) {
