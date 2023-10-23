@@ -25,6 +25,7 @@ import MenuItem from '@mui/material/MenuItem';
 import * as R from 'ramda';
 import * as Yup from 'yup';
 import makeStyles from '@mui/styles/makeStyles';
+import StixCoreObjectFileExport from '../stix_core_objects/StixCoreObjectFileExport';
 import { commitMutation, MESSAGING$ } from '../../../../relay/environment';
 import TextField from '../../../../components/TextField';
 import { useFormatter } from '../../../../components/i18n';
@@ -37,9 +38,6 @@ import { truncate } from '../../../../utils/String';
 import { useIsEnforceReference } from '../../../../utils/hooks/useEntitySettings';
 import StixCoreObjectQuickSubscription from '../stix_core_objects/StixCoreObjectQuickSubscription';
 import { defaultValue } from '../../../../utils/Graph';
-import StixCoreObjectsExportCreation from "@components/common/stix_core_objects/StixCoreObjectsExportCreation";
-import StixCoreObjectFileExport from "@components/common/stix_core_objects/StixCoreObjectFileExport";
-import FileExportViewer from "@components/common/files/FileExportViewer";
 
 const Transition = React.forwardRef((props, ref) => (
   <Slide direction="up" ref={ref} {...props} />
@@ -195,8 +193,7 @@ const StixDomainObjectHeader = (props) => {
     disableSharing,
     noAliases,
     entityType, // Should migrate all the parent component to call the useIsEnforceReference as the top
-    enableQuickSubscription,
-    entity
+    enableQuickExport,
   } = props;
 
   const openAliasesCreate = false;
@@ -474,7 +471,9 @@ const StixDomainObjectHeader = (props) => {
               variant="header"
             />
           )}
+          {enableQuickExport && (
             <StixCoreObjectFileExport id={stixDomainObject.id}/>
+          )}
 
             <StixCoreObjectQuickSubscription
               instanceId={stixDomainObject.id}
