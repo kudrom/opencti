@@ -1,5 +1,6 @@
 import React from 'react';
-import Drawer from '@mui/material/Drawer';
+import Drawer from '../drawer/Drawer';
+
 import { QueryRenderer } from '../../../../relay/environment';
 import StixCoreObjectsExportsContent, { stixCoreObjectsExportsContentQuery } from './StixCoreObjectsExportsContent';
 import { useFormatter } from '../../../../components/i18n';

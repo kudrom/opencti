@@ -161,7 +161,6 @@ const StixSightingRelationshipCreationFromEntity = ({
   variant,
   targetStixCyberObservableTypes,
   paddingRight,
-  stixCoreObject,
 }) => {
   const classes = useStyles();
   const { t } = useFormatter();
@@ -493,7 +492,7 @@ const StixSightingRelationshipCreationFromEntity = ({
                 return (
                   <div style={{ height: '100%' }}>
                     {step === 0 ? renderSelectEntity() : ''}
-                    {step === 1 ? renderForm(stixCoreObject) : ''}
+                    {step === 1 ? renderForm(props.stixCoreObject) : ''}
                   </div>
                 );
               }

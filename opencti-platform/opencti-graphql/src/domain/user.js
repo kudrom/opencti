@@ -14,7 +14,7 @@ import {
   ACCOUNT_STATUSES,
   OPENCTI_SESSION
 } from '../config/conf';
-import { AuthenticationFailure, ForbiddenAccess, FunctionalError } from '../config/errors';
+import { AuthenticationFailure, ForbiddenAccess, FunctionalError, UnknownError } from '../config/errors';
 import { getEntitiesListFromCache, getEntityFromCache } from '../database/cache';
 import { elFindByIds, elLoadBy } from '../database/engine';
 import { batchListThroughGetTo, createEntity, createRelation, deleteElementById, deleteRelationsByFromAndTo, listThroughGetFrom, listThroughGetTo, patchAttribute, updateAttribute, updatedInputsToData, } from '../database/middleware';
@@ -224,21 +224,27 @@ export const batchRolesForUsers = async (context, user, userIds, opts = {}) => {
   });
 };
 
-export const computeAvailableMarkings = (markings, all) => {
+export const computeAvailableMarkings = (userMarkings, allMarkings) => {
   const computedMarkings = [];
-  for (let index = 0; index < markings.length; index += 1) {
-    const mark = markings[index];
+  for (let index = 0; index < userMarkings.length; index += 1) {
+    const userMarking = userMarkings[index];
     // Find all marking of same type with rank <=
-    const { id } = mark;
-    const findMarking = R.find((m) => m.id === id, all);
-    computedMarkings.push(findMarking);
-    const { x_opencti_order: order, definition_type: type } = findMarking ?? {};
-    const matchingMarkings = R.filter((m) => {
-      return id !== m.id && m.definition_type === type && m.x_opencti_order <= order;
-    }, all);
-    computedMarkings.push(...matchingMarkings);
+    const findMarking = R.find((m) => m.id === userMarking.id, allMarkings);
+    if (isNotEmptyField(findMarking)) {
+      // Add the marking in the list
+      computedMarkings.push(findMarking);
+      // Compute accessible lower markings
+      const { x_opencti_order: order, definition_type: type } = findMarking;
+      const lowerMatchingMarkings = R.filter((m) => {
+        return userMarking.id !== m.id && m.definition_type === type && m.x_opencti_order <= order;
+      }, allMarkings);
+      computedMarkings.push(...lowerMatchingMarkings);
+    } else {
+      const error = { marking: userMarking, available_markings: allMarkings };
+      throw UnknownError('[ACCESS] USER MARKING INACCESSIBLE', { error });
+    }
   }
-  return R.uniqBy((m) => m?.id ?? '', computedMarkings);
+  return R.uniqBy((m) => m.id, computedMarkings);
 };
 
 const getUserAndGlobalMarkings = async (context, userId, userGroups, capabilities) => {
@@ -247,12 +253,13 @@ const getUserAndGlobalMarkings = async (context, userId, userGroups, capabilitie
   const shouldBypass = userCapabilities.includes(BYPASS) || userId === OPENCTI_ADMIN_UUID;
   const allMarkingsPromise = getEntitiesListFromCache(context, SYSTEM_USER, ENTITY_TYPE_MARKING_DEFINITION);
   let userMarkingsPromise;
-  if (shouldBypass) {
+  if (shouldBypass) { // Bypass user have all platform markings
     userMarkingsPromise = allMarkingsPromise;
-  } else {
+  } else { // Standard user have markings related to his groups
     userMarkingsPromise = listThroughGetTo(context, SYSTEM_USER, groupIds, RELATION_ACCESSES_TO, ENTITY_TYPE_MARKING_DEFINITION);
   }
-  const [userMarkings, markings, defaultMarkings] = await Promise.all([userMarkingsPromise, allMarkingsPromise, defaultMarkingDefinitionsFromGroups(context, groupIds)]);
+  const defaultGroupMarkingsPromise = defaultMarkingDefinitionsFromGroups(context, groupIds);
+  const [userMarkings, markings, defaultMarkings] = await Promise.all([userMarkingsPromise, allMarkingsPromise, defaultGroupMarkingsPromise]);
   const computedMarkings = computeAvailableMarkings(userMarkings, markings);
   return { user: computedMarkings, all: markings, default: defaultMarkings };
 };
@@ -670,6 +677,14 @@ export const meEditField = async (context, user, userId, inputs, password = null
 };
 
 export const userDelete = async (context, user, userId) => {
+  if (!isUserHasCapability(user, SETTINGS_SET_ACCESSES) && isUserHasCapability(user, VIRTUAL_ORGANIZATION_ADMIN)) {
+    // When user is organization admin, we make sure that the deleted user is in one of the administrated organizations of the admin
+    const userData = await storeLoadById(context, user, userId, ENTITY_TYPE_USER);
+    const myAdministratedOrganizationsIds = user.administrated_organizations.map(({ id }) => id);
+    if (!userData.objectOrganization.find((orga) => myAdministratedOrganizationsIds.includes(orga))) {
+      throw ForbiddenAccess();
+    }
+  }
   const deleted = await deleteElementById(context, user, userId, ENTITY_TYPE_USER);
   const actionEmail = ENABLED_DEMO_MODE ? REDACTED_USER.user_email : deleted.user_email;
   await publishUserAction({

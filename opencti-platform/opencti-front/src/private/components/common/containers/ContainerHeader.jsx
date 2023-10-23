@@ -1021,6 +1021,7 @@ export default createFragmentContainer(ContainerHeader, {
   container: graphql`
     fragment ContainerHeader_container on Container {
       id
+      standard_id
       confidence
       created
       ... on Report {

@@ -205,7 +205,7 @@ const TaxiiCollectionEditionContainer = (props) => {
               />
             )}
           </Alert>
-          <div style={{ marginTop: 35 }}>
+          <div style={{ paddingTop: 35 }}>
             <Filters
               variant="text"
               availableFilterKeys={[
@@ -239,7 +239,6 @@ const TaxiiCollectionEditionContainer = (props) => {
           <FilterIconButton
             filters={filters}
             handleRemoveFilter={handleRemoveFilter}
-            disabledPossible={true}
             classNameNumber={2}
             styleNumber={2}
             redirection

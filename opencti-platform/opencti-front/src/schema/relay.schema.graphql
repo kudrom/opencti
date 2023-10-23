@@ -2512,6 +2512,7 @@ enum CampaignsFilter {
   revoked
   confidence
   source_reliability
+  targets
   creator
 }
 
@@ -7826,6 +7827,7 @@ enum StixCoreRelationshipsFilter {
   toTypes
   entity_type
   fromId
+  toId
   elementId
 }
 

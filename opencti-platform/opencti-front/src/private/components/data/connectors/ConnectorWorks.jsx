@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as PropTypes from 'prop-types';
-import { compose, pathOr, filter } from 'ramda';
+import { compose, pathOr } from 'ramda';
 import { graphql, createRefetchContainer } from 'react-relay';
 import withStyles from '@mui/styles/withStyles';
 import Grid from '@mui/material/Grid';
@@ -175,10 +175,6 @@ class ConnectorWorksComponent extends Component {
         {works.map((workEge) => {
           const work = workEge.node;
           const { tracking } = work;
-          const errors = filter(
-            (n) => !n.message.includes('MissingReferenceError'),
-            work.errors,
-          );
           return (
             <Paper
               key={work.id}
@@ -272,10 +268,10 @@ class ConnectorWorksComponent extends Component {
                   style={{ position: 'absolute', right: 10, top: 10 }}
                   variant="contained"
                   color="secondary"
-                  onClick={this.handleOpenErrors.bind(this, errors)}
+                  onClick={this.handleOpenErrors.bind(this, work.errors)}
                   size="small"
                 >
-                  {errors.length} {t('errors')}
+                  {work.errors.length} {t('errors')}
                 </Button>
                 <Button
                   variant="outlined"
