@@ -42,7 +42,9 @@ import { ObjectParticipantFieldParticipantsSearchQuery$data } from '../../privat
 import { objectParticipantFieldParticipantsSearchQuery } from '../../private/components/common/form/ObjectParticipantField';
 import { useSearchEntitiesStixCoreObjectsContainersSearchQuery$data } from './__generated__/useSearchEntitiesStixCoreObjectsContainersSearchQuery.graphql';
 import { isNotEmptyField } from '../utils';
-import { useSearchEntitiesSchemaSCOSearchQuery$data } from './__generated__/useSearchEntitiesSchemaSCOSearchQuery.graphql';
+import {
+  useSearchEntitiesSchemaSCOSearchQuery$data,
+} from './__generated__/useSearchEntitiesSchemaSCOSearchQuery.graphql';
 
 const filtersStixCoreObjectsContainersSearchQuery = graphql`
   query useSearchEntitiesStixCoreObjectsContainersSearchQuery(
