@@ -87,7 +87,7 @@ interface FileLineComponentProps {
   workNested?: boolean;
   isExternalReferenceAttachment?: boolean;
   onDelete?: () => void;
-  enableDelete?: boolean;
+  onClick?: () => void;
 }
 
 const FileLineComponent: FunctionComponent<FileLineComponentProps> = ({
@@ -101,7 +101,7 @@ const FileLineComponent: FunctionComponent<FileLineComponentProps> = ({
   workNested,
   isExternalReferenceAttachment,
   onDelete,
-  enableDelete,
+  onClick,
 }) => {
   const classes = useStyles();
   const { t, fld } = useFormatter();
@@ -220,9 +220,10 @@ const FileLineComponent: FunctionComponent<FileLineComponentProps> = ({
             button={true}
             component="a"
             disabled={isProgress || isOutdated}
-            href={listClick}
+            href={onClick ? undefined : listClick}
             rel="noopener noreferrer"
-            sx={{ paddingRight: 10 }}
+            sx={{ paddingRight: 10, alignItems: 'center' }}
+            onClick={onClick}
         >
           <ListItemIcon sx={{ marginLeft: '10px' }}>
             {isProgress && (
@@ -248,63 +249,75 @@ const FileLineComponent: FunctionComponent<FileLineComponentProps> = ({
                 secondary={fld(file?.lastModified ?? moment())}
             />
           </Tooltip>
-          <ListItemSecondaryAction style={{ alignItems: 'center' }}>
+          <ListItemSecondaryAction sx={{ marginLeft: 10 }}>
+            <ListItemIcon>
             {!disableImport && (
+
                 <Tooltip title={t('Launch an import of this file')}>
-                <IconButton
-                    disabled={isProgress || !isImportActive()}
-                    onClick={() => {
-                      if (handleOpenImport && file) {
-                        handleOpenImport(file);
-                      }
-                    }}
-                    aria-haspopup="true"
-                    color={nested ? 'inherit' : 'primary'}
-                    size="large"
-                >
-                  <ProgressUpload />
-                </IconButton>
+                  <span>
+                    <IconButton
+                        disabled={isProgress || !isImportActive()}
+                        onClick={() => {
+                          if (handleOpenImport && file) {
+                            handleOpenImport(file);
+                          }
+                        }}
+                        aria-haspopup="true"
+                        color={nested ? 'inherit' : 'primary'}
+                        size="large"
+                    >
+                      <ProgressUpload />
+                    </IconButton>
+                  </span>
                 </Tooltip>
+
             )}
+              </ListItemIcon>
+            <ListItemIcon>
             {!directDownload && !isFail && (
                 <Tooltip title={t('Download this file')}>
-                <IconButton
-                    disabled={isProgress}
-                    href={`${APP_BASE_PATH}/storage/get/${encodedFilePath}`}
-                    aria-haspopup="true"
-                    color={nested ? 'inherit' : 'primary'}
-                    size="large"
-                >
-                  <GetAppOutlined />
-                </IconButton>
+                  <span>
+                    <IconButton
+                        disabled={isProgress}
+                        href={`${APP_BASE_PATH}/storage/get/${encodedFilePath}`}
+                        aria-haspopup="true"
+                        color={nested ? 'inherit' : 'primary'}
+                        size="large"
+                    >
+                      <GetAppOutlined />
+                    </IconButton>
+                    </span>
                 </Tooltip>
             )}
-            {(!isExternalReferenceAttachment || enableDelete) && (
+            </ListItemIcon>
+            {(!isExternalReferenceAttachment) && (
                 <ListItemIcon>
                   {isFail || isOutdated ? (
                   <Tooltip title={t('Delete this file')}>
-                    <IconButton
-                        disabled={isProgress}
-                        color={nested ? 'inherit' : 'primary'}
-                        onClick={handleOpenRemove}
-                        size="large"
-                    >
-                      <DeleteOutlined />
-                    </IconButton>
-
+                    <span>
+                      <IconButton
+                          disabled={isProgress}
+                          color={nested ? 'inherit' : 'primary'}
+                          onClick={handleOpenRemove}
+                          size="large"
+                      >
+                        <DeleteOutlined />
+                      </IconButton>
+                    </span>
                   </Tooltip>
                   ) : (
-                      <Tooltip title={t('Delete this file')}>
-                        <IconButton
-                            disabled={isProgress}
-                            color={nested ? 'inherit' : 'primary'}
-                            onClick={handleOpenDelete}
-                            size="large"
-                        >
-                          <DeleteOutlined />
-                        </IconButton>
-
-                      </Tooltip>
+                  <Tooltip title={t('Delete this file')}>
+                    <span>
+                      <IconButton
+                          disabled={isProgress}
+                          color={nested ? 'inherit' : 'primary'}
+                          onClick={handleOpenDelete}
+                          size="large"
+                      >
+                        <DeleteOutlined />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
                   )}
                 </ListItemIcon>
             )}
