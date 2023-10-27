@@ -41,7 +41,7 @@ import { FileLine_file$data } from './__generated__/FileLine_file.graphql';
 import { isNotEmptyField } from '../../../../utils/utils';
 
 const Transition = React.forwardRef((props: SlideProps, ref) => (
-  <Slide direction="up" ref={ref} {...props} />
+    <Slide direction="up" ref={ref} {...props} />
 ));
 Transition.displayName = 'TransitionSlide';
 
@@ -87,6 +87,7 @@ interface FileLineComponentProps {
   workNested?: boolean;
   isExternalReferenceAttachment?: boolean;
   onDelete?: () => void;
+  enableDelete?: boolean;
 }
 
 const FileLineComponent: FunctionComponent<FileLineComponentProps> = ({
@@ -100,6 +101,7 @@ const FileLineComponent: FunctionComponent<FileLineComponentProps> = ({
   workNested,
   isExternalReferenceAttachment,
   onDelete,
+  enableDelete,
 }) => {
   const classes = useStyles();
   const { t, fld } = useFormatter();
@@ -203,179 +205,174 @@ const FileLineComponent: FunctionComponent<FileLineComponentProps> = ({
 
   const generateIcon = () => {
     return isExternalReferenceAttachment || isContainsReference ? (
-      <DocumentScannerOutlined color="primary" />
+        <DocumentScannerOutlined color="primary" />
     ) : (
-      <FileOutline color={nested ? 'primary' : 'inherit'} />
+        <FileOutline color={nested ? 'primary' : 'inherit'} />
     );
   };
 
   return (
-    <div>
-      <ListItem
-        divider={true}
-        dense={dense}
-        classes={{ root: nested ? classes.itemNested : classes.item }}
-        button={true}
-        component="a"
-        disabled={isProgress || isOutdated}
-        href={listClick}
-        rel="noopener noreferrer"
-      >
-        <ListItemIcon>
-          {isProgress && (
-            <CircularProgress
-              size={20}
-              color={nested ? 'primary' : 'inherit'}
+      <div>
+        <ListItem
+            divider={true}
+            dense={dense}
+            classes={{ root: nested ? classes.itemNested : classes.item }}
+            button={true}
+            component="a"
+            disabled={isProgress || isOutdated}
+            href={listClick}
+            rel="noopener noreferrer"
+            sx={{ paddingRight: 10 }}
+        >
+          <ListItemIcon sx={{ marginLeft: '10px' }}>
+            {isProgress && (
+                <CircularProgress
+                    size={20}
+                    color={nested ? 'primary' : 'inherit'}
+                />
+            )}
+            {!isProgress && (isFail || isOutdated) && (
+                <Tooltip title={toolTip !== 'null' ? toolTip : ''}>
+                  <WarningOutlined
+                      color={nested ? 'primary' : 'inherit'}
+                      style={{ fontSize: 15, color: '#f44336', marginLeft: 4 }}
+                  />
+                </Tooltip>
+            )}
+            {!isProgress && !isFail && !isOutdated && generateIcon()}
+          </ListItemIcon>
+          <Tooltip title={!isFail && !isOutdated ? file?.name : ''}>
+            <ListItemText
+                classes={{ root: classes.itemText }}
+                primary={file?.name}
+                secondary={fld(file?.lastModified ?? moment())}
             />
-          )}
-          {!isProgress && (isFail || isOutdated) && (
-            <Tooltip title={toolTip !== 'null' ? toolTip : ''}>
-              <WarningOutlined
-                color={nested ? 'primary' : 'inherit'}
-                style={{ fontSize: 15, color: '#f44336', marginLeft: 4 }}
-              />
-            </Tooltip>
-          )}
-          {!isProgress && !isFail && !isOutdated && generateIcon()}
-        </ListItemIcon>
-        <Tooltip title={!isFail && !isOutdated ? file?.name : ''}>
-          <ListItemText
-            classes={{ root: classes.itemText }}
-            primary={file?.name}
-            secondary={fld(file?.lastModified ?? moment())}
-          />
-        </Tooltip>
-        <ListItemSecondaryAction>
-          {!disableImport && (
-            <Tooltip title={t('Launch an import of this file')}>
-              <span>
+          </Tooltip>
+          <ListItemSecondaryAction style={{ alignItems: 'center' }}>
+            {!disableImport && (
+                <Tooltip title={t('Launch an import of this file')}>
                 <IconButton
-                  disabled={isProgress || !isImportActive()}
-                  onClick={() => {
-                    if (handleOpenImport && file) {
-                      handleOpenImport(file);
-                    }
-                  }}
-                  aria-haspopup="true"
-                  color={nested ? 'inherit' : 'primary'}
-                  size="large"
+                    disabled={isProgress || !isImportActive()}
+                    onClick={() => {
+                      if (handleOpenImport && file) {
+                        handleOpenImport(file);
+                      }
+                    }}
+                    aria-haspopup="true"
+                    color={nested ? 'inherit' : 'primary'}
+                    size="large"
                 >
                   <ProgressUpload />
                 </IconButton>
-              </span>
-            </Tooltip>
-          )}
-          {!directDownload && !isFail && (
-            <Tooltip title={t('Download this file')}>
-              <span>
+                </Tooltip>
+            )}
+            {!directDownload && !isFail && (
+                <Tooltip title={t('Download this file')}>
                 <IconButton
-                  disabled={isProgress}
-                  href={`${APP_BASE_PATH}/storage/get/${encodedFilePath}`}
-                  aria-haspopup="true"
-                  color={nested ? 'inherit' : 'primary'}
-                  size="large"
+                    disabled={isProgress}
+                    href={`${APP_BASE_PATH}/storage/get/${encodedFilePath}`}
+                    aria-haspopup="true"
+                    color={nested ? 'inherit' : 'primary'}
+                    size="large"
                 >
                   <GetAppOutlined />
                 </IconButton>
-              </span>
-            </Tooltip>
-          )}
-          {!isExternalReferenceAttachment && (
-            <>
-              {isFail || isOutdated ? (
-                <Tooltip title={t('Delete this file')}>
-                  <span>
-                    <IconButton
-                      disabled={isProgress}
-                      color={nested ? 'inherit' : 'primary'}
-                      onClick={handleOpenRemove}
-                      size="large"
-                    >
-                      <DeleteOutlined />
-                    </IconButton>
-                  </span>
                 </Tooltip>
-              ) : (
-                <Tooltip title={t('Delete this file')}>
-                  <span>
-                    <IconButton
-                      disabled={isProgress}
-                      color={nested ? 'inherit' : 'primary'}
-                      onClick={handleOpenDelete}
-                      size="large"
-                    >
-                      <DeleteOutlined />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              )}
-            </>
-          )}
-        </ListItemSecondaryAction>
-      </ListItem>
-      <FileWork file={file} nested={workNested} />
-      <Dialog
-        open={displayDelete}
-        PaperProps={{ elevation: 1 }}
-        keepMounted={true}
-        TransitionComponent={Transition}
-        onClose={handleCloseDelete}
-      >
-        <DialogContent>
-          <DialogContentText>
-            {t('Do you want to delete this file?')}
-            {isContainsReference && (
-              <Alert
-                severity="warning"
-                variant="outlined"
-                style={{ position: 'relative', marginTop: 20 }}
-              >
-                {t(
-                  'This file is linked to an external reference. If you delete it, the reference will be deleted as well.',
-                )}
-              </Alert>
             )}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDelete} disabled={deleting}>
-            {t('Cancel')}
-          </Button>
-          <Button
-            color="secondary"
-            onClick={() => handleRemoveFile(file?.id)}
-            disabled={deleting}
-          >
-            {t('Delete')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={displayRemove}
-        PaperProps={{ elevation: 1 }}
-        keepMounted={true}
-        TransitionComponent={Transition}
-        onClose={handleCloseRemove}
-      >
-        <DialogContent>
-          <DialogContentText>
-            {t('Do you want to remove this job?')}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseRemove} disabled={deleting}>
-            {t('Cancel')}
-          </Button>
-          <Button
-            color="secondary"
-            onClick={() => handleRemoveJob(file?.id)}
-            disabled={deleting}
-          >
-            {t('Delete')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+            {(!isExternalReferenceAttachment || enableDelete) && (
+                <ListItemIcon>
+                  {isFail || isOutdated ? (
+                  <Tooltip title={t('Delete this file')}>
+                    <IconButton
+                        disabled={isProgress}
+                        color={nested ? 'inherit' : 'primary'}
+                        onClick={handleOpenRemove}
+                        size="large"
+                    >
+                      <DeleteOutlined />
+                    </IconButton>
+
+                  </Tooltip>
+                  ) : (
+                      <Tooltip title={t('Delete this file')}>
+                        <IconButton
+                            disabled={isProgress}
+                            color={nested ? 'inherit' : 'primary'}
+                            onClick={handleOpenDelete}
+                            size="large"
+                        >
+                          <DeleteOutlined />
+                        </IconButton>
+
+                      </Tooltip>
+                  )}
+                </ListItemIcon>
+            )}
+          </ListItemSecondaryAction>
+        </ListItem>
+        <FileWork file={file} nested={workNested} />
+        <Dialog
+            open={displayDelete}
+            PaperProps={{ elevation: 1 }}
+            keepMounted={true}
+            TransitionComponent={Transition}
+            onClose={handleCloseDelete}
+        >
+          <DialogContent>
+            <DialogContentText>
+              {t('Do you want to delete this file?')}
+              {isContainsReference && (
+                  <Alert
+                      severity="warning"
+                      variant="outlined"
+                      style={{ position: 'relative', marginTop: 20 }}
+                  >
+                    {t(
+                      'This file is linked to an external reference. If you delete it, the reference will be deleted as well.',
+                    )}
+                  </Alert>
+              )}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDelete} disabled={deleting}>
+              {t('Cancel')}
+            </Button>
+            <Button
+                color="secondary"
+                onClick={() => handleRemoveFile(file?.id)}
+                disabled={deleting}
+            >
+              {t('Delete')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+            open={displayRemove}
+            PaperProps={{ elevation: 1 }}
+            keepMounted={true}
+            TransitionComponent={Transition}
+            onClose={handleCloseRemove}
+        >
+          <DialogContent>
+            <DialogContentText>
+              {t('Do you want to remove this job?')}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseRemove} disabled={deleting}>
+              {t('Cancel')}
+            </Button>
+            <Button
+                color="secondary"
+                onClick={() => handleRemoveJob(file?.id)}
+                disabled={deleting}
+            >
+              {t('Delete')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
   );
 };
 
