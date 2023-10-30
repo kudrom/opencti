@@ -13,33 +13,34 @@ import Loader, { LoaderVariant } from '../../../../components/Loader';
 import { useFormatter } from '../../../../components/i18n';
 
 const csvMapperEditionContainerFragment = graphql`
-  fragment CsvMapperEditionContainerFragment_csvMapper on CsvMapper {
-    id
-    name
-    has_header
-    separator
-    errors
-    representations {
-      id
-      type
-      target {
-        entity_type
-      }
-      attributes {
-        key
-        column {
-          column_name
-          configuration {
-            separator
-            pattern_date
-          }
+    fragment CsvMapperEditionContainerFragment_csvMapper on CsvMapper {
+        id
+        name
+        has_header
+        separator
+        skipLineChar
+        errors
+        representations {
+            id
+            type
+            target {
+                entity_type
+            }
+            attributes {
+                key
+                column {
+                    column_name
+                    configuration {
+                        separator
+                        pattern_date
+                    }
+                }
+                based_on {
+                    representations
+                }
+            }
         }
-        based_on {
-          representations
-        }
-      }
     }
-  }
 `;
 
 export const csvMapperEditionContainerQuery = graphql`

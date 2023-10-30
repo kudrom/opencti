@@ -40,6 +40,7 @@ const csvMapperValidation = (t: (s: string) => string) => Yup.object().shape({
   name: Yup.string().required(t('This field is required')),
   has_header: Yup.boolean().required(t('This field is required')),
   separator: Yup.string().required(t('This field is required')),
+  skipLineChar: Yup.string(),
 });
 
 interface CsvMapperFormProps {
@@ -211,6 +212,19 @@ const CsvMapperForm: FunctionComponent<CsvMapperFormProps> = ({
                     }
                   />
                   <Typography>{t('Semicolon')}</Typography>
+                </div>
+              </div>
+              <div className={classes.center} style={{ marginTop: 20 }}>
+                <Typography>{t('Do you need to escape line ?')}</Typography>
+                <div>
+                  <Field
+                    component={TextField}
+                    type="skipLineChar"
+                    name="skipLineChar"
+                    value={values.skipLineChar}
+                    label={t('Char to escape line')}
+                    onChange={(event: SelectChangeEvent) => setFieldValue('skipLineChar', event.target.value)}
+                  />
                 </div>
               </div>
               <div className={classes.center} style={{ marginTop: 20 }}>
