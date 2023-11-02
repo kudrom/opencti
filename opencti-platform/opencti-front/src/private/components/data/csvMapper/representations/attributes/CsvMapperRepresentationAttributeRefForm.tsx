@@ -80,35 +80,59 @@ CsvMapperRepresentationAttributeRefFormProps
 
   const { schema } = useAuth();
   const { schemaRelationsTypesMapping, schemaRelationsRefTypesMapping } = schema;
-  const relationshipTypes = resolveTypesForRelationship(
-    schemaRelationsTypesMapping,
-    entityType,
-    attribute.key,
-    fromType,
-    toType,
-  );
-  const relationshipRefTypes = resolveTypesForRelationshipRef(
-    schemaRelationsRefTypesMapping,
-    entityType,
-    attribute.key,
-  );
-  const options = representations
-    .filter((r) => {
-      return [...relationshipTypes, ...relationshipRefTypes].includes(
-        r.target.entity_type,
-      );
-    })
-    .filter((r) => r.id !== representation.id)
-    .filter((r) => {
-      if (attribute.key === 'from' && toId) {
-        return r.id !== toId;
-      }
-      if (attribute.key === 'to' && fromId) {
-        return r.id !== fromId;
-      }
-      return true;
-    });
 
+  let options;
+  if(entityType === 'related-to' || entityType === 'revoked-by') {
+    options = representations
+      .filter((r) => {
+        return r.id !== representation.id
+      })
+      .filter((r) => {
+        if (attribute.key === 'from' && toId) {
+          return r.id !== toId;
+        }
+        if (attribute.key === 'to' && fromId) {
+          return r.id !== fromId;
+        }
+        return true;
+      });
+  } else {
+    const relationshipTypes = resolveTypesForRelationship(
+      schemaRelationsTypesMapping,
+      entityType,
+      attribute.key,
+      fromType,
+      toType,
+    );
+    const relationshipRefTypes = resolveTypesForRelationshipRef(
+      schemaRelationsRefTypesMapping,
+      entityType,
+      attribute.key,
+    );
+    options = representations
+      .filter((r) => {
+        return [...relationshipTypes, ...relationshipRefTypes].includes(
+          r.target.entity_type,
+        );
+      })
+      .filter((r) => {
+        return r.id !== representation.id
+      })
+      .filter((r) => {
+        if (attribute.key === 'from' && toId) {
+          return r.id !== toId;
+        }
+        if (attribute.key === 'to' && fromId) {
+          return r.id !== fromId;
+        }
+        return true;
+      });
+  }
+
+
+  if(attribute.key === 'from' || attribute.key === 'to' ) {
+    console.log(attribute.key,options);
+  }
   // -- ERRORS --
 
   const hasError = attribute.mandatory && isEmptyField(attribute.based_on?.representations);
