@@ -24,7 +24,7 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
 }));
 
-interface OptionValue extends Option {
+export interface OptionValue extends Option {
   type: string;
   parentTypes: string[];
   group?: string;
@@ -49,18 +49,19 @@ interface FilterAutocompleteProps {
   openOnFocus?: boolean;
 }
 
-const FilterAutocomplete: FunctionComponent<FilterAutocompleteProps> = ({
-  filterKey,
-  searchContext,
-  defaultHandleAddFilter,
-  inputValues,
-  setInputValues,
-  availableEntityTypes,
-  availableRelationshipTypes,
-  availableRelationFilterTypes,
-  allEntityTypes,
-  openOnFocus,
-}) => {
+const FilterAutocomplete: FunctionComponent<FilterAutocompleteProps> = (props) => {
+  const {
+    filterKey,
+    searchContext,
+    defaultHandleAddFilter,
+    inputValues,
+    setInputValues,
+    availableEntityTypes,
+    availableRelationshipTypes,
+    availableRelationFilterTypes,
+    allEntityTypes,
+    openOnFocus,
+  } = props;
   const { t } = useFormatter();
   const classes = useStyles();
   const [searchScope, setSearchScope] = useState<Record<string, string[]>>(
@@ -191,10 +192,10 @@ const FilterAutocomplete: FunctionComponent<FilterAutocompleteProps> = ({
           }}
         />
       )}
-      renderOption={(props, option) => (
-        <li {...props}>
+      renderOption={(propsOption, option) => (
+        <li {...propsOption}>
           <div className={classes.icon}>
-            <ItemIcon type={option.type} color={option.color} />
+            <ItemIcon type={option.type} color={option.color}/>
           </div>
           <div className={classes.text}>{option.label}</div>
         </li>

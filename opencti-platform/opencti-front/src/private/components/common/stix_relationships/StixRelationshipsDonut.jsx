@@ -10,6 +10,7 @@ import Chart from '../charts/Chart';
 import { QueryRenderer } from '../../../../relay/environment';
 import { useFormatter } from '../../../../components/i18n';
 import { donutChartOptions } from '../../../../utils/Charts';
+import { convertFilters } from '../../../../utils/ListParameters';
 import { defaultValue } from '../../../../utils/Graph';
 
 const useStyles = makeStyles(() => ({
@@ -344,7 +345,7 @@ const StixRelationshipsDonut = ({
                   textAlign: 'center',
                 }}
               >
-                <CircularProgress size={40} thickness={2} />
+                <CircularProgress size={40} thickness={2}/>
               </span>
             </div>
           );

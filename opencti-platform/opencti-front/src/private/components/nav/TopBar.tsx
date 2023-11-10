@@ -1,18 +1,18 @@
-import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Badge } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom-v5-compat';
+import React, {FunctionComponent, useEffect, useMemo, useState} from 'react';
+import {useHistory} from 'react-router-dom';
+import {Badge} from '@mui/material';
+import {Link, useLocation} from 'react-router-dom-v5-compat';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import {
-  AccountCircleOutlined,
+  AccountCircleOutlined, BiotechOutlined,
   ContentPasteSearchOutlined,
   ExploreOutlined,
   InsertChartOutlined,
   NotificationsOutlined,
 } from '@mui/icons-material';
-import { DatabaseCogOutline } from 'mdi-material-ui';
+import {DatabaseCogOutline} from 'mdi-material-ui';
 import Menu from '@mui/material/Menu';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
@@ -23,11 +23,11 @@ import {
   usePreloadedQuery,
   useSubscription,
 } from 'react-relay';
-import { useTheme } from '@mui/styles';
+import {useTheme} from '@mui/styles';
 import makeStyles from '@mui/styles/makeStyles';
-import { GraphQLSubscriptionConfig } from 'relay-runtime';
-import { usePage } from 'use-analytics';
-import { useFormatter } from '../../../components/i18n';
+import {GraphQLSubscriptionConfig} from 'relay-runtime';
+import {usePage} from 'use-analytics';
+import {useFormatter} from '../../../components/i18n';
 import SearchInput from '../../../components/SearchInput';
 import TopMenuDashboard from './TopMenuDashboard';
 import TopMenuSearch from './TopMenuSearch';
@@ -65,7 +65,7 @@ import TopMenuPosition from './TopMenuPosition';
 import TopMenuData from './TopMenuData';
 import TopMenuSettings from './TopMenuSettings';
 import TopMenuTechniques from './TopMenuTechniques';
-import { APP_BASE_PATH, MESSAGING$ } from '../../../relay/environment';
+import {APP_BASE_PATH, MESSAGING$} from '../../../relay/environment';
 import Security from '../../../utils/Security';
 import TopMenuCourseOfAction from './TopMenuCourseOfAction';
 import TopMenuWorkspacesDashboards from './TopMenuWorkspacesDashboards';
@@ -83,7 +83,7 @@ import TopMenuCaseFeedback from './TopMenuCaseFeedback';
 import FeedbackCreation from '../cases/feedbacks/FeedbackCreation';
 import TopMenuCases from './TopMenuCases';
 import TopMenuMalwareAnalysis from './TopMenuMalwareAnalysis';
-import { Theme } from '../../../components/Theme';
+import {Theme} from '../../../components/Theme';
 import {
   EXPLORE,
   KNOWLEDGE,
@@ -91,7 +91,7 @@ import {
 } from '../../../utils/hooks/useGranted';
 import TopMenuProfile from '../profile/TopMenuProfile';
 import TopMenuNotifications from '../profile/TopMenuNotifications';
-import { TopBarQuery } from './__generated__/TopBarQuery.graphql';
+import {TopBarQuery} from './__generated__/TopBarQuery.graphql';
 import {
   TopBarNotificationNumberSubscription,
   TopBarNotificationNumberSubscription$data,
@@ -101,8 +101,9 @@ import TopMenuCaseRft from './TopMenuCaseRft';
 import TopMenuTask from './TopMenuTask';
 import TopMenuAudits from './TopMenuAudits';
 import useAuth from '../../../utils/hooks/useAuth';
-import { useSettingsMessagesBannerHeight } from '../settings/settings_messages/SettingsMessagesBanner';
+import {useSettingsMessagesBannerHeight} from '../settings/settings_messages/SettingsMessagesBanner';
 import useQueryLoading from '../../../utils/hooks/useQueryLoading';
+import {FiltersVariant} from '../../../utils/filters/filtersUtils';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   appBar: {
@@ -168,125 +169,125 @@ const topBarQuery = graphql`
 
 const routes = {
   // ME
-  '/dashboard/profile/me': () => <TopMenuProfile />,
-  '/dashboard/profile/': () => <TopMenuNotifications />,
+  '/dashboard/profile/me': () => <TopMenuProfile/>,
+  '/dashboard/profile/': () => <TopMenuNotifications/>,
   // CASES
   '/dashboard/cases/feedbacks/': (id: string) => (
-    <TopMenuCaseFeedback id={id} />
+    <TopMenuCaseFeedback id={id}/>
   ),
-  '/dashboard/cases/tasks/': (id: string) => <TopMenuTask id={id} />,
-  '/dashboard/cases/rfts/': (id: string) => <TopMenuCaseRft id={id} />,
-  '/dashboard/cases/rfis/': (id: string) => <TopMenuCaseRfi id={id} />,
+  '/dashboard/cases/tasks/': (id: string) => <TopMenuTask id={id}/>,
+  '/dashboard/cases/rfts/': (id: string) => <TopMenuCaseRft id={id}/>,
+  '/dashboard/cases/rfis/': (id: string) => <TopMenuCaseRfi id={id}/>,
   '/dashboard/cases/incidents/': (id: string) => (
-    <TopMenuCaseIncident id={id} />
+    <TopMenuCaseIncident id={id}/>
   ),
-  '/dashboard/cases': () => <TopMenuCases />,
+  '/dashboard/cases': () => <TopMenuCases/>,
   // ANALYSIS
-  '/dashboard/analyses/reports/': (id: string) => <TopMenuReport id={id} />,
-  '/dashboard/analyses/groupings/': (id: string) => <TopMenuGrouping id={id} />,
+  '/dashboard/analyses/reports/': (id: string) => <TopMenuReport id={id}/>,
+  '/dashboard/analyses/groupings/': (id: string) => <TopMenuGrouping id={id}/>,
   '/dashboard/analyses/malware_analyses/': (id: string) => (
-    <TopMenuMalwareAnalysis id={id} />
+    <TopMenuMalwareAnalysis id={id}/>
   ),
-  '/dashboard/analyses/notes/': (id: string) => <TopMenuNote id={id} />,
-  '/dashboard/analyses/opinions/': (id: string) => <TopMenuOpinion id={id} />,
+  '/dashboard/analyses/notes/': (id: string) => <TopMenuNote id={id}/>,
+  '/dashboard/analyses/opinions/': (id: string) => <TopMenuOpinion id={id}/>,
   '/dashboard/analyses/external_references/': (id: string) => (
-    <TopMenuExternalReference id={id} />
+    <TopMenuExternalReference id={id}/>
   ),
-  '/dashboard/analyses': () => <TopMenuAnalyses />,
+  '/dashboard/analyses': () => <TopMenuAnalyses/>,
   // EVENTS
-  '/dashboard/events/sightings/': () => <TopMenuEvents />,
+  '/dashboard/events/sightings/': () => <TopMenuEvents/>,
   '/dashboard/events/observed_data/': (id: string) => (
-    <TopMenuObservedData id={id} />
+    <TopMenuObservedData id={id}/>
   ),
-  '/dashboard/events/incidents/': (id: string) => <TopMenuIncident id={id} />,
-  '/dashboard/events': () => <TopMenuEvents />,
+  '/dashboard/events/incidents/': (id: string) => <TopMenuIncident id={id}/>,
+  '/dashboard/events': () => <TopMenuEvents/>,
   // OBSERVATIONS
   '/dashboard/observations/indicators/': (id: string) => (
-    <TopMenuIndicator id={id} />
+    <TopMenuIndicator id={id}/>
   ),
   '/dashboard/observations/infrastructures/': (id: string) => (
-    <TopMenuInfrastructure id={id} />
+    <TopMenuInfrastructure id={id}/>
   ),
   '/dashboard/observations/observables/': (id: string) => (
-    <TopMenuStixCyberObservable id={id} />
+    <TopMenuStixCyberObservable id={id}/>
   ),
   '/dashboard/observations/artifacts/': (id: string) => (
-    <TopMenuArtifact id={id} />
+    <TopMenuArtifact id={id}/>
   ),
-  '/dashboard/observations': () => <TopMenuObservations />,
+  '/dashboard/observations': () => <TopMenuObservations/>,
   // THREATS
-  '/dashboard/threats/campaigns/': (id: string) => <TopMenuCampaign id={id} />,
-  '/dashboard/threats': () => <TopMenuThreats />,
+  '/dashboard/threats/campaigns/': (id: string) => <TopMenuCampaign id={id}/>,
+  '/dashboard/threats': () => <TopMenuThreats/>,
   // ARSENAL
-  '/dashboard/arsenal/malwares/': (id: string) => <TopMenuMalware id={id} />,
-  '/dashboard/arsenal/tools/': (id: string) => <TopMenuTool id={id} />,
-  '/dashboard/arsenal/channels/': (id: string) => <TopMenuChannel id={id} />,
+  '/dashboard/arsenal/malwares/': (id: string) => <TopMenuMalware id={id}/>,
+  '/dashboard/arsenal/tools/': (id: string) => <TopMenuTool id={id}/>,
+  '/dashboard/arsenal/channels/': (id: string) => <TopMenuChannel id={id}/>,
   '/dashboard/arsenal/vulnerabilities/': (id: string) => (
-    <TopMenuVulnerability id={id} />
+    <TopMenuVulnerability id={id}/>
   ),
-  '/dashboard/arsenal': () => <TopMenuArsenal />,
+  '/dashboard/arsenal': () => <TopMenuArsenal/>,
   // ENTITIES
-  '/dashboard/entities/sectors/': (id: string) => <TopMenuSector id={id} />,
-  '/dashboard/entities/systems/': (id: string) => <TopMenuSystem id={id} />,
-  '/dashboard/entities/events/': (id: string) => <TopMenuEvent id={id} />,
+  '/dashboard/entities/sectors/': (id: string) => <TopMenuSector id={id}/>,
+  '/dashboard/entities/systems/': (id: string) => <TopMenuSystem id={id}/>,
+  '/dashboard/entities/events/': (id: string) => <TopMenuEvent id={id}/>,
   '/dashboard/entities/organizations/': (id: string) => (
-    <TopMenuOrganization id={id} />
+    <TopMenuOrganization id={id}/>
   ),
   '/dashboard/entities/individuals/': (id: string) => (
-    <TopMenuIndividual id={id} />
+    <TopMenuIndividual id={id}/>
   ),
-  '/dashboard/entities': () => <TopMenuEntities />,
+  '/dashboard/entities': () => <TopMenuEntities/>,
   // LOCATIONS
-  '/dashboard/locations/countries/': (id: string) => <TopMenuCountry id={id} />,
-  '/dashboard/locations/regions/': (id: string) => <TopMenuRegion id={id} />,
+  '/dashboard/locations/countries/': (id: string) => <TopMenuCountry id={id}/>,
+  '/dashboard/locations/regions/': (id: string) => <TopMenuRegion id={id}/>,
   '/dashboard/locations/administrative_areas/': (id: string) => (
-    <TopMenuAdministrativeArea id={id} />
+    <TopMenuAdministrativeArea id={id}/>
   ),
-  '/dashboard/locations/cities/': (id: string) => <TopMenuCity id={id} />,
+  '/dashboard/locations/cities/': (id: string) => <TopMenuCity id={id}/>,
   '/dashboard/locations/positions/': (id: string) => (
-    <TopMenuPosition id={id} />
+    <TopMenuPosition id={id}/>
   ),
-  '/dashboard/locations': () => <TopMenuLocation />,
+  '/dashboard/locations': () => <TopMenuLocation/>,
   // TECHNIQUES
   '/dashboard/techniques/attack_patterns/': (id: string) => (
-    <TopMenuAttackPattern id={id} />
+    <TopMenuAttackPattern id={id}/>
   ),
   '/dashboard/techniques/narratives/': (id: string) => (
-    <TopMenuNarrative id={id} />
+    <TopMenuNarrative id={id}/>
   ),
   '/dashboard/techniques/courses_of_action/': (id: string) => (
-    <TopMenuCourseOfAction id={id} />
+    <TopMenuCourseOfAction id={id}/>
   ),
   '/dashboard/techniques/data_components/': (id: string) => (
-    <TopMenuDataComponent id={id} />
+    <TopMenuDataComponent id={id}/>
   ),
   '/dashboard/techniques/data_sources/': (id: string) => (
-    <TopMenuDataSource id={id} />
+    <TopMenuDataSource id={id}/>
   ),
-  '/dashboard/techniques': () => <TopMenuTechniques />,
-  '/dashboard/data': () => <TopMenuData />,
-  '/dashboard/activity': () => <TopMenuAudits />,
-  '/dashboard/settings': () => <TopMenuSettings />,
-  '/dashboard/workspaces/dashboards': () => <TopMenuWorkspacesDashboards />,
+  '/dashboard/techniques': () => <TopMenuTechniques/>,
+  '/dashboard/data': () => <TopMenuData/>,
+  '/dashboard/activity': () => <TopMenuAudits/>,
+  '/dashboard/settings': () => <TopMenuSettings/>,
+  '/dashboard/workspaces/dashboards': () => <TopMenuWorkspacesDashboards/>,
   '/dashboard/workspaces/investigations': () => (
-    <TopMenuWorkspacesInvestigations />
+    <TopMenuWorkspacesInvestigations/>
   ),
-  '/dashboard/search': () => <TopMenuSearch />,
-  '/dashboard/import': () => <TopMenuImport />,
-  '/dashboard': () => <TopMenuDashboard />,
+  '/dashboard/search': () => <TopMenuSearch/>,
+  '/dashboard/import': () => <TopMenuImport/>,
+  '/dashboard': () => <TopMenuDashboard/>,
 };
 
 const TopBarComponent: FunctionComponent<TopBarProps> = ({
-  queryRef,
-  keyword,
-}) => {
+                                                           queryRef,
+                                                           keyword,
+                                                         }) => {
   const theme = useTheme<Theme>();
   const history = useHistory();
   const location = useLocation();
   const classes = useStyles();
-  const { t } = useFormatter();
+  const {t} = useFormatter();
   const {
-    bannerSettings: { bannerHeightNumber },
+    bannerSettings: {bannerHeightNumber},
   } = useAuth();
   const settingsMessagesBannerHeight = useSettingsMessagesBannerHeight();
   const [notificationsNumber, setNotificationsNumber] = useState<null | number>(
@@ -303,7 +304,7 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
     ? notificationsNumber > 0
     : (data.myUnreadNotificationsCount ?? 0) > 0;
   const subConfig = useMemo<
-  GraphQLSubscriptionConfig<TopBarNotificationNumberSubscription>
+    GraphQLSubscriptionConfig<TopBarNotificationNumberSubscription>
   >(
     () => ({
       subscription: topBarNotificationNumberSubscription,
@@ -330,17 +331,17 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
   const [menuOpen, setMenuOpen] = useState<{
     open: boolean;
     anchorEl: HTMLButtonElement | null;
-  }>({ open: false, anchorEl: null });
+  }>({open: false, anchorEl: null});
   const [openDrawer, setOpenDrawer] = useState(false);
-
+  
   const handleOpenMenu = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     event.preventDefault();
-    setMenuOpen({ open: true, anchorEl: event.currentTarget });
+    setMenuOpen({open: true, anchorEl: event.currentTarget});
   };
   const handleCloseMenu = () => {
-    setMenuOpen({ open: false, anchorEl: null });
+    setMenuOpen({open: false, anchorEl: null});
   };
   const handleSearch = (searchKeyword: string) => {
     if (searchKeyword.length > 0) {
@@ -358,10 +359,10 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
     setOpenDrawer(false);
     handleCloseMenu();
   };
-
+  
   const extractId = (path = '') => location.pathname.split(path)[1].split('/')[0];
   const [routePath, routeFn] = Object.entries(routes).find(([path]) => location.pathname.includes(path))
-    ?? [];
+  ?? [];
   return (
     <AppBar
       position="fixed"
@@ -371,7 +372,7 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
     >
       {/* Header and Footer Banners containing classification level of system */}
       <Toolbar
-        style={{ marginTop: bannerHeightNumber + settingsMessagesBannerHeight }}
+        style={{marginTop: bannerHeightNumber + settingsMessagesBannerHeight}}
       >
         <div className={classes.logoContainer}>
           <Link to="/dashboard">
@@ -395,33 +396,21 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
                   variant="topBar"
                   placeholder={`${t('Search the platform')}...`}
                 />
-                <Filters
-                  variant="dialog"
-                  availableFilterKeys={[
-                    'entity_type',
-                    'objectLabel',
-                    'objectMarking',
-                    'createdBy',
-                    'source_reliability',
-                    'confidence',
-                    'x_opencti_organization_type',
-                    'creator_id',
-                    'created',
-                    'created_at',
-                  ]}
-                  disabled={location.pathname.includes('/dashboard/search/')}
-                  size={undefined}
-                  fontSize={undefined}
-                  noDirectFilters={undefined}
-                  availableEntityTypes={undefined}
-                  availableRelationshipTypes={undefined}
-                  allEntityTypes={undefined}
-                  handleAddFilter={undefined}
-                  handleRemoveFilter={undefined}
-                  handleSwitchFilter={undefined}
-                  type={undefined}
-                  availableRelationFilterTypes={undefined}
-                />
+                <Tooltip title={t('Advanced search')}>
+                  <IconButton
+                    component={Link}
+                    to="/dashboard/search"
+                    color={
+                      location.pathname.includes('/dashboard/search')
+                      && !location.pathname.includes('/dashboard/search_bulk')
+                        ? 'secondary'
+                        : 'default'
+                    }
+                    size={'medium'}
+                  >
+                    <BiotechOutlined fontSize={'medium'}/>
+                  </IconButton>
+                </Tooltip>
                 <Tooltip title={t('Bulk search')}>
                   <IconButton
                     component={Link}
@@ -433,11 +422,11 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
                     }
                     size="medium"
                   >
-                    <ContentPasteSearchOutlined fontSize="medium" />
+                    <ContentPasteSearchOutlined fontSize="medium"/>
                   </IconButton>
                 </Tooltip>
               </div>
-              <Divider className={classes.divider} orientation="vertical" />
+              <Divider className={classes.divider} orientation="vertical"/>
             </React.Fragment>
           </Security>
           <div className={classes.barRightContainer}>
@@ -456,7 +445,7 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
                     }
                     size="medium"
                   >
-                    <InsertChartOutlined fontSize="medium" />
+                    <InsertChartOutlined fontSize="medium"/>
                   </IconButton>
                 </Tooltip>
                 <Tooltip title={t('Investigations')}>
@@ -472,7 +461,7 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
                     }
                     size="medium"
                   >
-                    <ExploreOutlined fontSize="medium" />
+                    <ExploreOutlined fontSize="medium"/>
                   </IconButton>
                 </Tooltip>
               </React.Fragment>
@@ -489,7 +478,7 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
                   }
                   size="medium"
                 >
-                  <DatabaseCogOutline fontSize="medium" />
+                  <DatabaseCogOutline fontSize="medium"/>
                 </IconButton>
               </Tooltip>
             </Security>
@@ -497,7 +486,7 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
               <Tooltip title={t('Notifications and triggers')}>
                 <IconButton
                   size="medium"
-                  classes={{ root: classes.button }}
+                  classes={{root: classes.button}}
                   aria-haspopup="true"
                   component={Link}
                   to="/dashboard/profile/notifications"
@@ -515,14 +504,14 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
                     variant="dot"
                     invisible={!isNewNotification}
                   >
-                    <NotificationsOutlined fontSize="medium" />
+                    <NotificationsOutlined fontSize="medium"/>
                   </Badge>
                 </IconButton>
               </Tooltip>
             </Security>
             <IconButton
               size="medium"
-              classes={{ root: classes.button }}
+              classes={{root: classes.button}}
               aria-owns={menuOpen.open ? 'menu-appbar' : undefined}
               aria-haspopup="true"
               id="profile-menu-button"
@@ -533,7 +522,7 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
                   : 'default'
               }
             >
-              <AccountCircleOutlined fontSize="medium" />
+              <AccountCircleOutlined fontSize="medium"/>
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -569,8 +558,8 @@ const TopBarComponent: FunctionComponent<TopBarProps> = ({
 };
 
 const TopBar: FunctionComponent<Omit<TopBarProps, 'queryRef'>> = ({
-  keyword,
-}) => {
+                                                                    keyword,
+                                                                  }) => {
   const queryRef = useQueryLoading<TopBarQuery>(topBarQuery, {});
   const classes = useStyles();
   return (
@@ -586,7 +575,7 @@ const TopBar: FunctionComponent<Omit<TopBarProps, 'queryRef'>> = ({
             />
           }
         >
-          <TopBarComponent queryRef={queryRef} keyword={keyword} />
+          <TopBarComponent queryRef={queryRef} keyword={keyword}/>
         </React.Suspense>
       )}
     </>

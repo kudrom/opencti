@@ -1,10 +1,10 @@
 import React from 'react';
-import { QueryRenderer } from '../../../relay/environment';
+import {QueryRenderer} from '../../../relay/environment';
 import ListLines from '../../../components/list_lines/ListLines';
 import StixSightingRelationshipsLines, {
   stixSightingRelationshipsLinesQuery,
 } from './stix_sighting_relationships/StixSightingRelationshipsLines';
-import { usePaginationLocalStorage } from '../../../utils/hooks/useLocalStorage';
+import {usePaginationLocalStorage} from '../../../utils/hooks/useLocalStorage';
 import {
   StixSightingRelationshipsLinesPaginationQuery$data,
   StixSightingRelationshipsLinesPaginationQuery$variables,
@@ -86,7 +86,7 @@ const StixSightingRelationships = () => {
       openExports: false,
     },
   );
-
+  
   const {
     numberOfElements,
     filters,
@@ -95,7 +95,7 @@ const StixSightingRelationships = () => {
     orderAsc,
     openExports,
   } = viewStorage;
-
+  
   const {
     onToggleEntity,
     numberOfSelectedElements,
@@ -105,9 +105,9 @@ const StixSightingRelationships = () => {
     handleToggleSelectAll,
     selectAll,
   } = useEntityToggle<StixSightingRelationshipLine_node$data>(LOCAL_STORAGE_KEY);
-
+  
   const renderLines = (
-    paginationOptions : StixSightingRelationshipsLinesPaginationQuery$variables,
+    paginationOptions: StixSightingRelationshipsLinesPaginationQuery$variables,
   ) => {
     const toolBarFilters = filtersWithEntityType(filters, 'stix-sighting-relationship');
     return (
@@ -147,10 +147,10 @@ const StixSightingRelationships = () => {
         >
           <QueryRenderer
             query={stixSightingRelationshipsLinesQuery}
-            variables={paginationOptions}
+            variables={rawPaginationOptions}
             render={({
-              props,
-            }: {
+                       props,
+                     }: {
               props: StixSightingRelationshipsLinesPaginationQuery$data;
             }) => (
               <StixSightingRelationshipsLines
@@ -181,7 +181,7 @@ const StixSightingRelationships = () => {
       </>
     );
   };
-
+  
   // As toSightingId must be converted to a connection nested filter in backend
   // we need to remove it from the filters and use a specific api parameter instead
   let toSightingId: string | undefined;

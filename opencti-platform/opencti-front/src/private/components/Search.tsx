@@ -1,37 +1,37 @@
-import React, { useState } from 'react';
-import { KeyboardDoubleArrowDownOutlined } from '@mui/icons-material';
+import React, {useState} from 'react';
+import {KeyboardDoubleArrowDownOutlined} from '@mui/icons-material';
 import Typography from '@mui/material/Typography';
-import { SearchStixCoreObjectLineDummy } from '@components/search/SearchStixCoreObjectLine';
+import {SearchStixCoreObjectLineDummy} from '@components/search/SearchStixCoreObjectLine';
 import {
-    SearchStixCoreObjectLine_node$data,
+  SearchStixCoreObjectLine_node$data,
 } from '@components/search/__generated__/SearchStixCoreObjectLine_node.graphql';
 import {
-    SearchStixCoreObjectsLinesPaginationQuery,
-    SearchStixCoreObjectsLinesPaginationQuery$variables,
+  SearchStixCoreObjectsLinesPaginationQuery,
+  SearchStixCoreObjectsLinesPaginationQuery$variables,
 } from '@components/search/__generated__/SearchStixCoreObjectsLinesPaginationQuery.graphql';
-import { useParams } from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 import Button from '@mui/material/Button';
 import SearchIndexedFiles from '@components/search/SearchIndexedFiles';
 import TopBar from './nav/TopBar';
 import ListLines from '../../components/list_lines/ListLines';
 import ToolBar from './data/ToolBar';
-import SearchStixCoreObjectsLines, { searchStixCoreObjectsLinesQuery } from './search/SearchStixCoreObjectsLines';
+import SearchStixCoreObjectsLines, {searchStixCoreObjectsLinesQuery} from './search/SearchStixCoreObjectsLines';
 import ExportContextProvider from '../../utils/ExportContextProvider';
-import { usePaginationLocalStorage } from '../../utils/hooks/useLocalStorage';
+import {usePaginationLocalStorage} from '../../utils/hooks/useLocalStorage';
 import useEntityToggle from '../../utils/hooks/useEntityToggle';
 import useQueryLoading from '../../utils/hooks/useQueryLoading';
 import useAuth from '../../utils/hooks/useAuth';
-import { useFormatter } from '../../components/i18n';
-import { initialFilterGroup } from '../../utils/filters/filtersUtils';
+import {useFormatter} from '../../components/i18n';
+import {initialFilterGroup} from '../../utils/filters/filtersUtils';
 
 const LOCAL_STORAGE_KEY = 'search';
 
 const Search = () => {
   const {
-    platformModuleHelpers: { isRuntimeFieldEnable, isFileIndexManagerEnable },
+    platformModuleHelpers: {isRuntimeFieldEnable, isFileIndexManagerEnable},
   } = useAuth();
-  const { t } = useFormatter();
-  const { keyword } = useParams() as { keyword: string };
+  const {t} = useFormatter();
+  const {keyword} = useParams() as { keyword: string };
   let searchTerm = '';
   try {
     searchTerm = decodeURIComponent(keyword || '');
@@ -39,7 +39,7 @@ const Search = () => {
     // Do nothing
   }
   const fileSearchEnabled = isFileIndexManagerEnable();
-  const { viewStorage, helpers: storageHelpers, paginationOptions } = usePaginationLocalStorage<SearchStixCoreObjectsLinesPaginationQuery$variables>(
+  const {viewStorage, helpers: storageHelpers, paginationOptions} = usePaginationLocalStorage<SearchStixCoreObjectsLinesPaginationQuery$variables>(
     LOCAL_STORAGE_KEY,
     {
       sortBy: '_score',
@@ -64,16 +64,16 @@ const Search = () => {
     onToggleEntity,
     numberOfSelectedElements,
   } = useEntityToggle<SearchStixCoreObjectLine_node$data>(LOCAL_STORAGE_KEY);
-
+  
   const queryRef = useQueryLoading<SearchStixCoreObjectsLinesPaginationQuery>(
     searchStixCoreObjectsLinesQuery,
-    { ...paginationOptions, search: searchTerm },
+    {...paginationOptions, search: searchTerm},
   );
   const [searchOpen, setSearchOpen] = useState(false);
   const handleSearchIndexFiles = () => {
     setSearchOpen(true);
   };
-
+  
   const renderLines = () => {
     const isRuntimeSort = isRuntimeFieldEnable() ?? false;
     const dataColumns = {
@@ -118,105 +118,106 @@ const Search = () => {
         isSortable: isRuntimeSort,
       },
     };
-
+    
     return (
-        <>
+      <>
         <ListLines
-              sortBy={sortBy}
-              orderAsc={orderAsc}
-              dataColumns={dataColumns}
-              handleSort={storageHelpers.handleSort}
-              handleAddFilter={storageHelpers.handleAddFilter}
-              handleRemoveFilter={storageHelpers.handleRemoveFilter}
-              handleSwitchGlobalMode={storageHelpers.handleSwitchGlobalMode}
-              handleSwitchLocalMode={storageHelpers.handleSwitchLocalMode}
-              handleChangeView={storageHelpers.handleChangeView}
-              handleToggleSelectAll={handleToggleSelectAll}
-              handleToggleExports={storageHelpers.handleToggleExports}
-              openExports={openExports}
-              exportEntityType="Stix-Core-Object"
-              selectAll={selectAll}
-              disableCards={true}
-              filters={filters}
-              paginationOptions={paginationOptions}
-              numberOfElements={numberOfElements}
-              iconExtension={true}
-              availableFilterKeys={[
-                'entity_type',
-                'objectLabel',
-                'objectMarking',
-                'createdBy',
-                'source_reliability',
-                'confidence',
-                'x_opencti_organization_type',
-                'creator_id',
-                'created',
-                'created_at',
-              ]}
+          sortBy={sortBy}
+          orderAsc={orderAsc}
+          dataColumns={dataColumns}
+          handleSort={storageHelpers.handleSort}
+          handleAddFilter={storageHelpers.handleAddFilter}
+          handleRemoveFilter={storageHelpers.handleRemoveFilter}
+          handleSwitchGlobalMode={storageHelpers.handleSwitchGlobalMode}
+          handleSwitchLocalMode={storageHelpers.handleSwitchLocalMode}
+          handleChangeView={storageHelpers.handleChangeView}
+          handleToggleSelectAll={handleToggleSelectAll}
+          handleToggleExports={storageHelpers.handleToggleExports}
+          openExports={openExports}
+          exportEntityType="Stix-Core-Object"
+          selectAll={selectAll}
+          disableCards={true}
+          filters={filters}
+          paginationOptions={paginationOptions}
+          numberOfElements={numberOfElements}
+          iconExtension={true}
+          availableFilterKeys={[
+            'entity_type',
+            'objectLabel',
+            'objectMarking',
+            'createdBy',
+            'source_reliability',
+            'confidence',
+            'x_opencti_organization_type',
+            'creator_id',
+            'created',
+            'created_at',
+          ]}
+        >
+          {queryRef && (
+            <React.Suspense
+              fallback={
+                <>
+                  {Array(20)
+                    .fill(0)
+                    .map((idx) => (
+                      <SearchStixCoreObjectLineDummy key={idx} dataColumns={dataColumns}/>
+                    ))}
+                </>
+              }
             >
-              {queryRef && (
-                  <React.Suspense
-                      fallback={
-                        <>
-                          {Array(20)
-                            .fill(0)
-                            .map((idx) => (
-                                  <SearchStixCoreObjectLineDummy key={idx} dataColumns={dataColumns} />
-                            ))}
-                        </>
-                      }
-                  >
-                  <SearchStixCoreObjectsLines
-                      queryRef={queryRef}
-                      paginationOptions={paginationOptions}
-                      dataColumns={dataColumns}
-                      onLabelClick={storageHelpers.handleAddFilter}
-                      selectedElements={selectedElements}
-                      deSelectedElements={deSelectedElements}
-                      onToggleEntity={onToggleEntity}
-                      selectAll={selectAll}
-                      setNumberOfElements={storageHelpers.handleSetNumberOfElements}
-                  />
-                <ToolBar
-                  selectedElements={selectedElements}
-                  deSelectedElements={deSelectedElements}
-                  numberOfSelectedElements={numberOfSelectedElements}
-                  selectAll={selectAll}
-                  filters={filters}
-                  search={paginationOptions.search}
-                  handleClearSelectedElements={handleClearSelectedElements}
-                />
-              </React.Suspense>
-              )}
+              <SearchStixCoreObjectsLines
+                queryRef={queryRef}
+                paginationOptions={paginationOptions}
+                dataColumns={dataColumns}
+                onLabelClick={storageHelpers.handleAddFilter}
+                selectedElements={selectedElements}
+                deSelectedElements={deSelectedElements}
+                onToggleEntity={onToggleEntity}
+                selectAll={selectAll}
+                setNumberOfElements={storageHelpers.handleSetNumberOfElements}
+              />
+              <ToolBar
+                selectedElements={selectedElements}
+                deSelectedElements={deSelectedElements}
+                numberOfSelectedElements={numberOfSelectedElements}
+                selectAll={selectAll}
+                filters={filters}
+                search={paginationOptions.search}
+                handleClearSelectedElements={handleClearSelectedElements}
+              />
+            </React.Suspense>
+          )}
         </ListLines>
-        </>
+      </>
     );
   };
   return (
-      <ExportContextProvider>
-        <div>
-          <TopBar keyword={searchTerm} />
-          <Typography
-            variant="h1"
-            gutterBottom={true}
-            style={{ margin: '-5px 20px 0 0', float: 'left' }}
-          >
-            {t('Search for an entity')}
-          </Typography>
-          {renderLines()}
-          {fileSearchEnabled && searchTerm && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <Button
-                size="small"
-                onClick={handleSearchIndexFiles}
-              >
-                <KeyboardDoubleArrowDownOutlined /> {t('Extend this search to indexed files')} <KeyboardDoubleArrowDownOutlined />
-              </Button>
-            </div>
-          )}
-          { searchOpen ? (<SearchIndexedFiles search={searchTerm}/>) : ('')}
-        </div>
-      </ExportContextProvider>
+    <ExportContextProvider>
+      <div>
+        <TopBar keyword={searchTerm}/>
+        <Typography
+          variant="h1"
+          gutterBottom={true}
+          sx={{paddingBottom: '16px'}}
+        >
+          {t('Search for an entity')}
+        </Typography>
+        {renderLines()}
+        {fileSearchEnabled && searchTerm && (
+          <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <Button
+              size="small"
+              onClick={handleSearchIndexFiles}
+            >
+              <KeyboardDoubleArrowDownOutlined/> {t('Extend this search to indexed files')}
+              <KeyboardDoubleArrowDownOutlined/>
+            </Button>
+          </div>
+        )}
+        {searchOpen ? (<SearchIndexedFiles search={searchTerm}/>) : ('')}
+      </div>
+    </ExportContextProvider>
   );
 };
 

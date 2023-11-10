@@ -43,8 +43,10 @@ import inject18n from '../i18n';
 import StixDomainObjectsExports from '../../private/components/common/stix_domain_objects/StixDomainObjectsExports';
 import Security from '../../utils/Security';
 import { KNOWLEDGE_KNGETEXPORT } from '../../utils/hooks/useGranted';
-import StixCyberObservablesExports from '../../private/components/observations/stix_cyber_observables/StixCyberObservablesExports';
-import StixCoreRelationshipsExports from '../../private/components/common/stix_core_relationships/StixCoreRelationshipsExports';
+import StixCyberObservablesExports
+  from '../../private/components/observations/stix_cyber_observables/StixCyberObservablesExports';
+import StixCoreRelationshipsExports
+  from '../../private/components/common/stix_core_relationships/StixCoreRelationshipsExports';
 import StixCoreObjectsExports from '../../private/components/common/stix_core_objects/StixCoreObjectsExports';
 import FilterIconButton from '../FilterIconButton';
 import { ExportContext } from '../../utils/ExportContextProvider';
@@ -67,8 +69,12 @@ const styles = (theme) => ({
     padding: '0 0 0 0',
   },
   parameters: {
-    float: 'left',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
     marginTop: -10,
+    paddingBottom: 10,
+    flexWrap: 'wrap',
   },
   parametersWithPadding: {
     padding: '0 0 0 15px',
@@ -134,18 +140,18 @@ class ListLines extends Component {
   }
 
   renderHeaderElement(field, label, width, isSortable) {
-    const { classes, t, sortBy, orderAsc, handleToggleSelectAll } = this.props;
+    const { classes, t, sortBy, orderAsc, _ } = this.props;
     if (isSortable) {
       const orderComponent = orderAsc ? (
-        <ArrowDropDown classes={{ root: classes.sortIcon }} />
+        <ArrowDropDown classes={{ root: classes.sortIcon }}/>
       ) : (
-        <ArrowDropUp classes={{ root: classes.sortIcon }} />
+        <ArrowDropUp classes={{ root: classes.sortIcon }}/>
       );
       return (
         <div
           key={field}
           className={classes.sortableHeaderItem}
-          style={{ width, paddingTop: handleToggleSelectAll ? 3 : 0 }}
+          style={{ width }}
           onClick={this.reverseBy.bind(this, field)}
         >
           <div className={classes.headerItemText}>{t(label)}</div>
@@ -208,10 +214,11 @@ class ListLines extends Component {
       parametersWithPadding,
       searchContext,
       handleExportCsv,
+      noDirectFilters,
     } = this.props;
     const exportDisabled = numberOfElements
       && ((selectedIds.length > export_max_size
-        && numberOfElements.number > export_max_size)
+          && numberOfElements.number > export_max_size)
         || (selectedIds.length === 0
           && numberOfElements.number > export_max_size));
     const searchContextFinal = {
@@ -223,42 +230,44 @@ class ListLines extends Component {
         className={noPadding ? classes.containerNoPadding : classes.container}
       >
         {!this.props.inline && (
-          <div
-            className={
-              parametersWithPadding
-                ? classes.parametersWithPadding
-                : classes.parameters
-            }
-          >
-            {typeof handleSearch === 'function' && (
-              <div style={{ float: 'left', marginRight: 20 }}>
+          <>
+            <div
+              className={
+                parametersWithPadding
+                  ? classes.parametersWithPadding
+                  : classes.parameters
+              }
+            >
+              {typeof handleSearch === 'function' && (
                 <SearchInput
                   variant={searchVariant || 'small'}
                   onSubmit={handleSearch.bind(this)}
                   keyword={keyword}
                 />
-              </div>
-            )}
-            {extraFields}
-            {availableFilterKeys && availableFilterKeys.length > 0 && (
-              <Filters
-                searchContext={searchContextFinal}
-                availableFilterKeys={availableFilterKeys}
-                handleAddFilter={handleAddFilter}
-                handleSwitchFilter={handleSwitchFilter}
-                handleRemoveFilter={handleRemoveFilter}
-                handleSwitchGlobalMode={handleSwitchGlobalMode}
-                handleSwitchLocalMode={handleSwitchLocalMode}
-                availableEntityTypes={availableEntityTypes}
-                availableRelationshipTypes={availableRelationshipTypes}
-                availableRelationFilterTypes={availableRelationFilterTypes}
-              />
-            )}
-            {(!availableFilterKeys || availableFilterKeys.length === 0)
-              && !noHeaders
-              && !noFilters
-              && <div style={{ height: 38 }}> &nbsp; </div>
-            }
+              )}
+              {extraFields}
+              {availableFilterKeys && availableFilterKeys.length > 0 && (
+                <Filters
+                  noDirectFilters={noDirectFilters}
+                  searchContext={searchContextFinal}
+                  availableFilterKeys={availableFilterKeys}
+                  handleAddFilter={handleAddFilter}
+                  handleSwitchFilter={handleSwitchFilter}
+                  handleRemoveFilter={handleRemoveFilter}
+                  handleSwitchGlobalMode={handleSwitchGlobalMode}
+                  handleSwitchLocalMode={handleSwitchLocalMode}
+                  availableEntityTypes={availableEntityTypes}
+                  availableRelationshipTypes={availableRelationshipTypes}
+                  availableRelationFilterTypes={availableRelationFilterTypes}
+                />
+              )}
+              {(!availableFilterKeys || availableFilterKeys.length === 0)
+                && !noHeaders
+                && !noFilters
+                && <div style={{ height: 38 }}> &nbsp; </div>
+              }
+
+            </div>
             {filters
               && <FilterIconButton
                 availableFilterKeys={availableFilterKeys}
@@ -269,10 +278,10 @@ class ListLines extends Component {
                 redirection
               />
             }
-          </div>
+          </>
         )}
         <div className={classes.views}>
-          <div style={{ float: 'right', marginTop: -20 }}>
+          <div>
             {numberOfElements && (
               <div
                 style={
@@ -307,7 +316,7 @@ class ListLines extends Component {
                 {typeof handleChangeView === 'function' && !disableCards && (
                   <ToggleButton value="cards" aria-label="cards">
                     <Tooltip title={t('Cards view')}>
-                      <ViewModuleOutlined fontSize="small" color="primary" />
+                      <ViewModuleOutlined fontSize="small" color="primary"/>
                     </Tooltip>
                   </ToggleButton>
                 )}
@@ -359,14 +368,14 @@ class ListLines extends Component {
                 {typeof handleChangeView === 'function' && enableGraph && (
                   <ToggleButton value="graph" aria-label="graph">
                     <Tooltip title={t('Graph view')}>
-                      <VectorPolygon fontSize="small" color="primary" />
+                      <VectorPolygon fontSize="small" color="primary"/>
                     </Tooltip>
                   </ToggleButton>
                 )}
                 {typeof handleChangeView === 'function' && enableNestedView && (
                   <ToggleButton value="nested" aria-label="nested">
                     <Tooltip title={t('Nested view')}>
-                      <FormatListGroup fontSize="small" color="primary" />
+                      <FormatListGroup fontSize="small" color="primary"/>
                     </Tooltip>
                   </ToggleButton>
                 )}
@@ -394,7 +403,7 @@ class ListLines extends Component {
                     aria-label="settings"
                   >
                     <Tooltip title={t('List settings')}>
-                      <SettingsOutlined fontSize="small" color="primary" />
+                      <SettingsOutlined fontSize="small" color="primary"/>
                     </Tooltip>
                   </ToggleButton>
                 )}
@@ -416,7 +425,7 @@ class ListLines extends Component {
                     aria-label="export"
                   >
                     <Tooltip title={t('Export first 5000 rows in CSV')}>
-                      <FileDelimitedOutline fontSize="small" color="primary" />
+                      <FileDelimitedOutline fontSize="small" color="primary"/>
                     </Tooltip>
                   </ToggleButton>
                 )}
@@ -436,7 +445,7 @@ class ListLines extends Component {
                           aria-label="export"
                           disabled={true}
                         >
-                          <FileDownloadOutlined fontSize="small" />
+                          <FileDownloadOutlined fontSize="small"/>
                         </ToggleButton>
                       </span>
                     </Tooltip>
@@ -445,7 +454,7 @@ class ListLines extends Component {
             )}
           </div>
         </div>
-        <div className="clearfix" />
+        <div className="clearfix"/>
         {message && (
           <div style={{ width: '100%', marginTop: 10 }}>
             <Alert

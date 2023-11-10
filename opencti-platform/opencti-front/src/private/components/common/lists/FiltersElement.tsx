@@ -1,13 +1,13 @@
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
-import React, { FunctionComponent } from 'react';
+import React, {FunctionComponent} from 'react';
 import makeStyles from '@mui/styles/makeStyles';
-import { useFormatter } from '../../../../components/i18n';
-import { dateFilters, directFilters, FiltersVariant } from '../../../../utils/filters/filtersUtils';
+import {useFormatter} from '../../../../components/i18n';
+import {dateFilters, directFilters, FiltersVariant} from '../../../../utils/filters/filtersUtils';
 import FilterDate from './FilterDate';
 import FilterAutocomplete from './FilterAutocomplete';
-import { Theme } from '../../../../components/Theme';
-import { HandleAddFilter } from '../../../../utils/hooks/useLocalStorage';
+import {Theme} from '../../../../components/Theme';
+import {HandleAddFilter} from '../../../../utils/hooks/useLocalStorage';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   helpertext: {
@@ -23,11 +23,22 @@ export interface FiltersElementProps {
   variant?: string;
   keyword: string;
   availableFilterKeys: string[];
-  searchContext: { entityTypes: string[], elementId?: string[] };
+  searchContext: {
+    entityTypes: string[],
+    elementId?: string[]
+  };
   handleChangeKeyword: (event: React.ChangeEvent) => void;
   noDirectFilters?: boolean;
-  setInputValues: (value: FilterElementsInputValue[]) => void;
-  inputValues: FilterElementsInputValue[];
+  setInputValues: (value: {
+    key: string,
+    values: (string | Date)[],
+    operator?: string
+  }[]) => void;
+  inputValues: {
+    key: string,
+    values: (string | Date)[],
+    operator?: string
+  }[];
   defaultHandleAddFilter: HandleAddFilter;
   availableEntityTypes?: string[];
   availableRelationshipTypes?: string[];
@@ -36,35 +47,35 @@ export interface FiltersElementProps {
 }
 
 const FiltersElement: FunctionComponent<FiltersElementProps> = ({
-  variant,
-  keyword,
-  availableFilterKeys,
-  searchContext,
-  handleChangeKeyword,
-  noDirectFilters,
-  setInputValues,
-  inputValues,
-  defaultHandleAddFilter,
-  availableEntityTypes,
-  availableRelationshipTypes,
-  availableRelationFilterTypes,
-  allEntityTypes,
-}) => {
-  const { t } = useFormatter();
+                                                                  variant,
+                                                                  keyword,
+                                                                  availableFilterKeys,
+                                                                  searchContext,
+                                                                  handleChangeKeyword,
+                                                                  noDirectFilters,
+                                                                  setInputValues,
+                                                                  inputValues,
+                                                                  defaultHandleAddFilter,
+                                                                  availableEntityTypes,
+                                                                  availableRelationshipTypes,
+                                                                  availableRelationFilterTypes,
+                                                                  allEntityTypes,
+                                                                }) => {
+  const {t} = useFormatter();
   const classes = useStyles();
   const displayedFilters = availableFilterKeys
     .filter((n) => noDirectFilters || !directFilters.includes(n))
     .map((key) => {
       if (dateFilters.includes(key)) {
         if (key === 'valid_until') {
-          return [{ key, operator: 'lt' }];
+          return [{key, operator: 'lt'}];
         }
         if (key === 'valid_from') {
-          return [{ key, operator: 'gt' }];
+          return [{key, operator: 'gt'}];
         }
-        return [{ key, operator: 'gt' }, { key, operator: 'lt' }];
+        return [{key, operator: 'gt'}, {key, operator: 'lt'}];
       }
-      return { key, operator: undefined };
+      return {key, operator: undefined};
     })
     .flat();
   return (

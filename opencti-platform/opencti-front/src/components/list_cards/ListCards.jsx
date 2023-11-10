@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import * as PropTypes from 'prop-types';
-import { compose, toPairs } from 'ramda';
+import {compose, toPairs} from 'ramda';
 import withStyles from '@mui/styles/withStyles';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
@@ -22,38 +22,25 @@ import SearchInput from '../SearchInput';
 import inject18n from '../i18n';
 import StixDomainObjectsExports from '../../private/components/common/stix_domain_objects/StixDomainObjectsExports';
 import Security from '../../utils/Security';
-import { KNOWLEDGE_KNGETEXPORT } from '../../utils/hooks/useGranted';
+import {KNOWLEDGE_KNGETEXPORT} from '../../utils/hooks/useGranted';
 import FilterIconButton from '../FilterIconButton';
-import { export_max_size } from '../../utils/utils';
+import {export_max_size} from '../../utils/utils';
 
 const styles = () => ({
-  container: {
-    marginLeft: -10,
-  },
   parameters: {
-    float: 'left',
-    margin: '-10px 0 0 15px',
-  },
-  views: {
+    gap: '10px',
     display: 'flex',
-    float: 'right',
+    flexWrap: 'wrap',
+    marginTop: '-10px',
+    alignItems: 'center',
+    paddingBottom: '10px'
   },
   cardsContainer: {
     marginTop: 10,
     paddingTop: 0,
   },
-  sortField: {
-    float: 'left',
-    marginTop: 2,
-  },
   sortFieldLabel: {
-    margin: '10px 15px 0 0',
     fontSize: 14,
-    float: 'left',
-  },
-  sortIcon: {
-    float: 'left',
-    margin: '-3px 0 0 15px',
   },
 });
 
@@ -61,11 +48,11 @@ class ListCards extends Component {
   sortBy(event) {
     this.props.handleSort(event.target.value, this.props.orderAsc);
   }
-
+  
   reverse() {
     this.props.handleSort(this.props.sortBy, !this.props.orderAsc);
   }
-
+  
   render() {
     const {
       t,
@@ -92,15 +79,13 @@ class ListCards extends Component {
     } = this.props;
     const exportDisabled = numberOfElements && numberOfElements.number > export_max_size;
     return (
-      <div className={classes.container}>
+      <div>
         <div className={classes.parameters}>
-          <div style={{ float: 'left', marginRight: 20 }}>
-            <SearchInput
-              variant="small"
-              onSubmit={handleSearch.bind(this)}
-              keyword={keyword}
-            />
-          </div>
+          <SearchInput
+            variant="small"
+            onSubmit={handleSearch.bind(this)}
+            keyword={keyword}
+          />
           {availableFilterKeys && availableFilterKeys.length > 0 && (
             <Filters
               availableFilterKeys={availableFilterKeys}
@@ -113,15 +98,10 @@ class ListCards extends Component {
             />
           )}
           <InputLabel
-            classes={{ root: classes.sortFieldLabel }}
-            style={{
-              marginLeft:
-                availableFilterKeys && availableFilterKeys.length > 0 ? 10 : 0,
-            }}
-          >
+            classes={{root: classes.sortFieldLabel}}>
             {t('Sort by')}
           </InputLabel>
-          <FormControl classes={{ root: classes.sortField }}>
+          <FormControl>
             <Select
               name="sort-by"
               value={sortBy}
@@ -143,25 +123,24 @@ class ListCards extends Component {
           <IconButton
             aria-label="Sort by"
             onClick={this.reverse.bind(this)}
-            classes={{ root: classes.sortIcon }}
             size="large"
           >
-            {orderAsc ? <ArrowDownward /> : <ArrowUpward />}
+            {orderAsc ? <ArrowDownward/> : <ArrowUpward/>}
           </IconButton>
-          {filters
-            && <FilterIconButton
-              filters={filters}
-              handleRemoveFilter={handleRemoveFilter}
-              handleSwitchGlobalMode={handleSwitchGlobalMode}
-              handleSwitchLocalMode={handleSwitchLocalMode}
-              redirection
-            />
-          }
         </div>
-        <div className={classes.views}>
-          <div style={{ float: 'right', marginTop: -20 }}>
+        {filters
+          && <FilterIconButton
+            filters={filters}
+            handleRemoveFilter={handleRemoveFilter}
+            handleSwitchGlobalMode={handleSwitchGlobalMode}
+            handleSwitchLocalMode={handleSwitchLocalMode}
+            redirection
+          />
+        }
+        <div>
+          <div style={{float: 'right', marginTop: -20}}>
             {numberOfElements && (
-              <div style={{ float: 'left', padding: '15px 5px 0 0' }}>
+              <div style={{float: 'left', padding: '15px 5px 0 0'}}>
                 <strong>{`${numberOfElements.number}${numberOfElements.symbol}`}</strong>{' '}
                 {t('entitie(s)')}
               </div>
@@ -180,19 +159,19 @@ class ListCards extends Component {
                     handleChangeView(value);
                   }
                 }}
-                style={{ margin: '7px 0 0 5px' }}
+                style={{margin: '7px 0 0 5px'}}
               >
                 {typeof handleChangeView === 'function' && (
                   <ToggleButton value="cards" aria-label="cards">
                     <Tooltip title={t('Cards view')}>
-                      <ViewModuleOutlined fontSize="small" />
+                      <ViewModuleOutlined fontSize="small"/>
                     </Tooltip>
                   </ToggleButton>
                 )}
                 {typeof handleChangeView === 'function' && (
                   <ToggleButton value="lines" aria-label="lines">
                     <Tooltip title={t('Lines view')}>
-                      <ViewListOutlined color="primary" fontSize="small" />
+                      <ViewListOutlined color="primary" fontSize="small"/>
                     </Tooltip>
                   </ToggleButton>
                 )}
@@ -206,7 +185,7 @@ class ListCards extends Component {
                         />
                       </Tooltip>
                     </ToggleButton>
-                )}
+                  )}
                 {typeof handleToggleExports === 'function'
                   && exportDisabled && (
                     <Tooltip
@@ -223,16 +202,16 @@ class ListCards extends Component {
                           aria-label="export"
                           disabled={true}
                         >
-                          <FileDownloadOutlined fontSize="small" />
+                          <FileDownloadOutlined fontSize="small"/>
                         </ToggleButton>
                       </span>
                     </Tooltip>
-                )}
+                  )}
               </ToggleButtonGroup>
             )}
           </div>
         </div>
-        <div className="clearfix" />
+        <div className="clearfix"/>
         <div className={classes.cardsContainer}>{children}</div>
         {typeof handleToggleExports === 'function' && (
           <Security needs={[KNOWLEDGE_KNGETEXPORT]}>

@@ -236,6 +236,7 @@ ContainerStixCyberObservablesComponentProps
       },
     };
   };
+  console.log('ContainerStix', paginationOptions);
   const queryRef = useQueryLoading<ContainerStixCyberObservablesLinesQuery>(
     containerStixCyberObservablesLinesQuery,
     paginationOptions,
