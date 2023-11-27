@@ -358,7 +358,11 @@ export const workspaceImportConfiguration = async (
       input: importWorkspaceCreation,
     },
   });
-  await notify(BUS_TOPICS[ENTITY_TYPE_WORKSPACE].ADDED_TOPIC, importWorkspaceCreation, user);
+  await notify(
+    BUS_TOPICS[ENTITY_TYPE_WORKSPACE].ADDED_TOPIC,
+    importWorkspaceCreation,
+    user,
+  );
   return workspaceId;
 };
 
