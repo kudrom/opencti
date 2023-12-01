@@ -10,12 +10,15 @@ import DialogContentText from '@mui/material/DialogContentText';
 import MoreVert from '@mui/icons-material/MoreVert';
 import makeStyles from '@mui/styles/makeStyles';
 import fileDownload from 'js-file-download';
+import { graphql, useMutation } from 'react-relay';
 import { useFormatter } from '../../../../components/i18n';
 import Security from '../../../../utils/Security';
 import { EXPLORE_EXUPDATE } from '../../../../utils/hooks/useGranted';
 import WidgetConfig from './WidgetConfig';
 import Transition from '../../../../components/Transition';
 import pjson from '../../../../../package.json';
+import { fromB64, toB64 } from '../../../../utils/String';
+import { handleError } from '../../../../relay/environment';
 
 const useStyles = makeStyles({
   container: {
@@ -25,6 +28,12 @@ const useStyles = makeStyles({
     right: 0,
   },
 });
+
+const convertWidgetFiltersToStandardIds = graphql`
+  mutation WidgetPopoverWidgetFiltersToStandardIdsMutation($manifest: String!) {
+    workspaceWidgetFiltersToStandardIds(manifest: $manifest)
+  }
+`;
 
 const WidgetPopover = ({
   onUpdate,
@@ -38,6 +47,9 @@ const WidgetPopover = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [displayDelete, setDisplayDelete] = useState(false);
   const [displayDuplicate, setDisplayDuplicate] = useState(false);
+  const [commitWidgetFiltersToStandardIdsMutation] = useMutation(
+    convertWidgetFiltersToStandardIds,
+  );
   const handleOpenDelete = () => {
     setDisplayDelete(true);
     setAnchorEl(null);
@@ -47,17 +59,34 @@ const WidgetPopover = ({
     setAnchorEl(null);
   };
 
+  const convertToWidgetWithStandardIdsFilters = (widgetManifest) => {
+    commitWidgetFiltersToStandardIdsMutation({
+      variables: { manifest: widgetManifest },
+      onCompleted: (data) => {
+        const widgetConfig = JSON.stringify(
+          {
+            openCTI_version: pjson.version,
+            type: 'widget',
+            configuration: { ...JSON.parse(fromB64(data.workspaceWidgetFiltersToStandardIds)) },
+          },
+          null,
+          2,
+        );
+        const blob = new Blob([widgetConfig], { type: 'text/json ' });
+        const [day, month, year] = new Date()
+          .toLocaleDateString('fr-FR')
+          .split('/');
+        const fileName = `${year}${month}${day}_octi_widget_${widget.type}`;
+        fileDownload(blob, fileName, 'application/json');
+      },
+      onError: (error) => {
+        handleError(error);
+      },
+    });
+  };
   const handleExportWidget = () => {
     const { id: _id, ...rest } = widget;
-    const widgetConfig = JSON.stringify({
-      openCTI_version: pjson.version,
-      type: 'widget',
-      configuration: { ...rest },
-    }, null, 2);
-    const blob = new Blob([widgetConfig], { type: 'text/json ' });
-    const [day, month, year] = new Date().toLocaleDateString('fr-FR').split('/');
-    const fileName = `${year}${month}${day}_octi_widget_${widget.type}`;
-    fileDownload(blob, fileName, 'application/json');
+    convertToWidgetWithStandardIdsFilters(toB64(JSON.stringify(rest)));
   };
   return (
     <div className={classes.container}>

@@ -12212,6 +12212,7 @@ export type Mutation = {
   workspaceEditAuthorizedMembers?: Maybe<Workspace>;
   workspaceFieldPatch?: Maybe<Workspace>;
   workspaceWidgetConfigurationImport?: Maybe<Workspace>;
+  workspaceWidgetFiltersToStandardIds: Scalars['String']['output'];
 };
 
 
@@ -13918,6 +13919,11 @@ export type MutationWorkspaceFieldPatchArgs = {
 export type MutationWorkspaceWidgetConfigurationImportArgs = {
   id: Scalars['ID']['input'];
   input: ImportConfigurationInput;
+};
+
+
+export type MutationWorkspaceWidgetFiltersToStandardIdsArgs = {
+  manifest: Scalars['String']['input'];
 };
 
 export type Mutex = BasicObject & StixCoreObject & StixCyberObservable & StixObject & {
@@ -32811,6 +32817,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   workspaceEditAuthorizedMembers?: Resolver<Maybe<ResolversTypes['Workspace']>, ParentType, ContextType, RequireFields<MutationWorkspaceEditAuthorizedMembersArgs, 'id' | 'input'>>;
   workspaceFieldPatch?: Resolver<Maybe<ResolversTypes['Workspace']>, ParentType, ContextType, RequireFields<MutationWorkspaceFieldPatchArgs, 'id' | 'input'>>;
   workspaceWidgetConfigurationImport?: Resolver<Maybe<ResolversTypes['Workspace']>, ParentType, ContextType, RequireFields<MutationWorkspaceWidgetConfigurationImportArgs, 'id' | 'input'>>;
+  workspaceWidgetFiltersToStandardIds?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationWorkspaceWidgetFiltersToStandardIdsArgs, 'manifest'>>;
 }>;
 
 export type MutexResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutex'] = ResolversParentTypes['Mutex']> = ResolversObject<{

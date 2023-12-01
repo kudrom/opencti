@@ -1,12 +1,12 @@
-import type { BasicStoreEntity, StoreEntity } from "../../types/store";
+import type { BasicStoreEntity, StoreEntity } from '../../types/store';
 import type {
   StixDomainObject,
   StixOpenctiExtensionSDO,
-} from "../../types/stix-common";
-import { STIX_EXT_OCTI } from "../../types/stix-extensions";
-import type { AuthorizedMember } from "../../utils/access";
+} from '../../types/stix-common';
+import { STIX_EXT_OCTI } from '../../types/stix-extensions';
+import type { AuthorizedMember } from '../../utils/access';
 
-export const ENTITY_TYPE_WORKSPACE = "Workspace";
+export const ENTITY_TYPE_WORKSPACE = 'Workspace';
 
 // region Database types
 export interface BasicStoreEntityWorkspace extends BasicStoreEntity {

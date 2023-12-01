@@ -1,6 +1,6 @@
-import * as R from "ramda";
-import type { FileHandle } from "fs/promises";
-import { v4 as uuidv4 } from "uuid";
+import * as R from 'ramda';
+import type { FileHandle } from 'fs/promises';
+import { v4 as uuidv4 } from 'uuid';
 import {
   createEntity,
   deleteElementById,
@@ -8,13 +8,13 @@ import {
   paginateAllThings,
   patchAttribute,
   updateAttribute,
-} from "../../database/middleware";
+} from '../../database/middleware';
 import {
   listEntitiesPaginated,
   storeLoadById,
-} from "../../database/middleware-loader";
-import { BUS_TOPICS } from "../../config/conf";
-import { delEditContext, notify, setEditContext } from "../../database/redis";
+} from '../../database/middleware-loader';
+import { BUS_TOPICS } from '../../config/conf';
+import { delEditContext, notify, setEditContext } from '../../database/redis';
 import {
   ENTITY_TYPE_WORKSPACE,
   type BasicStoreEntityWorkspace,
@@ -22,9 +22,9 @@ import {
   type Filter,
   type WidgetConfiguration,
   type DataSelection,
-} from "./workspace-types";
-import { FunctionalError } from "../../config/errors";
-import type { AuthContext, AuthUser } from "../../types/user";
+} from './workspace-types';
+import { FunctionalError } from '../../config/errors';
+import type { AuthContext, AuthUser } from '../../types/user';
 import type {
   EditContext,
   EditInput,
@@ -35,26 +35,26 @@ import type {
   WorkspaceAddInput,
   WorkspaceDuplicateInput,
   WorkspaceObjectsArgs,
-} from "../../generated/graphql";
+} from '../../generated/graphql';
 import {
   getUserAccessRight,
   isValidMemberAccessRight,
   MEMBER_ACCESS_RIGHT_ADMIN,
-} from "../../utils/access";
-import { publishUserAction } from "../../listener/UserActionListener";
-import { containsValidAdmin } from "../../utils/authorizedMembers";
-import { elBatchIds, elFindByIds } from "../../database/engine";
-import type { BasicStoreEntity } from "../../types/store";
+} from '../../utils/access';
+import { publishUserAction } from '../../listener/UserActionListener';
+import { containsValidAdmin } from '../../utils/authorizedMembers';
+import { elBatchIds, elFindByIds } from '../../database/engine';
+import type { BasicStoreEntity } from '../../types/store';
 import {
   buildPagination,
   fromBase64,
   isEmptyField,
   READ_DATA_INDICES_WITHOUT_INTERNAL,
   toBase64,
-} from "../../database/utils";
-import { addFilter } from "../../utils/filtering/filtering-utils";
-import { extractContentFrom } from "../../utils/fileToContent";
-import { isInternalId } from "../../schema/schemaUtils";
+} from '../../database/utils';
+import { addFilter } from '../../utils/filtering/filtering-utils';
+import { extractContentFrom } from '../../utils/fileToContent';
+import { isInternalId } from '../../schema/schemaUtils';
 
 export const findById = (
   context: AuthContext,
@@ -91,16 +91,16 @@ export const editAuthorizedMembers = async (
   // validate input (validate access right) and remove duplicates
   const filteredInput = input.filter((value, index, array) => {
     return (
-      isValidMemberAccessRight(value.access_right) &&
-      array.findIndex((e) => e.id === value.id) === index
+      isValidMemberAccessRight(value.access_right)
+      && array.findIndex((e) => e.id === value.id) === index
     );
   });
   const hasValidAdmin = await containsValidAdmin(context, filteredInput, [
-    "EXPLORE_EXUPDATE_EXDELETE",
-    "EXPLORE_EXUPDATE",
+    'EXPLORE_EXUPDATE_EXDELETE',
+    'EXPLORE_EXUPDATE',
   ]);
   if (!hasValidAdmin) {
-    throw FunctionalError("Workspace should have at least one admin");
+    throw FunctionalError('Workspace should have at least one admin');
   }
   const authorizedMembersInput = filteredInput.map((e) => {
     return { id: e.id, access_right: e.access_right };
@@ -141,7 +141,7 @@ export const objects = async (
   }
   const filters = addFilter(
     args.filters,
-    "internal_id",
+    'internal_id',
     investigated_entities_ids,
   );
   const finalArgs = { ...args, filters };
@@ -158,9 +158,8 @@ const checkInvestigatedEntitiesInputs = async (
 ): Promise<void> => {
   const addedOrReplacedInvestigatedEntitiesIds = inputs
     .filter(
-      ({ key, operation }) =>
-        key === "investigated_entities_ids" &&
-        (operation === "add" || operation === "replace"),
+      ({ key, operation }) => key === 'investigated_entities_ids'
+        && (operation === 'add' || operation === 'replace'),
     )
     .flatMap(({ value }) => value) as string[];
   const opts = { indices: READ_DATA_INDICES_WITHOUT_INTERNAL };
@@ -175,7 +174,7 @@ const checkInvestigatedEntitiesInputs = async (
     entities.map((entity) => entity.id),
   );
   if (missingEntitiesIds.length > 0) {
-    throw FunctionalError("Invalid ids specified", { ids: missingEntitiesIds });
+    throw FunctionalError('Invalid ids specified', { ids: missingEntitiesIds });
   }
 };
 
@@ -211,9 +210,9 @@ export const addWorkspace = async (
   );
   await publishUserAction({
     user,
-    event_type: "mutation",
-    event_scope: "create",
-    event_access: "extended",
+    event_type: 'mutation',
+    event_scope: 'create',
+    event_access: 'extended',
     message: `creates ${created.type} workspace \`${created.name}\``,
     context_data: { id: created.id, entity_type: ENTITY_TYPE_WORKSPACE, input },
   });
@@ -233,9 +232,9 @@ export const workspaceDelete = async (
   );
   await publishUserAction({
     user,
-    event_type: "mutation",
-    event_scope: "delete",
-    event_access: "administration",
+    event_type: 'mutation',
+    event_scope: 'delete',
+    event_access: 'administration',
     message: `deletes ${deleted.type} workspace \`${deleted.name}\``,
     context_data: {
       id: workspaceId,
@@ -288,23 +287,22 @@ export const workspaceEditContext = async (
 ) => {
   await setEditContext(user, workspaceId, input);
   return storeLoadById(context, user, workspaceId, ENTITY_TYPE_WORKSPACE).then(
-    (workspaceToReturn) =>
-      notify(
-        BUS_TOPICS[ENTITY_TYPE_WORKSPACE].EDIT_TOPIC,
-        workspaceToReturn,
-        user,
-      ),
+    (workspaceToReturn) => notify(
+      BUS_TOPICS[ENTITY_TYPE_WORKSPACE].EDIT_TOPIC,
+      workspaceToReturn,
+      user,
+    ),
   );
 };
 
 const configurationImportTypeValidation = new Map<string, string>();
 configurationImportTypeValidation.set(
-  "dashboard",
-  "Invalid type. Please import OpenCTI dashboard-type only",
+  'dashboard',
+  'Invalid type. Please import OpenCTI dashboard-type only',
 );
 configurationImportTypeValidation.set(
-  "widget",
-  "Invalid type. Please import OpenCTI widget-type only",
+  'widget',
+  'Invalid type. Please import OpenCTI widget-type only',
 );
 
 export const checkConfigurationImport = (type: string, parsedData: any) => {
@@ -314,15 +312,12 @@ export const checkConfigurationImport = (type: string, parsedData: any) => {
     });
   }
 
-  const MINIMAL_COMPATIBLE_VERSION = "5.12.0";
+  const MINIMAL_COMPATIBLE_VERSION = '5.12.0';
   const isCompatibleOpenCtiVersion = (openCtiVersion: string) => {
     const [major, minor, patch] = openCtiVersion
-      .split(".")
+      .split('.')
       .map((number) => parseInt(number, 10));
-    const [openCtiMajor, openCtiMinor, openCtiPatch] =
-      MINIMAL_COMPATIBLE_VERSION.split(".").map((number) =>
-        parseInt(number, 10),
-      );
+    const [openCtiMajor, openCtiMinor, openCtiPatch] = MINIMAL_COMPATIBLE_VERSION.split('.').map((number) => parseInt(number, 10),);
     return (
       major >= openCtiMajor && minor >= openCtiMinor && patch >= openCtiPatch
     );
@@ -334,6 +329,21 @@ export const checkConfigurationImport = (type: string, parsedData: any) => {
       { reason: parsedData.openCTI_version },
     );
   }
+};
+
+export const workspaceWidgetFiltersToStandardIds = async (
+  context: AuthContext,
+  _: AuthUser,
+  manifest: string,
+) => {
+  const exportedWidget = JSON.parse(
+    fromBase64(manifest) || '',
+  );
+  const widgetWithStandardIdsFilters = await convertToStixWidget(exportedWidget, context);
+  return toBase64(JSON.stringify({
+    ...widgetWithStandardIdsFilters,
+
+  }));
 };
 
 export const workspaceImportConfiguration = async (
@@ -351,7 +361,7 @@ export const workspaceImportConfiguration = async (
     manifest: parsedData.configuration.manifest,
     authorized_members: authorizedMembers,
   };
-  checkConfigurationImport("dashboard", mappedData);
+  checkConfigurationImport('dashboard', mappedData);
   const importWorkspaceCreation = await createEntity(
     context,
     user,
@@ -361,9 +371,9 @@ export const workspaceImportConfiguration = async (
   const workspaceId = importWorkspaceCreation.id;
   await publishUserAction({
     user,
-    event_type: "mutation",
-    event_scope: "create",
-    event_access: "extended",
+    event_type: 'mutation',
+    event_scope: 'create',
+    event_access: 'extended',
     message: `import ${importWorkspaceCreation.name} workspace`,
     context_data: {
       id: workspaceId,
@@ -394,9 +404,9 @@ export const duplicateWorkspace = async (
   );
   await publishUserAction({
     user,
-    event_type: "mutation",
-    event_scope: "create",
-    event_access: "extended",
+    event_type: 'mutation',
+    event_scope: 'create',
+    event_access: 'extended',
     message: `creates ${created.type} workspace \`${created.name}\` from custom-named duplication`,
     context_data: { id: created.id, entity_type: ENTITY_TYPE_WORKSPACE, input },
   });
@@ -407,32 +417,25 @@ const convertToStixWidget = async (
   widgetConfiguration: WidgetConfiguration,
   context: AuthContext,
 ) => {
-  const [filters, dynamicFrom, dynamicTo] =
-    widgetConfiguration.dataSelection?.flatMap(
-      ({
-        filters,
-        dynamicFrom,
-        dynamicTo,
-      }: {
-        filters: FilterGroup;
-        dynamicFrom: FilterGroup;
-        dynamicTo: FilterGroup;
-      }) => [filters, dynamicFrom, dynamicTo],
-    );
+  const [filters, dynamicFrom, dynamicTo] = widgetConfiguration.dataSelection?.flatMap(
+    ({
+      filters,
+      dynamicFrom,
+      dynamicTo,
+    }: {
+      filters: FilterGroup;
+      dynamicFrom: FilterGroup;
+      dynamicTo: FilterGroup;
+    }) => [filters, dynamicFrom, dynamicTo],
+  );
 
   const internalIds = [
-    ...filters.filters?.flatMap(({ values }) =>
-      values.filter((value) => isInternalId(value)),
-    ),
-    ...dynamicFrom.filters?.flatMap(({ values }) =>
-      values.filter((value) => isInternalId(value)),
-    ),
-    ...dynamicTo.filters?.flatMap(({ values }) =>
-      values.filter((value) => isInternalId(value)),
-    ),
+    ...filters.filters?.flatMap(({ values }) => values.filter((value) => isInternalId(value)),),
+    ...dynamicFrom.filters?.flatMap(({ values }) => values.filter((value) => isInternalId(value)),),
+    ...dynamicTo.filters?.flatMap(({ values }) => values.filter((value) => isInternalId(value)),),
   ];
 
-  const standardIdsByInternal = new Map(internalIds.map((id) => [id, ""]));
+  const standardIdsByInternal = new Map(internalIds.map((id) => [id, '']));
   if (internalIds.length) {
     const entities = await elBatchIds(context, context.user, internalIds);
     entities.forEach(
@@ -455,9 +458,7 @@ const convertToStixWidget = async (
           ...dataSelection.filters.filters.flatMap((filter) => ({
             ...filter,
             values: [
-              ...filter.values.flatMap((internalId) =>
-                standardIdsByInternal.get(internalId) || internalId,
-              ),
+              ...filter.values.flatMap((internalId) => standardIdsByInternal.get(internalId) || internalId,),
             ],
           })),
         ],
@@ -479,11 +480,11 @@ export const workspaceImportWidgetConfiguration = async (
     openCTI_version: parsedData.openCTI_version,
     widget: parsedData.configuration,
   };
-  checkConfigurationImport("widget", mappedData);
+  checkConfigurationImport('widget', mappedData);
 
   const importedWidgetId = uuidv4();
   const dashboardManifestObjects = JSON.parse(
-    fromBase64(input.dashboardManifest) || "",
+    fromBase64(input.dashboardManifest) || '',
   );
   const updatedObjects = {
     ...dashboardManifestObjects,
@@ -501,13 +502,13 @@ export const workspaceImportWidgetConfiguration = async (
     user,
     workspaceId,
     ENTITY_TYPE_WORKSPACE,
-    [{ key: "manifest", value: [updatedManifest] }],
+    [{ key: 'manifest', value: [updatedManifest] }],
   );
   await publishUserAction({
     user,
-    event_type: "mutation",
-    event_scope: "create",
-    event_access: "extended",
+    event_type: 'mutation',
+    event_scope: 'create',
+    event_access: 'extended',
     message: `import widget (id : ${importedWidgetId}) in workspace (id : ${workspaceId})`,
     context_data: {
       id: workspaceId,

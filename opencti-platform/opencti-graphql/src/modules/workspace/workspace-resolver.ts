@@ -13,7 +13,7 @@ import {
   workspaceEditContext,
   workspaceEditField,
   workspaceImportConfiguration,
-  workspaceImportWidgetConfiguration,
+  workspaceImportWidgetConfiguration, workspaceWidgetFiltersToStandardIds,
 } from './workspace-domain';
 import { fetchEditContext, pubSubAsyncIterator } from '../../database/redis';
 import { BUS_TOPICS } from '../../config/conf';
@@ -60,6 +60,9 @@ const workspaceResolvers: Resolvers = {
     },
     workspaceContextClean: (_, { id }, context) => {
       return workspaceCleanContext(context, context.user, id);
+    },
+    workspaceWidgetFiltersToStandardIds: (_, { manifest }, context) => {
+      return workspaceWidgetFiltersToStandardIds(context, context.user, manifest);
     },
     workspaceConfigurationImport: (_, { file }, context) => {
       return workspaceImportConfiguration(context, context.user, file);

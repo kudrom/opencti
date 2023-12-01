@@ -8083,6 +8083,7 @@ type Mutation {
   workspaceEditAuthorizedMembers(id: ID!, input: [MemberAccessInput!]!): Workspace
   workspaceContextPatch(id: ID!, input: EditContext!): Workspace
   workspaceContextClean(id: ID!): Workspace
+  workspaceWidgetFiltersToStandardIds(manifest: String!): String!
   workspaceConfigurationImport(file: Upload!): String!
   workspaceWidgetConfigurationImport(id: ID!, input: ImportConfigurationInput!): Workspace
   malwareAnalysisAdd(input: MalwareAnalysisAddInput!): MalwareAnalysis

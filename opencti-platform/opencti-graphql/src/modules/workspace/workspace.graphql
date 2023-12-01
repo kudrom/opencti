@@ -100,6 +100,7 @@ type Mutation {
     workspaceEditAuthorizedMembers(id: ID!, input:[MemberAccessInput!]!): Workspace @auth(for: [EXPLORE_EXUPDATE])
     workspaceContextPatch(id: ID!, input: EditContext!): Workspace
     workspaceContextClean(id: ID!): Workspace
+    workspaceWidgetFiltersToStandardIds(manifest: String!): String!
     workspaceConfigurationImport(file: Upload!): String!
     workspaceWidgetConfigurationImport(id: ID!, input: ImportConfigurationInput!): Workspace @auth(for: [EXPLORE_EXUPDATE])
 }
