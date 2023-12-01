@@ -153,7 +153,7 @@ export const entityTypesFilters = [
 export const isFilterGroupNotEmpty = (filterGroup: FilterGroup | undefined | null) => {
   return (
     filterGroup
-    && (filterGroup.filters.length > 0 || filterGroup.filterGroups.length > 0)
+    && (filterGroup.filters?.length > 0 || filterGroup.filterGroups?.length > 0)
   );
 };
 
@@ -358,7 +358,7 @@ export const serializeDashboardManifestForBackend = (
     const widget = manifest.widgets[id];
     newWidgets[id] = {
       ...widget,
-      dataSelection: widget.dataSelection.map(
+      dataSelection: widget.dataSelection?.map(
         (selection: AnyForDashboardManifest) => ({
           ...selection,
           filters: selection.filters
@@ -391,7 +391,7 @@ export const deserializeDashboardManifestForFrontend = (
     const widget = manifest.widgets[id];
     newWidgets[id] = {
       ...widget,
-      dataSelection: widget.dataSelection.map(
+      dataSelection: widget.dataSelection?.map(
         (selection: AnyForDashboardManifest) => ({
           ...selection,
           filters: selection.filters
