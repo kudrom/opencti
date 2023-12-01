@@ -7,7 +7,13 @@ import Checkbox from '@mui/material/Checkbox';
 import FilterDate from '@components/common/lists/FilterDate';
 import { MenuItem, Select } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { dateFilters, Filter, getAvailableOperatorForFilter, integerFilters } from '../../utils/filters/filtersUtils';
+import {
+  dateFilters,
+  Filter,
+  getAvailableOperatorForFilter,
+  integerFilters,
+  textFilters,
+} from '../../utils/filters/filtersUtils';
 import { useFormatter } from '../i18n';
 import ItemIcon from '../ItemIcon';
 import { getOptions, getUseSearch } from '../../utils/filters/SearchEntitiesUtil';
@@ -37,6 +43,8 @@ const OperatorKeyValues: {
   gte: 'Greater than/ Equals',
   lt: 'Lower than',
   lte: 'Lower than/ Equals',
+  match: 'Match',
+  wildcard: 'Wildcard',
 };
 
 interface BasicNumberInputProps {
@@ -54,6 +62,27 @@ const BasicNumberInput: FunctionComponent<BasicNumberInputProps> = ({ filter, fi
     id={filter?.id ?? `${filterKey}-id`}
     label={t(filterKey)}
     type="number"
+    defaultValue={filterValues[0]}
+    autoFocus={true}
+    onKeyDown={(event) => {
+      if (event.key === 'Enter') {
+        helpers?.handleAddSingleValueFilter(filter?.id ?? '', (event.target as HTMLInputElement).value);
+      }
+    }}
+    onBlur={(event) => {
+      helpers?.handleAddSingleValueFilter(filter?.id ?? '', event.target.value);
+    }
+    }
+  />;
+};
+const BasicTextInput: FunctionComponent<BasicNumberInputProps> = ({ filter, filterKey, helpers, filterValues }) => {
+  const { t } = useFormatter();
+  return <TextField
+    variant="outlined"
+    size="small"
+    fullWidth={true}
+    id={filter?.id ?? `${filterKey}-id`}
+    label={t(filterKey)}
     defaultValue={filterValues[0]}
     autoFocus={true}
     onKeyDown={(event) => {
@@ -111,7 +140,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
   };
 
   const isSpecificFilter = (fKey: string) => {
-    return dateFilters.includes(fKey) || integerFilters.includes(fKey);
+    return dateFilters.includes(fKey) || integerFilters.includes(fKey) || textFilters.includes(fKey);
   };
 
   const BasicFilterDate = () => <FilterDate
@@ -127,6 +156,9 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
     }
     if (integerFilters.includes(fKey)) {
       return <BasicNumberInput filter={filter} filterKey={filterKey} filterValues={filterValues} helpers={helpers}/>;
+    }
+    if (textFilters.includes(fKey)) {
+      return <BasicTextInput filter={filter} filterKey={filterKey} filterValues={filterValues} helpers={helpers}/>;
     }
     return null;
   };

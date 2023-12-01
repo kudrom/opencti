@@ -71,6 +71,11 @@ export const integerFilters = [
   'likelihood',
 ];
 
+export const textFilters = [
+  'name',
+  'description',
+];
+
 // filters that can have 'eq' or 'not_eq' operator
 export const EqFilters = [
   'objectLabel',
@@ -612,6 +617,9 @@ export const getDefaultOperatorFilter = (filterKey: string) => {
   if (booleanFilters.includes(filterKey)) {
     return 'eq';
   }
+  if (textFilters.includes(filterKey)) {
+    return 'match';
+  }
   return 'eq';
 };
 
@@ -636,6 +644,9 @@ export const getAvailableOperatorForFilter = (filterKey: string): string[] => {
   }
   if (booleanFilters.includes(filterKey)) {
     return ['eq', 'not_eq'];
+  }
+  if (textFilters.includes(filterKey)) {
+    return ['match', 'wildcard'];
   }
   return ['eq', 'not_eq', 'nil', 'not_nil'];
 };
