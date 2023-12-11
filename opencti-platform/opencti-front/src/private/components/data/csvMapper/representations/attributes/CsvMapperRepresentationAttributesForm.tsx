@@ -20,6 +20,10 @@ export const schemaAttributesQuery = graphql`
       multiple
       label
       type
+      editDefault
+      defaultValues {
+        id
+      }
     }
   }
 `;
@@ -66,6 +70,8 @@ CsvMapperRepresentationAttributesFormProps
           type: schemaAttribute.type,
           mandatory: schemaAttribute.mandatory,
           multiple: schemaAttribute.multiple,
+          editDefault: schemaAttribute.editDefault,
+          defaultValues: schemaAttribute.defaultValues?.map((v) => v.id),
         });
       }
     });

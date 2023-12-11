@@ -2225,9 +2225,11 @@ export const fillDefaultValues = (user, input, entitySetting) => {
     .forEach((attr) => {
       if (input[attr.name] === undefined || input[attr.name] === null) { // empty is a valid value
         const defaultValue = getDefaultValues(attr, schemaAttributesDefinition.isMultipleAttribute(entitySetting.target_type, attr.name));
+        const isNumeric = isNumericAttribute(attr.name);
+        const parsedValue = isNumeric ? Number(defaultValue) : defaultValue;
 
-        if (attr.name === INPUT_AUTHORIZED_MEMBERS && defaultValue) {
-          const defaultAuthorizedMembers = defaultValue.map((v) => JSON.parse(v));
+        if (attr.name === INPUT_AUTHORIZED_MEMBERS && parsedValue) {
+          const defaultAuthorizedMembers = parsedValue.map((v) => JSON.parse(v));
           // Replace dynamic creator rule with the id of the user making the query.
           const creatorRule = defaultAuthorizedMembers.find((v) => v.id === MEMBER_ACCESS_CREATOR);
           if (creatorRule) {
@@ -2235,14 +2237,14 @@ export const fillDefaultValues = (user, input, entitySetting) => {
           }
           filledValues.set(attr.name, defaultAuthorizedMembers);
         } else {
-          filledValues.set(attr.name, defaultValue);
+          filledValues.set(attr.name, parsedValue);
         }
       }
     });
 
   // Marking management
   if (input[INPUT_MARKINGS] === undefined || input[INPUT_MARKINGS] === null) { // empty is a valid value
-    const defaultMarkings = user.default_marking ?? [];
+    const defaultMarkings = user?.default_marking ?? [];
     const globalDefaultMarking = (defaultMarkings.find((entry) => entry.entity_type === 'GLOBAL')?.values ?? []).map((m) => m.id);
     if (!isEmptyField(globalDefaultMarking)) {
       filledValues.set(INPUT_MARKINGS, globalDefaultMarking);

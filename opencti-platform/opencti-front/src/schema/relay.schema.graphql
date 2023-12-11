@@ -9803,6 +9803,7 @@ type TypeAttribute {
   type: String!
   mandatory: Boolean!
   mandatoryType: String!
+  editDefault: Boolean!
   multiple: Boolean
   label: String
   defaultValues: [DefaultValue!]
@@ -10724,6 +10725,7 @@ type AttributeColumnConfiguration {
   separator: String
   pattern_date: String
   timezone: String
+  default_value: String
 }
 
 type AttributeColumn {

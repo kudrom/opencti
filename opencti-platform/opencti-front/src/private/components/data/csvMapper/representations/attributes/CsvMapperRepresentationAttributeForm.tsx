@@ -139,7 +139,7 @@ CsvMapperRepresentationAttributeFormProps
       </div>
       <div>
         {
-          (attribute.type === 'date' || attribute.multiple)
+          (attribute.type === 'date' || attribute.multiple || attribute.editDefault)
           && <CsvMapperRepresentationDialogOption attribute={attribute}>
             <CsvMapperRepresentationAttributeOptions
               attribute={attribute}

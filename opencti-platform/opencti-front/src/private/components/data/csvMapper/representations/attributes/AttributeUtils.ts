@@ -35,15 +35,21 @@ export const useMapAttributes = (
 };
 
 export const convertFromSchemaAttribute = (schemaAttribute: {
+  readonly defaultValues: ReadonlyArray<{
+    readonly id: string;
+  }> | null;
+  readonly editDefault: boolean;
   readonly label: string | null;
   readonly mandatory: boolean;
   readonly multiple: boolean | null;
   readonly name: string;
   readonly type: string;
-}) => {
+}): AttributeWithMetadata => {
   return {
     key: schemaAttribute.name,
     mandatory: schemaAttribute.mandatory,
+    editDefault: schemaAttribute.editDefault,
+    defaultValues: schemaAttribute.defaultValues?.map((v) => v.id),
     multiple: schemaAttribute.multiple,
     type: schemaAttribute.type,
     column: {

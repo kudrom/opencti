@@ -44,7 +44,7 @@ export const bundleProcess = async (context: AuthContext, user: AuthUser, conten
         skipLine = false;
       } else if (!isEmptyLine) {
         // Compute input by representation
-        const inputs = mappingProcess(sanitizedMapper, record);
+        const inputs = await mappingProcess(context, sanitizedMapper, record);
         // Remove inline elements
         const withoutInlineInputs = inputs.filter((input) => !inlineEntityTypes.includes(input.entity_type as string));
         // Validate elements

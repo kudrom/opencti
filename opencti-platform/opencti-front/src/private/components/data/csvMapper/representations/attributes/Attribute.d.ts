@@ -13,6 +13,8 @@ export interface Attribute {
 
 // enhanced with schema info
 export interface AttributeWithMetadata extends Attribute {
+  editDefault: boolean;
+  defaultValues?: string[];
   mandatory?: boolean;
   multiple?: boolean | null;
   type?: string;
@@ -21,4 +23,5 @@ export interface AttributeWithMetadata extends Attribute {
 export interface AttributeConfiguration {
   separator?: string;
   pattern_date?: string;
+  default_value?: string;
 }

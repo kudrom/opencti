@@ -31,6 +31,7 @@ interface AttributeConfigMeta {
   mandatory: boolean
   mandatoryType: string
   multiple: boolean
+  editDefault: boolean
   label?: string
   defaultValues?: DefaultValue[]
   scale?: string
@@ -55,6 +56,7 @@ export const queryAttributesDefinition = async (context: AuthContext, user: Auth
           label: attr.label,
           type: attr.type,
           mandatoryType: attr.mandatoryType,
+          editDefault: attr.editDefault,
           multiple: attr.multiple,
           mandatory: false,
         };
@@ -75,6 +77,7 @@ export const queryAttributesDefinition = async (context: AuthContext, user: Auth
         const attributeConfig: AttributeConfigMeta = {
           name: rel.name,
           label: rel.label,
+          editDefault: rel.editDefault,
           type: 'string',
           mandatoryType: rel.mandatoryType,
           multiple: rel.multiple,
@@ -184,6 +187,7 @@ export const getSchemaAttributes = async (context: AuthContext, entityType: stri
     .map((ref) => ({
       name: ref.name,
       label: ref.label,
+      editDefault: ref.editDefault,
       type: 'ref',
       mandatoryType: ref.mandatoryType,
       multiple: ref.multiple,
@@ -197,6 +201,7 @@ export const getSchemaAttributes = async (context: AuthContext, entityType: stri
       mandatoryType: 'external',
       multiple: false,
       mandatory: true,
+      editDefault: false
     });
     resultRefs.push({
       name: 'to',
@@ -205,6 +210,7 @@ export const getSchemaAttributes = async (context: AuthContext, entityType: stri
       mandatoryType: 'external',
       multiple: false,
       mandatory: true,
+      editDefault: false
     });
   }
 
@@ -219,6 +225,9 @@ export const getSchemaAttributes = async (context: AuthContext, entityType: stri
       if (customizableAttr) {
         if (customizableAttr.mandatoryType === 'customizable' && isNotEmptyField(userDefinedAttr.mandatory)) {
           customizableAttr.mandatory = userDefinedAttr.mandatory;
+        }
+        if (isNotEmptyField(userDefinedAttr.default_values)) {
+          customizableAttr.defaultValues = userDefinedAttr.default_values?.map((v) => ({ id: v } as DefaultValue));
         }
       }
     });

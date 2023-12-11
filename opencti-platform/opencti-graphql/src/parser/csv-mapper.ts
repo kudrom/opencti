@@ -13,6 +13,9 @@ import type { BasicStoreEntityCsvMapper, CsvMapperRepresentation } from '../modu
 import { CsvMapperRepresentationType, Operator } from '../modules/internal/csvMapper/csvMapper-types';
 import type { AttributeColumn } from '../generated/graphql';
 import { isValidTargetType } from '../modules/internal/csvMapper/csvMapper-utils';
+import { getEntitySettingFromCache } from '../modules/entitySetting/entitySetting-utils';
+import type { AuthContext } from '../types/user';
+import { fillDefaultValues } from '../database/middleware';
 import { UnsupportedError } from '../config/errors';
 
 export type InputType = string | string[] | boolean | number | Record<string, any>;
@@ -171,11 +174,18 @@ const handleAttributes = (record: string[], representation: CsvMapperRepresentat
   const attributes = representation.attributes ?? [];
   attributes.forEach((attribute) => {
     // Handle column attribute
-    if (attribute.column && isNotEmptyField(attribute.column?.column_name)) {
-      const { column } = attribute;
-      const recordValue = extractValueFromCsv(record, column.column_name);
-      handleDirectAttribute(attribute.key, attribute.column, input, recordValue);
-
+    if (attribute.column) {
+      let recordValue;
+      if (isNotEmptyField(attribute.column?.column_name)) {
+        const { column } = attribute;
+        recordValue = extractValueFromCsv(record, column.column_name);
+      }
+      if (!recordValue && isNotEmptyField(attribute.column?.configuration?.default_value)) {
+        recordValue = attribute.column?.configuration?.default_value;
+      }
+      if (recordValue) {
+        handleDirectAttribute(attribute.key, attribute.column, input, recordValue);
+      }
       // Handle based_on attribute
     } else if (attribute.based_on) {
       const basedOn = attribute.based_on;
@@ -190,45 +200,60 @@ const handleAttributes = (record: string[], representation: CsvMapperRepresentat
   });
 };
 
-const mapRecord = (record: string[], representation: CsvMapperRepresentation, map: Map<string, Record<string, InputType>>) => {
+const mapRecord = async (context: AuthContext, record: string[], representation: CsvMapperRepresentation, map: Map<string, Record<string, InputType>>) => {
   if (!isValidTarget(record, representation)) {
     return null;
   }
-  let input: Record<string, InputType> = {};
+  const { entity_type } = representation.target;
 
+  let input: Record<string, InputType> = {};
   handleType(representation, input);
-  input = handleInnerType(input, representation.target.entity_type);
+  input = handleInnerType(input, entity_type);
+
   handleAttributes(record, representation, input, map);
 
-  if (!isValidInput(input)) {
+  const entitySetting = await getEntitySettingFromCache(context, entity_type);
+  const filledInput = fillDefaultValues(context.user, input, entitySetting);
+
+  if (!isValidInput(filledInput)) {
     return null;
   }
+  handleId(representation, filledInput);
 
-  handleId(representation, input);
-
-  return input;
+  return filledInput;
 };
-export const mappingProcess = (mapper: BasicStoreEntityCsvMapper, record: string[]): Record<string, InputType>[] => {
+
+export const mappingProcess = async (
+  context: AuthContext,
+  mapper: BasicStoreEntityCsvMapper,
+  record: string[]
+): Promise<Record<string, InputType>[]> => {
   const { representations } = mapper;
-  const representationEntities = representations.filter((r) => r.type === CsvMapperRepresentationType.entity);
+  const representationEntities = representations
+    .filter((r) => r.type === CsvMapperRepresentationType.entity)
+    .sort((r1, r2) => r1.attributes.filter((attr) => attr.based_on).length - r2.attributes.filter((attr) => attr.based_on).length);
   const representationRelationships = representations.filter((r) => r.type === CsvMapperRepresentationType.relationship);
   const results = new Map<string, Record<string, InputType>>();
 
   // 1. entities sort by no based on at first
-  representationEntities
-    .sort((r1, r2) => r1.attributes.filter((attr) => attr.based_on).length - r2.attributes.filter((attr) => attr.based_on).length)
-    .forEach((representation) => {
-      const input = mapRecord(record, representation, results);
-      if (input) {
-        results.set(representation.id, input);
-      }
-    });
-  // 2. relationships
-  representationRelationships.forEach((representation) => {
-    const input = mapRecord(record, representation, results);
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < representationEntities.length; i++) {
+    const representation = representationEntities[i];
+    const input = await mapRecord(context, record, representation, results);
     if (input) {
       results.set(representation.id, input);
     }
-  });
+  }
+
+  // 2. relationships
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < representationRelationships.length; i++) {
+    const representation = representationRelationships[i];
+    const input = await mapRecord(context, record, representation, results);
+    if (input) {
+      results.set(representation.id, input);
+    }
+  }
+
   return Array.from(results.values());
 };

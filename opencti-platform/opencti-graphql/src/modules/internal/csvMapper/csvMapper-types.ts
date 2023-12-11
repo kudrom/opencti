@@ -8,6 +8,7 @@ interface AttributeColumnConfiguration {
   separator?: string
   pattern_date?: string
   timezone?: string
+  default_value?: string
 }
 export interface AttributeColumn {
   column_name: string

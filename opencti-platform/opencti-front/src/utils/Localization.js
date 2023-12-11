@@ -2372,6 +2372,8 @@ const i18n = {
       not_contains: 'no contiene',
       not_starts_with: 'no comienza con',
       not_ends_with: 'no termina con',
+      csv_defaultvalues_def: 'Si falta algún dato en el archivo CSV, se utilizará el valor predeterminado definido en la configuración. Complete la entrada si desea anularla.',
+      csv_no_default_settings: 'No hay valores predeterminados establecidos en la configuración',
     },
     'fr-fr': {
       // Titles
@@ -4754,6 +4756,8 @@ const i18n = {
       not_contains: 'ne contient pas',
       not_starts_with: 'ne commence pas par',
       not_ends_with: 'ne se termine pas par',
+      csv_defaultvalues_def: 'Si une donnée est manquante dans le fichier CSV, la valeur par défaut définie dans les paramètres sera utilisée. Remplissez l\'entrée si vous souhaitez la remplacer.',
+      csv_no_default_settings: 'Aucune valeur par défaut définie dans les paramètres',
     },
     'ja-jp': {
       // Titles
@@ -7037,6 +7041,8 @@ const i18n = {
       not_contains: 'を含まない',
       not_starts_with: 'で始まらない',
       not_ends_with: 'で終わらない',
+      csv_defaultvalues_def: 'CSV ファイルにデータが欠落している場合は、設定で定義されたデフォルト値が使用されます。上書きする場合は、入力を入力します',
+      csv_no_default_settings: '設定にデフォルト値が設定されていない',
     },
     'zh-cn': {
       // Titles
@@ -9206,6 +9212,8 @@ const i18n = {
       not_contains: '不包含',
       not_starts_with: '不以...开始',
       not_ends_with: '不以...结尾',
+      csv_defaultvalues_def: '如果 CSV 文件中缺少数据，将使用设置中定义的默认值。如果您想覆盖它，请填写输入。',
+      csv_no_default_settings: '设置中没有设置默认值',
     },
     'en-us': {
       gt: 'Greater than',
@@ -9667,6 +9675,8 @@ const i18n = {
       not_contains: 'not contains',
       not_starts_with: 'not starts with',
       not_ends_with: 'not ends with',
+      csv_defaultvalues_def: 'If a data is missing in the CSV file, the default value defined in settings will used. Fill this input if you want to override it.',
+      csv_no_default_settings: 'No default values set in settings',
     },
   },
 };

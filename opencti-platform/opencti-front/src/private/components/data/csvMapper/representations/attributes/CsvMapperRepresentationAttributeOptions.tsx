@@ -1,19 +1,9 @@
 import React, { FunctionComponent } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import { useFormikContext } from 'formik';
-import { InformationOutline } from 'mdi-material-ui';
-import Tooltip from '@mui/material/Tooltip';
 import { AttributeWithMetadata } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapper } from '@components/data/csvMapper/CsvMapper';
-import MuiTextField from '@mui/material/TextField';
+import CsvMapperRepresentationAttributeOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOption';
 import { useFormatter } from '../../../../../../components/i18n';
-
-const useStyles = makeStyles(() => ({
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-}));
 
 interface CsvMapperRepresentationAttributeOptionsProps {
   attribute: AttributeWithMetadata;
@@ -23,7 +13,6 @@ interface CsvMapperRepresentationAttributeOptionsProps {
 const CsvMapperRepresentationAttributeOptions: FunctionComponent<
 CsvMapperRepresentationAttributeOptionsProps
 > = ({ attribute, indexRepresentation }) => {
-  const classes = useStyles();
   const { t } = useFormatter();
 
   const formikContext = useFormikContext<CsvMapper>();
@@ -35,67 +24,45 @@ CsvMapperRepresentationAttributeOptionsProps
   const onChange = async (name: string, value: string) => {
     await formikContext.setFieldValue(
       `representations[${indexRepresentation}].attributes[${indexAttribute}].column.configuration`,
-      { [name]: value },
+      { [name]: attribute.type === 'numeric' && value ? Number(value) : value },
     );
   };
 
-  // we disabled the option if the attribute is not in the mapper
-  // user must select a column before being able to set an option
-  const enabled = !!selectedAttributes.find((a) => a.key === attribute.key);
+  const attributeDefaultValues = attribute.defaultValues?.join(',');
 
   return (
     <>
       {attribute.type === 'date' && (
-        <div className={classes.container}>
-          <MuiTextField
-            style={{ margin: 0 }}
-            disabled={!enabled}
-            type="standard"
-            value={
-              selectedAttributes[indexAttribute]?.column?.configuration
-                ?.pattern_date || ''
-            }
-            onChange={(event) => onChange('pattern_date', event.target.value)}
-            placeholder={t('Date pattern')}
-          />
-          <Tooltip
-            title={t(
-              'By default we accept iso date (YYYY-MM-DD), but you can specify your own date format in ISO notation (for instance DD.MM.YYYY)',
-            )}
-          >
-            <InformationOutline
-              fontSize="small"
-              color="primary"
-              style={{ cursor: 'default' }}
-            />
-          </Tooltip>
-        </div>
+        <CsvMapperRepresentationAttributeOption
+          attribute={attribute}
+          placeholder={t('Date pattern')}
+          tooltip={t(
+            'By default we accept iso date (YYYY-MM-DD), but you can specify your own date format in ISO notation (for instance DD.MM.YYYY)',
+          )}
+          onChange={(v) => onChange('pattern_date', v)}
+          value={selectedAttributes[indexAttribute]?.column?.configuration?.pattern_date || ''}
+        />
       )}
       {attribute.multiple && (
-        <div className={classes.container}>
-          <MuiTextField
-            style={{ margin: 0 }}
-            disabled={!enabled}
-            type="standard"
-            value={
-              selectedAttributes[indexAttribute]?.column?.configuration
-                ?.separator || ''
-            }
-            onChange={(event) => onChange('separator', event.target.value)}
-            placeholder={t('List separator')}
-          />
-          <Tooltip
-            title={t(
-              'If this field contains multiple values, you can specify the separator used between each values (for instance | or +)',
-            )}
-          >
-            <InformationOutline
-              fontSize="small"
-              color="primary"
-              style={{ cursor: 'default' }}
-            />
-          </Tooltip>
-        </div>
+        <CsvMapperRepresentationAttributeOption
+          attribute={attribute}
+          placeholder={t('List separator')}
+          tooltip={t(
+            'If this field contains multiple values, you can specify the separator used between each values (for instance | or +)',
+          )}
+          onChange={(v) => onChange('separator', v)}
+          value={selectedAttributes[indexAttribute]?.column?.configuration?.separator || ''}
+        />
+      )}
+      {attribute.editDefault && (
+        <CsvMapperRepresentationAttributeOption
+          attribute={attribute}
+          placeholder={attributeDefaultValues ?? ''}
+          tooltip={t('csv_defaultvalues_def')}
+          info={attributeDefaultValues ? undefined : t('csv_no_default_settings')}
+          onChange={(v) => onChange('default_value', v)}
+          value={selectedAttributes[indexAttribute]?.column?.configuration?.default_value || ''}
+        />
       )}
     </>
   );
