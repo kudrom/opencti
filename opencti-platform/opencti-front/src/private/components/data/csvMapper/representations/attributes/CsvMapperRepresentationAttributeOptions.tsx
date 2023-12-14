@@ -3,6 +3,7 @@ import { useFormikContext } from 'formik';
 import { AttributeWithMetadata } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapper } from '@components/data/csvMapper/CsvMapper';
 import CsvMapperRepresentationAttributeOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOption';
+import DialogContent from '@mui/material/DialogContent';
 import { useFormatter } from '../../../../../../components/i18n';
 
 interface CsvMapperRepresentationAttributeOptionsProps {
@@ -55,14 +56,24 @@ CsvMapperRepresentationAttributeOptionsProps
         />
       )}
       {attribute.editDefault && (
+      <>
+        {attributeDefaultValues
+          ? <DialogContent dividers sx={{ width: 500 }}>
+            {t('The default value set in Settings > Customization is "')}{attributeDefaultValues}
+            {t('". It will be automatically used if the column is empty.')}
+            {t(' If you want to specify an other default value instead, you can override it with the field below.')}
+          </DialogContent>
+          : <DialogContent dividers sx={{ width: 500 }}>
+            {t('A default value is not set in Settings > Customization. If you want to specify a value, you can fill the field below.')}
+          </DialogContent> }
         <CsvMapperRepresentationAttributeOption
           attribute={attribute}
-          placeholder={attributeDefaultValues ?? ''}
-          tooltip={t('csv_defaultvalues_def')}
-          info={attributeDefaultValues ? undefined : t('csv_no_default_settings')}
+          placeholder={'example'}
+          // info={attributeDefaultValues ? undefined : t('csv_no_default_settings')}
           onChange={(v) => onChange('default_value', v)}
           value={selectedAttributes[indexAttribute]?.column?.configuration?.default_value || ''}
         />
+      </>
       )}
     </>
   );

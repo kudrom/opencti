@@ -26,7 +26,7 @@ const CsvMapperRepresentationAttributeOption = ({
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', width: '50%', gap: '8px', margin: '10px' }}>
         <MuiTextField
           style={{ flex: 1 }}
           type={type}
