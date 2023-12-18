@@ -3,7 +3,7 @@ import { useFormikContext } from 'formik';
 import { AttributeWithMetadata } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapper } from '@components/data/csvMapper/CsvMapper';
 import CsvMapperRepresentationAttributeOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOption';
-import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import { useFormatter } from '../../../../../../components/i18n';
 
 interface CsvMapperRepresentationAttributeOptionsProps {
@@ -57,18 +57,18 @@ CsvMapperRepresentationAttributeOptionsProps
       )}
       {attribute.editDefault && (
       <>
-        <DialogContent dividers sx={{ width: 500 }}>
+        <DialogContentText sx={{ width: 500 }}>
           {attributeDefaultValues ? (
             <>
-              {t('The default value set in Settings > Customization is "')}
-              {attributeDefaultValues}
-              {t('". It will be automatically used if the column is empty.')}
-              {t(' If you want to specify an other default value instead, you can override it with the field below.')}
+              {t('', {
+                id: 'The default value set in Settings > Customization is ...',
+                values: { value: attributeDefaultValues },
+              })}
             </>
           ) : (
             t('A default value is not set in Settings > Customization. If you want to specify a value, you can fill the field below.')
           )}
-        </DialogContent>
+        </DialogContentText>
         <CsvMapperRepresentationAttributeOption
           attribute={attribute}
           placeholder={'example'}

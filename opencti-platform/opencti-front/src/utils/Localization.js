@@ -2374,6 +2374,7 @@ const i18n = {
       not_ends_with: 'no termina con',
       csv_defaultvalues_def: 'Si falta algún dato en el archivo CSV, se utilizará el valor predeterminado definido en la configuración. Complete la entrada si desea anularla.',
       csv_no_default_settings: 'No hay valores predeterminados establecidos en la configuración',
+      'The default value set in Settings > Customization is ...': 'El valor predeterminado establecido en Configuración > Personalización es {value}. Se usará automáticamente si la columna está vacía. Si desea especificar otro valor predeterminado, puede anularlo con el campo siguiente.',
     },
     'fr-fr': {
       // Titles
@@ -4758,6 +4759,7 @@ const i18n = {
       not_ends_with: 'ne se termine pas par',
       csv_defaultvalues_def: 'Si une donnée est manquante dans le fichier CSV, la valeur par défaut définie dans les paramètres sera utilisée. Remplissez l\'entrée si vous souhaitez la remplacer.',
       csv_no_default_settings: 'Aucune valeur par défaut définie dans les paramètres',
+      'The default value set in Settings > Customization is ...': 'La valeur par défaut définie dans Paramètres > Personnalisation est {value}. Elle sera automatiquement utilisée si la colonne est vide. Si vous souhaitez plutôt spécifier une autre valeur par défaut, vous pouvez la remplacer avec le champ ci-dessous.',
     },
     'ja-jp': {
       // Titles
@@ -7043,6 +7045,8 @@ const i18n = {
       not_ends_with: 'で終わらない',
       csv_defaultvalues_def: 'CSV ファイルにデータが欠落している場合は、設定で定義されたデフォルト値が使用されます。上書きする場合は、入力を入力します',
       csv_no_default_settings: '設定にデフォルト値が設定されていない',
+      'The default value set in Settings > Customization is ...': '[設定] > [カスタマイズ] で設定されているデフォルト値は {value} です。列が空の場合は自動的に使用されます。代わりに他のデフォルト値を指定したい場合は、以下のフィールドでそれをオーバーライドできます。',
+
     },
     'zh-cn': {
       // Titles
@@ -9214,6 +9218,8 @@ const i18n = {
       not_ends_with: '不以...结尾',
       csv_defaultvalues_def: '如果 CSV 文件中缺少数据，将使用设置中定义的默认值。如果您想覆盖它，请填写输入。',
       csv_no_default_settings: '设置中没有设置默认值',
+      'The default value set in Settings > Customization is ...': '设置 > 自定义中设置的默认值为 {value}。如果该列为空，它将自动使用。如果您想指定其他默认值，则可以使用下面的字段覆盖它',
+
     },
     'en-us': {
       gt: 'Greater than',
@@ -9677,6 +9683,8 @@ const i18n = {
       not_ends_with: 'not ends with',
       csv_defaultvalues_def: 'If a data is missing in the CSV file, the default value defined in settings will used. Fill this input if you want to override it.',
       csv_no_default_settings: 'No default values set in settings',
+      'The default value set in Settings > Customization is ...': 'The default value set in Settings > Customization is {value}. It will be automatically used if the column is empty. If you want to specify an other default value instead, you can override it with the field below. ',
+
     },
   },
 };
