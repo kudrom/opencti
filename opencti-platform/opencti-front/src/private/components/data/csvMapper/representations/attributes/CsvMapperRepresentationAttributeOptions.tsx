@@ -57,15 +57,18 @@ CsvMapperRepresentationAttributeOptionsProps
       )}
       {attribute.editDefault && (
       <>
-        {attributeDefaultValues
-          ? <DialogContent dividers sx={{ width: 500 }}>
-            {t('The default value set in Settings > Customization is "')}{attributeDefaultValues}
-            {t('". It will be automatically used if the column is empty.')}
-            {t(' If you want to specify an other default value instead, you can override it with the field below.')}
-          </DialogContent>
-          : <DialogContent dividers sx={{ width: 500 }}>
-            {t('A default value is not set in Settings > Customization. If you want to specify a value, you can fill the field below.')}
-          </DialogContent> }
+        <DialogContent dividers sx={{ width: 500 }}>
+          {attributeDefaultValues ? (
+            <>
+              {t('The default value set in Settings > Customization is "')}
+              {attributeDefaultValues}
+              {t('". It will be automatically used if the column is empty.')}
+              {t(' If you want to specify an other default value instead, you can override it with the field below.')}
+            </>
+          ) : (
+            t('A default value is not set in Settings > Customization. If you want to specify a value, you can fill the field below.')
+          )}
+        </DialogContent>
         <CsvMapperRepresentationAttributeOption
           attribute={attribute}
           placeholder={'example'}
