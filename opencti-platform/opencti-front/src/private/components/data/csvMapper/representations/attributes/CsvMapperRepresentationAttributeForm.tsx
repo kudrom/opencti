@@ -88,13 +88,6 @@ CsvMapperRepresentationAttributeFormProps
         `representations[${indexRepresentation}].attributes`,
         [...selectedAttributes, newSelectedAttribute],
       );
-    } else if (value === null) {
-      // if the column index becomes unset, remove the attributes from selection in formik
-      selectedAttributes.splice(indexAttribute, 1);
-      await formikContext.setFieldValue(
-        `representations[${indexRepresentation}].attributes`,
-        selectedAttributes,
-      );
     } else {
       await formikContext.setFieldValue(
         `representations[${indexRepresentation}].attributes[${indexAttribute}].column.column_name`,
@@ -140,7 +133,7 @@ CsvMapperRepresentationAttributeFormProps
       <div>
         {
           (attribute.type === 'date' || attribute.multiple || attribute.editDefault)
-          && <CsvMapperRepresentationDialogOption attribute={attribute}>
+          && <CsvMapperRepresentationDialogOption>
             <CsvMapperRepresentationAttributeOptions
               attribute={attribute}
               indexRepresentation={indexRepresentation}

@@ -5,6 +5,7 @@ import { isEmptyField, isNotEmptyField } from '../../../database/utils';
 import { isStixRelationshipExceptRef } from '../../../schema/stixRelationship';
 import { isStixObject } from '../../../schema/stixCoreObject';
 import { CsvMapperRepresentationType } from './csvMapper-types';
+import { fillDefaultValues, getEntitySettingFromCache } from '../../entitySetting/entitySetting-utils';
 import { FunctionalError } from '../../../config/errors';
 
 const representationLabel = (idx: number, representation: CsvMapperRepresentation) => {
@@ -45,11 +46,16 @@ export const validate = async (context: AuthContext, mapper: BasicStoreEntityCsv
     isValidTargetType(representation);
 
     // Validate required attributes
+    const entitySetting = await getEntitySettingFromCache(context, representation.target.entity_type);
+    const defaultValues = fillDefaultValues(context.user, {}, entitySetting);
     const schemaAttributes = await getSchemaAttributes(context, representation.target.entity_type);
     schemaAttributes.filter((schemaAttribute) => schemaAttribute.mandatory)
       .forEach((schemaAttribute) => {
         const attribute = representation.attributes.find((a) => schemaAttribute.name === a.key);
-        if (isEmptyField(attribute) || (isEmptyField(attribute?.column?.column_name) && isEmptyField(attribute?.based_on?.representations))) {
+        const isColumnEmpty = isEmptyField(attribute?.column?.column_name) && isEmptyField(attribute?.based_on?.representations);
+        const isDefaultValueEmpty = isEmptyField(defaultValues[schemaAttribute.name]);
+        const isAttributeDefaultValueEmpty = isEmptyField(attribute?.column?.configuration?.default_value);
+        if (isColumnEmpty && isDefaultValueEmpty && isAttributeDefaultValueEmpty) {
           throw FunctionalError('Missing values for required attribute', { representation: representationLabel(idx, representation), attribute: schemaAttribute.name });
         }
       });

@@ -80,6 +80,7 @@ export const sanitized = (representations: Representation[]) => {
           return (
             isNotEmptyField(attr.based_on?.representations)
             || isNotEmptyField(attr.column?.column_name)
+            || isNotEmptyField(attr.column?.configuration)
           );
         }),
       };

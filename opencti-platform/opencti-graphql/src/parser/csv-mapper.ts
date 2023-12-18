@@ -13,9 +13,8 @@ import type { BasicStoreEntityCsvMapper, CsvMapperRepresentation } from '../modu
 import { CsvMapperRepresentationType, Operator } from '../modules/internal/csvMapper/csvMapper-types';
 import type { AttributeColumn } from '../generated/graphql';
 import { isValidTargetType } from '../modules/internal/csvMapper/csvMapper-utils';
-import { getEntitySettingFromCache } from '../modules/entitySetting/entitySetting-utils';
+import { fillDefaultValues, getEntitySettingFromCache } from '../modules/entitySetting/entitySetting-utils';
 import type { AuthContext } from '../types/user';
-import { fillDefaultValues } from '../database/middleware';
 import { UnsupportedError } from '../config/errors';
 
 export type InputType = string | string[] | boolean | number | Record<string, any>;

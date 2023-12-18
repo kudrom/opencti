@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { useFormikContext } from 'formik';
-import { AttributeWithMetadata } from '@components/data/csvMapper/representations/attributes/Attribute';
+import { Attribute, AttributeWithMetadata } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapper } from '@components/data/csvMapper/CsvMapper';
 import CsvMapperRepresentationAttributeOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOption';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -23,10 +23,32 @@ CsvMapperRepresentationAttributeOptionsProps
   );
 
   const onChange = async (name: string, value: string) => {
-    await formikContext.setFieldValue(
-      `representations[${indexRepresentation}].attributes[${indexAttribute}].column.configuration`,
-      { [name]: attribute.type === 'numeric' && value ? Number(value) : value },
-    );
+    const parsedValue = name === 'default_value' && attribute.type === 'numeric' && value
+      ? Number(value)
+      : value || null;
+
+    if (indexAttribute === -1) {
+      // this attribute was not set yet, initialize
+      const newSelectedAttribute: Attribute = {
+        key: attribute.key,
+        column: {
+          column_name: null,
+          configuration: {
+            [name]: parsedValue,
+          },
+        },
+        based_on: null,
+      };
+      await formikContext.setFieldValue(
+        `representations[${indexRepresentation}].attributes`,
+        [...selectedAttributes, newSelectedAttribute],
+      );
+    } else {
+      await formikContext.setFieldValue(
+        `representations[${indexRepresentation}].attributes[${indexAttribute}].column.configuration.${name}`,
+        parsedValue,
+      );
+    }
   };
 
   const attributeDefaultValues = attribute.defaultValues?.join(',');
