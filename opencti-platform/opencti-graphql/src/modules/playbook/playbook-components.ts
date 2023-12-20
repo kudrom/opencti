@@ -34,7 +34,6 @@ import { convertStoreToStix, convertTypeToStixType } from '../../database/stix-c
 import type { BasicStoreRelation, StoreCommon, StoreRelation } from '../../types/store';
 import { generateStandardId } from '../../schema/identifier';
 import { now, observableValue, utcDate } from '../../utils/format';
-import { STIX_SPEC_VERSION } from '../../database/stix';
 import type { StixCampaign, StixContainer, StixIncident, StixInfrastructure, StixMalware, StixReport, StixThreatActor } from '../../types/stix-sdo';
 import { getParentTypes } from '../../schema/schemaUtils';
 import { ENTITY_TYPE_CONTAINER_REPORT, isStixDomainObjectContainer } from '../../schema/stixDomainObject';
@@ -353,7 +352,6 @@ const PLAYBOOK_CONTAINER_WRAPPER_COMPONENT: PlaybookComponent<ContainerWrapperCo
         internal_id: uuidv4(),
         standard_id: standardId,
         entity_type: container_type,
-        spec_version: STIX_SPEC_VERSION,
         parent_types: getParentTypes(container_type),
         ...containerData
       } as StoreCommon;
@@ -876,7 +874,6 @@ const PLAYBOOK_CREATE_INDICATOR_COMPONENT: PlaybookComponent<CreateIndicatorConf
             internal_id: uuidv4(),
             standard_id: indicatorStandardId,
             entity_type: ENTITY_TYPE_INDICATOR,
-            spec_version: STIX_SPEC_VERSION,
             parent_types: getParentTypes(ENTITY_TYPE_INDICATOR),
             ...indicatorData
           } as StoreCommon;
