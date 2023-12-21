@@ -1,88 +1,82 @@
 import { v4 as uuid } from 'uuid';
-import { Representation } from '@components/data/csvMapper/representations/Representation';
-import { AttributeWithMetadata } from '@components/data/csvMapper/representations/attributes/Attribute';
-import { CsvMapper } from '@components/data/csvMapper/CsvMapper';
-import { useMapAttributes } from '@components/data/csvMapper/representations/attributes/AttributeUtils';
 import { CsvMapperRepresentationType } from '@components/data/csvMapper/__generated__/CsvMapperEditionContainerFragment_csvMapper.graphql';
-import { isEmptyField, isNotEmptyField } from '../../../../../utils/utils';
+import { CsvMapperRepresentation, CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
+import { csvMapperAttributeToFormData, formDataToCsvMapperAttribute } from '@components/data/csvMapper/representations/attributes/AttributeUtils';
+import { isEmptyField } from '../../../../../utils/utils';
 
 // -- INIT --
 
 export const representationInitialization = (
   type: CsvMapperRepresentationType,
-) => {
+): CsvMapperRepresentationFormData => {
   return {
     id: uuid(),
     type,
-    target: {
-      entity_type: '',
-    },
-    attributes: [] as AttributeWithMetadata[],
-  } as Representation;
+    attributes: {},
+    target_type: '',
+  };
 };
 
 // -- GETTER --
 
 export const representationLabel = (
   idx: number,
-  representation: Representation,
+  representation: CsvMapperRepresentationFormData,
   t: (message: string) => string,
 ) => {
   const number = `#${idx + 1}`; // 0-based internally, 1-based for display
-  if (isEmptyField(representation.target.entity_type)) {
+  if (isEmptyField(representation.target_type)) {
     return `${number} ${t(`New ${representation.type} representation`)}`;
   }
   const prefix = representation.type === 'entity' ? 'entity_' : 'relationship_';
-  const label = `${t(`${prefix}${representation.target.entity_type}`)}`;
+  const label = `${t(`${prefix}${representation.target_type}`)}`;
   return `${number} ${label[0].toUpperCase()}${label.slice(1)}`;
-};
-
-export const getEntityRepresentations = (csvMapper: CsvMapper) => {
-  return csvMapper.representations.filter((r) => r.type === 'entity');
-};
-export const getRelationshipRepresentations = (csvMapper: CsvMapper) => {
-  return csvMapper.representations.filter((r) => r.type === 'relationship');
 };
 
 // -- MAPPER --
 
-export const useMapRepresentations = (
-  representations: ReadonlyArray<{
-    readonly attributes: ReadonlyArray<{
-      readonly based_on: {
-        readonly representations: ReadonlyArray<string | null> | null;
-      } | null;
-      readonly column: {
-        readonly column_name: string | null;
-      } | null;
-      readonly key: string;
-    }>;
-    readonly id: string;
-    readonly target: {
-      readonly entity_type: string;
-    };
-    readonly type: CsvMapperRepresentationType;
-  }>,
-) => {
-  return (representations ?? []).concat().map((r) => ({
-    ...r,
-    attributes: useMapAttributes(r.attributes),
-  }));
+/**
+ * Transform raw csv mapper representation data into formik format.
+ * @param representation The raw data from backend.
+ *
+ * @returns Data in formik format.
+ */
+export const csvMapperRepresentationToFormData = (
+  representation: CsvMapperRepresentation,
+): CsvMapperRepresentationFormData => {
+  return {
+    id: representation.id,
+    type: representation.type,
+    target_type: representation.target.entity_type,
+    attributes: representation.attributes.reduce((acc, attribute) => {
+      return {
+        ...acc,
+        [attribute.key]: csvMapperAttributeToFormData(attribute),
+      };
+    }, {}),
+  };
 };
 
-export const sanitized = (representations: Representation[]) => {
-  return representations
-    .filter((r) => isNotEmptyField(r.target.entity_type))
-    .map((r) => {
-      return {
-        ...r,
-        attributes: r.attributes.filter((attr) => {
-          return (
-            isNotEmptyField(attr.based_on?.representations)
-            || isNotEmptyField(attr.column?.column_name)
-            || isNotEmptyField(attr.column?.configuration)
-          );
-        }),
-      };
-    });
+/**
+ * Transform mapper representation in formik format to backend format.
+ * @param data The formik data.
+ *
+ * @returns Data in backend format.
+ */
+export const formDataToCsvMapperRepresentation = (
+  data: CsvMapperRepresentationFormData,
+): CsvMapperRepresentation => {
+  return {
+    id: data.id,
+    type: data.type as CsvMapperRepresentationType,
+    target: {
+      entity_type: data.target_type ?? '',
+    },
+    attributes: (Object.values(data.attributes)).flatMap((attribute) => {
+      const mapperAttribute = formDataToCsvMapperAttribute(attribute);
+      return isEmptyField(mapperAttribute.column) && isEmptyField(mapperAttribute.based_on)
+        ? []
+        : mapperAttribute;
+    }),
+  };
 };

@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import { useFormikContext } from 'formik';
+import { FieldProps } from 'formik';
 import { useQueryLoader } from 'react-relay';
 import CsvMapperRepresentationAttributesForm, { schemaAttributesQuery } from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributesForm';
 import MUIAutocomplete from '@mui/material/Autocomplete';
@@ -17,7 +17,7 @@ import { representationLabel } from '@components/data/csvMapper/representations/
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import { CsvMapperRepresentationAttributesFormQuery } from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesFormQuery.graphql';
-import { CsvMapper } from '@components/data/csvMapper/CsvMapper';
+import { CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
 import { useFormatter } from '../../../../../components/i18n';
 import Loader, { LoaderVariant } from '../../../../../components/Loader';
 import ItemIcon from '../../../../../components/ItemIcon';
@@ -46,62 +46,63 @@ const useStyles = makeStyles<Theme>((theme) => ({
 }));
 
 export interface RepresentationFormEntityOption extends Option {
-  value: string;
-  label: string;
   type: string;
   id: string;
 }
 
-interface CsvMapperRepresentationFormProps {
+interface CsvMapperRepresentationFormProps
+  extends FieldProps<CsvMapperRepresentationFormData> {
   index: number;
   availableTypes: { value: string; type: string; id: string; label: string }[];
   handleRepresentationErrors: (key: string, value: boolean) => void;
   prefixLabel: string;
+  onDelete: () => void;
 }
 
 const CsvMapperRepresentationForm: FunctionComponent<
 CsvMapperRepresentationFormProps
 > = ({
+  form,
+  field,
   index,
   availableTypes = [],
   handleRepresentationErrors,
   prefixLabel,
+  onDelete,
 }) => {
   const { t } = useFormatter();
   const classes = useStyles();
 
-  const formikContext = useFormikContext<CsvMapper>();
-  const representation = formikContext.values.representations[index];
+  const { name, value } = field;
+  const { setFieldValue, setFieldTouched } = form;
+
+  const deletion = useDeletion({});
+  const { setDeleting, handleCloseDelete, handleOpenDelete } = deletion;
 
   // -- ERRORS --
   const [hasError, setHasError] = useState<boolean>(false);
   let errors: Map<string, string> = new Map();
-  const handleErrors = (key: string, value: string | null) => {
-    errors = { ...errors, [key]: value };
+  const handleErrors = (key: string, val: string | null) => {
+    errors = { ...errors, [key]: val };
     const hasErrors = Object.values(errors).filter((v) => v !== null).length > 0;
     setHasError(hasErrors);
-    handleRepresentationErrors(representation.id, hasErrors);
+    handleRepresentationErrors(value.id, hasErrors);
   };
 
   // -- EVENTS --
 
   const handleChangeEntityType = async (option: Option | null) => {
-    const updatedRepresentation = {
-      ...representation,
-      attributes: [],
-      target: { entity_type: option?.value ?? null },
+    const newValue: CsvMapperRepresentationFormData = {
+      ...value,
+      attributes: {},
+      target_type: option?.value ?? undefined,
     };
-
-    await formikContext.setFieldValue(`representations[${index}]`, updatedRepresentation);
-    await formikContext.setFieldTouched(`representations[${index}]`, false);
+    await setFieldValue(name, newValue);
+    await setFieldTouched(name, false);
   };
 
-  const deletion = useDeletion({});
-  const { setDeleting, handleCloseDelete, handleOpenDelete } = deletion;
-  const onDelete = async () => {
-    const newRepresentations = formikContext.values.representations;
-    newRepresentations.splice(index, 1);
-    await formikContext.setFieldValue('representations', newRepresentations);
+  const deleteRepresentation = async () => {
+    onDelete();
     setDeleting(false);
     handleCloseDelete();
   };
@@ -114,13 +115,13 @@ CsvMapperRepresentationFormProps
 
   // reload the attributes when the entity type changes
   useEffect(() => {
-    if (representation.target.entity_type) {
+    if (value.target_type) {
       fetchLoadQuery(
-        { entityType: representation.target.entity_type },
+        { entityType: value.target_type },
         { fetchPolicy: 'store-and-network' },
       );
     }
-  }, [representation.target.entity_type]);
+  }, [value.target_type]);
 
   // -- ACCORDION --
 
@@ -135,10 +136,10 @@ CsvMapperRepresentationFormProps
 
   const searchType = (event: React.SyntheticEvent) => {
     const selectChangeEvent = event as SelectChangeEvent;
-    const value = selectChangeEvent?.target.value ?? '';
+    const val = selectChangeEvent?.target.value ?? '';
     return availableTypes.filter(
-      (type) => type.value.includes(value)
-        || t(`${prefixLabel}${type.label}`).includes(value),
+      (type) => type.value.includes(val)
+        || t(`${prefixLabel}${type.label}`).includes(val),
     );
   };
 
@@ -155,7 +156,7 @@ CsvMapperRepresentationFormProps
         <AccordionSummary expandIcon={<ExpandMoreOutlined />} onClick={toggle}>
           <div className={classes.container}>
             <Typography>
-              {representationLabel(index, representation, t)}
+              {representationLabel(index, value, t)}
             </Typography>
             <Tooltip title={t('Delete')}>
               <IconButton color="error" onClick={handleOpenDelete}>
@@ -174,13 +175,9 @@ CsvMapperRepresentationFormProps
               noOptionsText={t('No available options')}
               options={availableTypes}
               groupBy={(option) => t(option.type) ?? t('Unknown')}
-              value={
-                availableTypes.find(
-                  (e) => e.id === representation.target.entity_type,
-                ) || null
-              }
+              value={availableTypes.find((e) => e.id === value.target_type) || null}
               onInputChange={(event) => searchType(event)}
-              onChange={(_, value) => handleChangeEntityType(value)}
+              onChange={(_, val) => handleChangeEntityType(val)}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -206,10 +203,10 @@ CsvMapperRepresentationFormProps
               >
                 <div style={{ marginTop: 20 }}>
                   <CsvMapperRepresentationAttributesForm
-                    key={representation.target.entity_type}
-                    index={index}
                     queryRef={queryRef}
                     handleErrors={handleErrors}
+                    representation={value}
+                    representationName={name}
                   />
                 </div>
               </React.Suspense>
@@ -229,9 +226,10 @@ CsvMapperRepresentationFormProps
       <DeleteDialog
         title={t('Do you want to delete this representation?')}
         deletion={deletion}
-        submitDelete={onDelete}
+        submitDelete={deleteRepresentation}
       />
     </>
   );
 };
+
 export default CsvMapperRepresentationForm;

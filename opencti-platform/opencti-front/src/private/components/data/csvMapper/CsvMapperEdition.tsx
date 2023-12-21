@@ -4,8 +4,8 @@ import * as R from 'ramda';
 import { FormikConfig } from 'formik/dist/types';
 import { CsvMapperEditionContainerFragment_csvMapper$data } from '@components/data/csvMapper/__generated__/CsvMapperEditionContainerFragment_csvMapper.graphql';
 import CsvMapperForm from '@components/data/csvMapper/CsvMapperForm';
-import { useMapRepresentations, sanitized } from '@components/data/csvMapper/representations/RepresentationUtils';
-import { CsvMapper } from '@components/data/csvMapper/CsvMapper';
+import { CsvMapperFormData } from '@components/data/csvMapper/CsvMapper';
+import { csvMapperToFormData, formDataToCsvMapper } from '@components/data/csvMapper/CsvMapperUtils';
 import formikFieldToEditInput from '../../../../utils/FormikUtils';
 
 const csvMapperEditionPatch = graphql`
@@ -26,24 +26,17 @@ const CsvMapperEdition: FunctionComponent<CsvMapperEditionProps> = ({
   onClose,
 }) => {
   const [commitUpdateMutation] = useMutation(csvMapperEditionPatch);
-  const initialValues: CsvMapper = {
-    id: csvMapper.id,
-    name: csvMapper.name,
-    has_header: csvMapper.has_header,
-    separator: csvMapper.separator,
-    skipLineChar: csvMapper.skipLineChar,
-    representations: useMapRepresentations(csvMapper.representations),
-    errors: csvMapper.errors,
-  };
+  const initialValues = csvMapperToFormData(csvMapper);
 
-  const onSubmit: FormikConfig<CsvMapper>['onSubmit'] = (
+  const onSubmit: FormikConfig<CsvMapperFormData>['onSubmit'] = (
     values,
     { setSubmitting },
   ) => {
+    const formattedValues = formDataToCsvMapper(values);
     const input = formikFieldToEditInput(
       {
-        ...R.omit(['id', 'errors'], values),
-        representations: JSON.stringify(sanitized(values.representations)),
+        ...R.omit(['id', 'errors'], formattedValues),
+        representations: JSON.stringify(formattedValues.representations),
       },
       {
         name: csvMapper.name,

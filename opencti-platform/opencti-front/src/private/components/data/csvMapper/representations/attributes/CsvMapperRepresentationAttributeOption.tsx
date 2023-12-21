@@ -1,37 +1,34 @@
-import MuiTextField, { BaseTextFieldProps } from '@mui/material/TextField';
+import MuiTextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import { InformationOutline } from 'mdi-material-ui';
 import React from 'react';
-import { AttributeWithMetadata } from '@components/data/csvMapper/representations/attributes/Attribute';
 import Alert from '@mui/material/Alert';
+import { FieldProps } from 'formik';
 
-interface CsvMapperRepresentationAttributeOptionProps {
-  attribute: AttributeWithMetadata;
+interface CsvMapperRepresentationAttributeOptionProps extends FieldProps<string> {
   placeholder: string
-  onChange: (val: string) => void
-  value: string
   info?: string
   tooltip?: string
 }
 
 const CsvMapperRepresentationAttributeOption = ({
-  attribute,
+  field,
+  form,
   placeholder,
   tooltip,
-  onChange,
-  value,
   info,
 }: CsvMapperRepresentationAttributeOptionProps) => {
-  const type: BaseTextFieldProps['type'] = attribute.type === 'numeric' ? 'number' : 'text';
+  const { name, value } = field;
+  const { setFieldValue } = form;
 
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'flex-end', width: '50%', gap: '8px', marginTop: '10px' }}>
         <MuiTextField
           style={{ flex: 1 }}
-          type={type}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
+          type="text"
+          value={value ?? ''}
+          onChange={(event) => setFieldValue(name, event.target.value)}
           placeholder={placeholder}
         />
         {tooltip && (

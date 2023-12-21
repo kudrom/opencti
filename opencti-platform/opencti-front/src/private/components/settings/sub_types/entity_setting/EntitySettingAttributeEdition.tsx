@@ -8,30 +8,19 @@ import { FormikConfig } from 'formik/dist/types';
 import { head } from 'ramda';
 import Alert from '@mui/lab/Alert';
 import Drawer from '@components/common/drawer/Drawer';
-import AuthorizedMembersField from '@components/common/form/AuthorizedMembersField';
 import { EntitySettingAttributeEditionMembersQuery$data } from '@components/settings/sub_types/entity_setting/__generated__/EntitySettingAttributeEditionMembersQuery.graphql';
+import DefaultValueField from '@components/common/form/DefaultValueField';
 import { useFormatter } from '../../../../../components/i18n';
 import type { Theme } from '../../../../../components/Theme';
 import SwitchField from '../../../../../components/SwitchField';
-import TextField from '../../../../../components/TextField';
 import type { Scale, ScaleConfig } from '../scale_configuration/scale';
 import type { AttributeConfiguration } from './entitySetting';
 import { EntitySettingAttributeLine_attribute$data } from './__generated__/EntitySettingAttributeLine_attribute.graphql';
 import { EntitySettingAttributes_entitySetting$data } from './__generated__/EntitySettingAttributes_entitySetting.graphql';
 import ScaleConfiguration from '../scale_configuration/ScaleConfiguration';
 import { isCustomScale } from '../../../../../utils/hooks/useScale';
-import OpenVocabField from '../../../common/form/OpenVocabField';
-import { fieldSpacingContainerStyle } from '../../../../../utils/field';
 import { Option } from '../../../common/form/ReferenceField';
-import CreatedByField from '../../../common/form/CreatedByField';
 import { useComputeDefaultValues } from '../../../../../utils/hooks/useDefaultValues';
-import useVocabularyCategory from '../../../../../utils/hooks/useVocabularyCategory';
-import MarkdownField from '../../../../../components/MarkdownField';
-import ObjectAssigneeField from '../../../common/form/ObjectAssigneeField';
-import RichTextField from '../../../../../components/RichTextField';
-import DateTimePickerField from '../../../../../components/DateTimePickerField';
-import KillChainPhasesField from '../../../common/form/KillChainPhasesField';
-import ObjectParticipantField from '../../../common/form/ObjectParticipantField';
 import { fetchQuery, handleErrorInForm } from '../../../../../relay/environment';
 import { AccessRight, INPUT_AUTHORIZED_MEMBERS } from '../../../../../utils/authorizedMembers';
 
@@ -102,8 +91,6 @@ const EntitySettingAttributeEdition = ({
 }: EntitySettingAttributeEditionProps) => {
   const { t } = useFormatter();
   const classes = useStyles();
-  const { fieldToCategory } = useVocabularyCategory();
-  const ovCategory = fieldToCategory(entitySetting.target_type, attribute.name);
 
   const attributesConfiguration: AttributeConfiguration[] = entitySetting.attributes_configuration
     ? JSON.parse(entitySetting.attributes_configuration)
@@ -235,180 +222,6 @@ const EntitySettingAttributeEdition = ({
     });
   };
 
-  const field = (setFieldValue: (field: string, value: string) => void) => {
-    const label = t('Default value');
-    // Handle object marking specific case : activate or deactivate default values (handle in access)
-    if (attribute.name === 'objectMarking') {
-      return (
-        <>
-          <Field
-            component={SwitchField}
-            type="checkbox"
-            name="default_values"
-            label={t('Activate/Deactivate default values')}
-            fullWidth={true}
-            containerstyle={{ marginTop: 20 }}
-          />
-          <Alert
-            severity="info"
-            variant="outlined"
-            style={{ margin: '20px 0 10px 0' }}
-          >
-            {t(
-              'When enabling a default value for marking definitions, it will put the group default markings ot the user which created the entity if nothing is provided.',
-            )}
-          </Alert>
-        </>
-      );
-    }
-    if (attribute.name === 'killChainPhases') {
-      return (
-        <KillChainPhasesField
-          name="default_values"
-          style={fieldSpacingContainerStyle}
-        />
-      );
-    }
-    // Handle createdBy
-    if (attribute.name === 'createdBy') {
-      return (
-        <CreatedByField
-          label={label}
-          name="default_values"
-          style={fieldSpacingContainerStyle}
-          setFieldValue={setFieldValue}
-        />
-      );
-    }
-    // Handle objectAssignee
-    if (attribute.name === 'objectAssignee') {
-      return (
-        <ObjectAssigneeField
-          label={label}
-          name="default_values"
-          style={fieldSpacingContainerStyle}
-        />
-      );
-    }
-    // Handle objectParticipant
-    if (attribute.name === 'objectParticipant') {
-      return (
-        <ObjectParticipantField
-          label={label}
-          name="default_values"
-          style={fieldSpacingContainerStyle}
-        />
-      );
-    }
-    // Handle authorized members
-    if (attribute.name === INPUT_AUTHORIZED_MEMBERS) {
-      return (
-        <Field
-          name="default_values"
-          component={AuthorizedMembersField}
-          style={fieldSpacingContainerStyle}
-          showAllMembersLine
-          showCreatorLine
-          canDeactivate
-        />
-      );
-    }
-    // Handle multiple & single OV
-    if (ovCategory) {
-      return (
-        <OpenVocabField
-          label={label}
-          type={ovCategory}
-          name="default_values"
-          multiple={attribute.multiple ?? false}
-          containerStyle={fieldSpacingContainerStyle}
-        />
-      );
-    }
-    // Handle single numeric
-    if (attribute.type === 'date') {
-      return (
-        <Field
-          label={label}
-          component={DateTimePickerField}
-          name="default_values"
-          TextFieldProps={{
-            label,
-            variant: 'standard',
-            fullWidth: true,
-            style: { marginTop: 20 },
-          }}
-        />
-      );
-    }
-    // Handle single boolean
-    if (attribute.type === 'boolean') {
-      return (
-        <Field
-          component={SwitchField}
-          type="checkbox"
-          name="default_values"
-          label={label}
-          containerstyle={fieldSpacingContainerStyle}
-        />
-      );
-    }
-    // Handle single numeric
-    if (attribute.type === 'numeric') {
-      return (
-        <Field
-          component={TextField}
-          type="number"
-          variant="standard"
-          name="default_values"
-          label={label}
-          fullWidth={true}
-          style={{ marginTop: 20 }}
-        />
-      );
-    }
-    // Handle single string - Markdown
-    if (attribute.name === 'description') {
-      return (
-        <Field
-          component={MarkdownField}
-          name="default_values"
-          label={label}
-          fullWidth={true}
-          multiline={true}
-          rows="4"
-          style={{ marginTop: 20 }}
-        />
-      );
-    }
-    // Handle single string - Richtext
-    if (attribute.name === 'content') {
-      return (
-        <Field
-          component={RichTextField}
-          name="default_values"
-          label={label}
-          fullWidth={true}
-          style={{
-            ...fieldSpacingContainerStyle,
-            minHeight: 200,
-            height: 200,
-          }}
-        />
-      );
-    }
-    return (
-      <Field
-        component={TextField}
-        variant="standard"
-        name="default_values"
-        label={label}
-        fullWidth={true}
-        style={{ marginTop: 20 }}
-      />
-    );
-  };
-
   const defaultValues = () => {
     const values = attribute.defaultValues ? [...attribute.defaultValues] : [];
     // Handle object marking specific case : activate or deactivate default values (handle in access)
@@ -462,7 +275,14 @@ const EntitySettingAttributeEdition = ({
               label={t('Mandatory')}
               disabled={attribute.mandatoryType !== 'customizable'}
             />
-            {field(setFieldValue)}
+
+            <DefaultValueField
+              attribute={attribute}
+              setFieldValue={setFieldValue}
+              entityType={entitySetting.target_type}
+              name="default_values"
+            />
+
             {attribute.scale && (
               <ScaleConfiguration
                 initialValues={initialValues.scale}
