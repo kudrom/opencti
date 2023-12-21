@@ -24,7 +24,7 @@ const buildFilterDefinitionFromAttributeDefinition = (attributeDefinition: Attri
   };
 };
 
-const modifiyAttributeMapForNestedAttribute = (
+const modifyAttributeMapForNestedAttribute = (
   attributesMapWithFilterDefinition: Map<string, FilterDefinition>, // map in construction
   nestedAttributeDefinition: NestedAttribute, // nested attribute to study
   types: string[], // entity types to apply
@@ -32,14 +32,17 @@ const modifiyAttributeMapForNestedAttribute = (
   const { mappings } = nestedAttributeDefinition;
   mappings.forEach((mappingAttributeDefinition) => {
     if (mappingAttributeDefinition.isFilterable) {
-      if (mappingAttributeDefinition.associatedFilterKeys) { // if associatedFilterKeys is set: the keys to add are the ones in associatedFilterKeys
+      if (typesAttributeWithNested.includes(mappingAttributeDefinition.type)) { // case 1: nested attribute
+        throw Error('A nested attribute can\'t contain a nested attribute'); // not supported for the moment
+      } else if (mappingAttributeDefinition.associatedFilterKeys) { // case 2: not nested attribute and associatedFilterKeys is set
+        // the keys to add are the ones in associatedFilterKeys
         mappingAttributeDefinition.associatedFilterKeys.forEach((mappingName) => {
           attributesMapWithFilterDefinition.set(
             mappingName,
             buildFilterDefinitionFromAttributeDefinition({ ...mappingAttributeDefinition, name: mappingName }, types),
           );
         });
-      } else { // else: the key to add is composed with the attribute name and the mapping attribute name
+      } else { // case 3: not nested attribute and the key to add is composed with the attribute name and the mapping attribute name
         const composedMappingName = `${nestedAttributeDefinition.name}.${mappingAttributeDefinition.name}`;
         attributesMapWithFilterDefinition.set(
           composedMappingName,
@@ -61,7 +64,7 @@ const completeAttributeMapWithSubTypes = (
       if (subAttributeDefinition.isFilterable) {
         // case A: nested attribute
         if (typesAttributeWithNested.includes(subAttributeDefinition.type)) {
-          modifiyAttributeMapForNestedAttribute(attributesMapWithFilterDefinition, subAttributeDefinition as NestedAttribute, [subType]);
+          modifyAttributeMapForNestedAttribute(attributesMapWithFilterDefinition, subAttributeDefinition as NestedAttribute, [subType]);
         } else { // case B: not nested attribute
           const filterDefinition = attributesMapWithFilterDefinition.get(subAttributeName);
           // case B.1: the attribute is already in the map and the subType is not indicated
@@ -96,7 +99,7 @@ export const generateFilterKeysSchema = (): Map<string, Map<string, FilterDefini
     attributesMap.forEach((attributeDefinition, attributeName) => {
       if (attributeDefinition.isFilterable) { // if it is filterable
         if (typesAttributeWithNested.includes(attributeDefinition.type)) { // case 1.1: nested attribute
-          modifiyAttributeMapForNestedAttribute(attributesMapWithFilterDefinition, attributeDefinition as NestedAttribute, [type, ...subTypes]);
+          modifyAttributeMapForNestedAttribute(attributesMapWithFilterDefinition, attributeDefinition as NestedAttribute, [type, ...subTypes]);
         } else { // case 1.2: not nested attribute
           const filterKeyDefinition = buildFilterDefinitionFromAttributeDefinition(attributeDefinition, [type, ...subTypes]);
           attributesMapWithFilterDefinition.set(attributeName, filterKeyDefinition); // should be added in the filterKeys schema
