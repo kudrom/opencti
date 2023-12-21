@@ -1,4 +1,4 @@
-import { generateFilterKeysSchema } from '../domain/filterKeysSchema';
+// import { generateFilterKeysSchema } from '../domain/filterKeysSchema';
 
 const filterKeysSchemaResolver = {
   Query: {

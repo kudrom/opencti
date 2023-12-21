@@ -41,6 +41,6 @@ export const generateFilterKeysSchema = (): Map<string, Map<string, AttributeDef
     attributesMapWithTypeUsage = completeAttributeMapWithSubTypes(attributesMapWithTypeUsage, subTypes);
     filterKeysSchema.set(type, attributesMapWithTypeUsage);
   });
-  console.log('test', filterKeysSchema.get('Stix-Domain-Object'));
+  // console.log('test', filterKeysSchema.get('Stix-Domain-Object'));
   return filterKeysSchema;
 };
