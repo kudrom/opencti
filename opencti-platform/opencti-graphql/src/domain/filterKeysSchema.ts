@@ -36,10 +36,10 @@ const modifyAttributeMapForNestedAttribute = (
         throw Error('A nested attribute can\'t contain a nested attribute'); // not supported for the moment
       } else if (mappingAttributeDefinition.associatedFilterKeys) { // case 2: not nested attribute and associatedFilterKeys is set
         // the keys to add are the ones in associatedFilterKeys
-        mappingAttributeDefinition.associatedFilterKeys.forEach((mappingName) => {
+        mappingAttributeDefinition.associatedFilterKeys.forEach(({ key, label }) => {
           attributesMapWithFilterDefinition.set(
-            mappingName,
-            buildFilterDefinitionFromAttributeDefinition({ ...mappingAttributeDefinition, name: mappingName }, types),
+            key,
+            buildFilterDefinitionFromAttributeDefinition({ ...mappingAttributeDefinition, name: key, label }, types),
           );
         });
       } else { // case 3: not nested attribute and the key to add is composed with the attribute name and the mapping attribute name
