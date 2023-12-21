@@ -26,6 +26,7 @@ export const csvMapperToFormData = (
       if (rep.type !== 'relationship') return [];
       return csvMapperRepresentationToFormData(rep);
     }),
+    errors: csvMapper.errors,
   };
 };
 
