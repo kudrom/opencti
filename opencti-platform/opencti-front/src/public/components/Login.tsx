@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import Typography from '@mui/material/Typography';
 import { APP_BASE_PATH, fileUri } from '../../relay/environment';
 import logo from '../../static/images/logo.png';
-import logo_filigran from '../../static/images/logo_filigran.png';
+import logo_filigran from '../../static/images/logo_filigran_christmas.png';
 import LoginForm from './LoginForm';
 import OTPForm from './OTPForm';
 import OtpActivationComponent from './OtpActivation';

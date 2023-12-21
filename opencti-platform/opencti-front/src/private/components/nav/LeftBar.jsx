@@ -18,7 +18,7 @@ import { fileUri, MESSAGING$ } from '../../../relay/environment';
 import { useIsHiddenEntities } from '../../../utils/hooks/useEntitySettings';
 import useAuth from '../../../utils/hooks/useAuth';
 import { useSettingsMessagesBannerHeight } from '../settings/settings_messages/SettingsMessagesBanner';
-import logo_filigran from '../../../static/images/logo_filigran.png';
+import logo_filigran from '../../../static/images/logo_filigran_christmas.png';
 import useEnterpriseEdition from '../../../utils/hooks/useEnterpriseEdition';
 
 const useStyles = makeStyles((theme) => createStyles({
