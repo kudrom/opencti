@@ -45,13 +45,6 @@ FunctionComponent<CsvMapperRepresentionAttributSelectedConfigurationsProps> = ({
         <span className={classes.selectedOption}>{configuration.separator}</span>
       </>
     }
-    {
-      configuration.default_values
-      && <>
-        <SubdirectoryArrowRight/> {t('Default value(s)')}:
-        <span className={classes.selectedOption}>{configuration.default_values}</span>
-      </>
-    }
   </div>;
 };
 

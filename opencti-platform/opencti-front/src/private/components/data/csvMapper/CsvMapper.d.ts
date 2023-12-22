@@ -8,5 +8,5 @@ export interface CsvMapperFormData {
   skip_line_char?: string
   entity_representations: CsvMapperRepresentationFormData[]
   relationship_representations: CsvMapperRepresentationFormData[]
-  errors:? string
+  errors?: string
 }

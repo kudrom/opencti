@@ -131,8 +131,9 @@ CsvMapperRepresentationAttributeFormProps
           (schemaAttribute.type === 'date' || schemaAttribute.multiple || schemaAttribute.editDefault)
           && <CsvMapperRepresentationDialogOption>
             <CsvMapperRepresentationAttributeOptions
-              schema={schemaAttribute}
+              schemaAttribute={schemaAttribute}
               attributeName={name}
+              form={form}
             />
           </CsvMapperRepresentationDialogOption>
         }

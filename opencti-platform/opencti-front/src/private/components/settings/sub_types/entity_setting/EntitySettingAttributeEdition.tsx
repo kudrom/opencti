@@ -22,6 +22,7 @@ import { Option } from '../../../common/form/ReferenceField';
 import { useComputeDefaultValues } from '../../../../../utils/hooks/useDefaultValues';
 import { fetchQuery, handleErrorInForm } from '../../../../../relay/environment';
 import { AccessRight, INPUT_AUTHORIZED_MEMBERS } from '../../../../../utils/authorizedMembers';
+import { defaultValuesToStringArray } from '../../../../../utils/defaultValues';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   buttons: {
@@ -132,53 +133,13 @@ const EntitySettingAttributeEdition = ({
     }
   }, [attribute]);
 
-  const isBoolean = (defaultValues: string | boolean | Option) => {
-    return typeof defaultValues === 'boolean';
-  };
-
-  const isSingleOption = (defaultValues: string | boolean | Option) => {
-    return (
-      typeof defaultValues === 'object'
-      && 'value' in (defaultValues as unknown as Option)
-    );
-  };
-
-  const isMultipleOption = (defaultValues: string[] | Option[]) => {
-    return defaultValues.some(isSingleOption);
-  };
-
   const onSubmit: FormikConfig<AttributeFormikValues>['onSubmit'] = (
     values,
     { setSubmitting, setErrors },
   ) => {
     const saveConfiguration = [...attributesConfiguration];
     const defaultValues = values.default_values;
-    let default_values: string[] | null = null;
-
-    if (defaultValues) {
-      if (Array.isArray(defaultValues)) {
-        if (attribute.name === INPUT_AUTHORIZED_MEMBERS) {
-          default_values = (defaultValues as Option[])
-            .filter((v) => v.accessRight !== 'none')
-            .map((v) => JSON.stringify({
-              id: v.value,
-              access_right: v.accessRight,
-            }));
-        } else if (isMultipleOption(defaultValues)) {
-        // Handle multiple options
-          default_values = defaultValues.map((v) => (v as Option).value);
-        }
-        // Handle single option
-      } else if (isSingleOption(defaultValues)) {
-        default_values = [(defaultValues as Option).value];
-        // Handle single value
-      } else if (isBoolean(defaultValues)) {
-        default_values = [defaultValues.toString()];
-      } else {
-        // Default case -> string
-        default_values = [defaultValues as string];
-      }
-    }
+    const default_values = defaultValuesToStringArray(defaultValues, attribute.name);
 
     const newValues: AttributeSubmitValues = {
       default_values,

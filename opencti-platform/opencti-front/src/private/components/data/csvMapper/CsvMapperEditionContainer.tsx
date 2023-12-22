@@ -28,7 +28,7 @@ const csvMapperEditionContainerFragment = graphql`
           configuration {
             separator
             pattern_date
-            default_value
+            default_values
           }
         }
         based_on {

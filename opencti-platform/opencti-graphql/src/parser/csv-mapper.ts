@@ -179,11 +179,12 @@ const handleAttributes = (record: string[], representation: CsvMapperRepresentat
         const { column } = attribute;
         recordValue = extractValueFromCsv(record, column.column_name);
       }
-      if (!recordValue && isNotEmptyField(attribute.column?.configuration?.default_value)) {
-        recordValue = attribute.column?.configuration?.default_value;
-      }
       if (recordValue) {
         handleDirectAttribute(attribute.key, attribute.column, input, recordValue);
+      }
+      if (!recordValue && isNotEmptyField(attribute.column?.configuration?.default_values)) {
+        // @ts-ignore
+        input[attribute.key] = attribute.column.configuration.default_values;
       }
       // Handle based_on attribute
     } else if (attribute.based_on) {

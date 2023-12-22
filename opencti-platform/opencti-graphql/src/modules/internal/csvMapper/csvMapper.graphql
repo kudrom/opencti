@@ -3,7 +3,7 @@ type AttributeColumnConfiguration {
   separator: String
   pattern_date: String
   timezone: String
-  default_value: String
+  default_values: [String]
 }
 type AttributeColumn {
   column_name: String

@@ -54,7 +54,7 @@ export const validate = async (context: AuthContext, mapper: BasicStoreEntityCsv
         const attribute = representation.attributes.find((a) => schemaAttribute.name === a.key);
         const isColumnEmpty = isEmptyField(attribute?.column?.column_name) && isEmptyField(attribute?.based_on?.representations);
         const isDefaultValueEmpty = isEmptyField(defaultValues[schemaAttribute.name]);
-        const isAttributeDefaultValueEmpty = isEmptyField(attribute?.column?.configuration?.default_value);
+        const isAttributeDefaultValueEmpty = isEmptyField(attribute?.column?.configuration?.default_values);
         if (isColumnEmpty && isDefaultValueEmpty && isAttributeDefaultValueEmpty) {
           throw FunctionalError('Missing values for required attribute', { representation: representationLabel(idx, representation), attribute: schemaAttribute.name });
         }

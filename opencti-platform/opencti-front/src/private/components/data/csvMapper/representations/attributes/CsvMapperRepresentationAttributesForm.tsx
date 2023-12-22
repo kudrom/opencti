@@ -60,7 +60,7 @@ CsvMapperRepresentationAttributesFormProps
               <Field
                 component={CsvMapperRepresentationAttributeRefForm}
                 key={schemaAttribute.name}
-                name={`${representationName}.attributes[${schemaAttribute.name}]`}
+                name={`${representationName}.attributes.${schemaAttribute.name}`}
                 schemaAttribute={schemaAttribute}
                 label={t(getAttributeLabel(schemaAttribute)).toLowerCase()}
                 handleErrors={handleErrors}
@@ -72,7 +72,7 @@ CsvMapperRepresentationAttributesFormProps
             <Field
               component={CsvMapperRepresentationAttributeForm}
               key={schemaAttribute.name}
-              name={`${representationName}.attributes[${schemaAttribute.name}]`}
+              name={`${representationName}.attributes.${schemaAttribute.name}`}
               schemaAttribute={schemaAttribute}
               label={t(getAttributeLabel(schemaAttribute)).toLowerCase()}
               handleErrors={handleErrors}

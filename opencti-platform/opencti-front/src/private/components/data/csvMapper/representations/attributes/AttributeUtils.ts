@@ -4,6 +4,7 @@ import {
 import { CsvMapperRepresentationAttribute, CsvMapperRepresentationAttributeFormData } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
 import { isNotEmptyField } from '../../../../../../utils/utils';
+import { defaultValuesToStringArray } from '../../../../../../utils/defaultValues';
 
 export const alphabet = (size = 0) => {
   const fn = () => Array.from(Array(26))
@@ -74,7 +75,12 @@ export const csvMapperAttributeToFormData = (
     column_name: attribute.column?.column_name ?? undefined,
     separator: attribute.column?.configuration?.separator ?? undefined,
     pattern_date: attribute.column?.configuration?.pattern_date ?? undefined,
-    default_values: attribute.column?.configuration?.default_value ?? undefined,
+    // Why 2 properties for default values ? The default value need to be parsed
+    // before injected inside the form, but for this we need the schemaAttribute,
+    // a data we do not have at form init. So the value used in the form is initialized
+    // with undefined, and keep the raw default value to be able to parse it later on.
+    raw_default_values: attribute.column?.configuration?.default_values ?? undefined,
+    default_values: undefined,
     based_on: attribute.based_on?.representations
       ? [...(attribute.based_on?.representations ?? [])]
       : undefined,
@@ -94,11 +100,12 @@ export const formDataToCsvMapperAttribute = (
     ? { representations: data.based_on }
     : null;
 
-  const configuration = isNotEmptyField(data.default_values)
+  const default_values = defaultValuesToStringArray(data.default_values ?? null);
+  const configuration = isNotEmptyField(default_values)
     || isNotEmptyField(data.pattern_date)
     || isNotEmptyField(data.separator)
     ? {
-      default_value: data.default_values ?? null,
+      default_values: default_values ?? null,
       pattern_date: data.pattern_date ?? null,
       separator: data.separator ?? null,
     }
