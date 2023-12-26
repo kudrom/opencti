@@ -23,6 +23,14 @@ export type Filter = {
   mode: string;
 };
 
+export type FilterDefinition = {
+  filterKey: string;
+  label: string;
+  type?: string | null;
+  multiple?: boolean | null;
+  subEntityTypes?: readonly string[] | null;
+};
+
 export const emptyFilterGroup = {
   mode: 'and',
   filters: [],

@@ -121,6 +121,24 @@ type RepresentativeWithId {
   value: String
 }
 
+type FilterKeysSchema {
+  entity_type: String!
+  filters_schema: [FilterDefinitionSchema!]!
+}
+
+type FilterDefinitionSchema {
+  filterKey: String!
+  filterDefinition: FilterDefinition!
+}
+
+type FilterDefinition {
+  filterKey: String!
+  label: String!
+  type: String
+  multiple: Boolean
+  subEntityTypes: [String!]
+}
+
 ### EDIT
 
 enum EditOperation {
@@ -11548,6 +11566,7 @@ type Query {
   ): Number @auth(for: [KNOWLEDGE, EXPLORE])
   schemaRelationsTypesMapping: [StixRelationshipSchema!]! @auth
   schemaRelationsRefTypesMapping: [StixRelationshipSchema!]! @auth
+  filterKeysSchema: [FilterKeysSchema!]! @auth
 
   ######## STIX CORE RELATIONSHIPS
 

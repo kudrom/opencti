@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { RootPrivateQuery$data } from '../../private/__generated__/RootPrivateQuery.graphql';
 import { ModuleHelper } from '../platformModulesHelper';
 import { RootSettings$data } from '../../private/__generated__/RootSettings.graphql';
+import { FilterDefinition } from '../filters/filtersUtils';
 
 export interface BannerSettings {
   bannerLevel?: string | null;
@@ -25,6 +26,7 @@ export interface UserContextType {
     scrs: { id: string, label: string }[]
     schemaRelationsTypesMapping: Map<string, readonly string[]>
     schemaRelationsRefTypesMapping: Map<string, readonly string[]>
+    filterKeysSchema: Map<string, Map<string, FilterDefinition>>
   } | undefined;
 }
 

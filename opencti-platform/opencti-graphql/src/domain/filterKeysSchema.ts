@@ -116,8 +116,8 @@ const completeFilterDefinitionMapForType = (
   });
 };
 
-export const generateFilterKeysSchema = (): Map<string, Map<string, FilterDefinition>> => {
-  const filterKeysSchema = new Map();
+export const generateFilterKeysSchema = () => {
+  const filterKeysSchema: Map<string, Map<string, FilterDefinition>> = new Map();
   schemaAttributesDefinition.getRegisteredTypes().forEach((type) => {
     const filterDefinitionsMap: Map<string, FilterDefinition> = new Map(); // map that will contains the filterKeys schema for the entity type
     // 01. add attributes and relations refs of type
@@ -130,6 +130,17 @@ export const generateFilterKeysSchema = (): Map<string, Map<string, FilterDefini
     // set the filter definition in the filter schema
     filterKeysSchema.set(type, filterDefinitionsMap);
   });
-  // console.log('filterKeysSchema', filterKeysSchema.get('Stix-Domain-Object'));
-  return filterKeysSchema;
+  // transform the maps in { key, values }[]
+  const flattenFilterKeysSchema: { entity_type: string, filters_schema: { filterDefinition: FilterDefinition, filterKey: string }[] }[] = [];
+  filterKeysSchema.forEach((filtersMap, entity_type) => {
+    const filters_schema: { filterDefinition: FilterDefinition, filterKey: string }[] = [];
+    filtersMap.forEach((filterDefinition, filterKey) => {
+      filters_schema.push({ filterDefinition, filterKey });
+    });
+    flattenFilterKeysSchema.push({
+      filters_schema,
+      entity_type
+    });
+  });
+  return flattenFilterKeysSchema;
 };
