@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 import { ChipOwnProps } from '@mui/material/Chip/Chip';
 import { DataColumns } from './list_lines';
-import { Filter, FilterGroup, GqlFilterGroup, isFilterGroupNotEmpty, removeIdFromFilterGroupObject } from '../utils/filters/filtersUtils';
+import { Filter, FilterDefinition, FilterGroup, GqlFilterGroup, isFilterGroupNotEmpty, removeIdFromFilterGroupObject } from '../utils/filters/filtersUtils';
 import { filterIconButtonContentQuery } from './FilterIconButtonContent';
 import useQueryLoading from '../utils/hooks/useQueryLoading';
 import { FilterIconButtonContentQuery } from './__generated__/FilterIconButtonContentQuery.graphql';
@@ -10,6 +10,7 @@ import { UseLocalStorageHelpers } from '../utils/hooks/useLocalStorage';
 
 interface FilterIconButtonProps {
   availableFilterKeys?: string[];
+  filterKeysMap?: Map<string, FilterDefinition>;
   filters?: FilterGroup;
   handleRemoveFilter?: (key: string, op?: string) => void;
   handleSwitchGlobalMode?: () => void;
@@ -41,6 +42,7 @@ const FilterIconButtonWithRepresentativesQuery: FunctionComponent<FilterIconButt
   availableRelationFilterTypes,
   hasRenderedRef,
   setHasRenderedRef,
+  filterKeysMap,
 }) => {
   const filtersRepresentativesQueryRef = useQueryLoading<FilterIconButtonContentQuery>(
     filterIconButtonContentQuery,
@@ -66,6 +68,7 @@ const FilterIconButtonWithRepresentativesQuery: FunctionComponent<FilterIconButt
             hasRenderedRef={hasRenderedRef}
             setHasRenderedRef={setHasRenderedRef}
             availableRelationFilterTypes={availableRelationFilterTypes}
+            filterKeysMap={filterKeysMap}
           />
         </React.Suspense>
       )}
@@ -82,6 +85,7 @@ const EmptyFilter: FunctionComponent<{ setHasRenderedRef: () => void }> = ({ set
 
 const FilterIconButton: FunctionComponent<FilterIconButtonProps> = ({
   availableFilterKeys,
+  filterKeysMap,
   filters,
   handleRemoveFilter,
   handleSwitchGlobalMode,
@@ -117,6 +121,7 @@ const FilterIconButton: FunctionComponent<FilterIconButtonProps> = ({
         availableRelationFilterTypes={availableRelationFilterTypes}
         hasRenderedRef={hasRenderedRef.current}
         setHasRenderedRef={setHasRenderedRef}
+        filterKeysMap={filterKeysMap}
       />
     );
   }

@@ -10,7 +10,7 @@ import { truncate } from '../utils/String';
 import { DataColumns } from './list_lines';
 import { useFormatter } from './i18n';
 import type { Theme } from './Theme';
-import { Filter, FilterGroup, filtersUsedAsApiParameters } from '../utils/filters/filtersUtils';
+import { Filter, FilterDefinition, FilterGroup, filtersUsedAsApiParameters } from '../utils/filters/filtersUtils';
 import { filterIconButtonContentQuery } from './FilterIconButtonContent';
 import { FilterIconButtonContentQuery } from './__generated__/FilterIconButtonContentQuery.graphql';
 import FilterValues from './filters/FilterValues';
@@ -118,6 +118,7 @@ interface FilterIconButtonContainerProps {
   hasRenderedRef: boolean;
   setHasRenderedRef: () => void;
   availableRelationFilterTypes?: Record<string, string[]>;
+  filterKeysMap?: Map<string, FilterDefinition>;
 }
 
 const FilterIconButtonContainer: FunctionComponent<
@@ -136,6 +137,7 @@ FilterIconButtonContainerProps
   hasRenderedRef,
   setHasRenderedRef,
   availableRelationFilterTypes,
+  filterKeysMap,
 }) => {
   const { t } = useFormatter();
   const classes = useStyles();
@@ -144,8 +146,8 @@ FilterIconButtonContainerProps
     filtersRepresentativesQueryRef,
   );
   const displayedFilters = filters.filters;
-  const displayedSpecificFilters = displayedFilters.filter((f) => filtersUsedAsApiParameters.includes(f.key));
-  const othersFilters = displayedFilters.filter(
+  const displayedApiFilters = displayedFilters.filter((f) => filtersUsedAsApiParameters.includes(f.key));
+  const classicalFilters = displayedFilters.filter(
     (f) => !filtersUsedAsApiParameters.includes(f.key),
   );
   const globalMode = filters.mode;
@@ -270,7 +272,7 @@ FilterIconButtonContainerProps
           }
       }
     >
-      {displayedSpecificFilters.map((currentFilter, index) => {
+      {displayedApiFilters.map((currentFilter, index) => {
         const filterKey = currentFilter.key;
         const filterOperator = currentFilter.operator;
         const isOperatorDisplayed = operatorIcon.includes(filterOperator);
@@ -290,7 +292,7 @@ FilterIconButtonContainerProps
               : currentFilter.values.length > 0 && ':'}
           </>
         );
-        const isNotLastFilter = index < displayedSpecificFilters.length - 1;
+        const isNotLastFilter = index < displayedApiFilters.length - 1;
         return (
           <Fragment key={currentFilter.id ?? `filter-${index}`}>
             <Tooltip
@@ -343,7 +345,7 @@ FilterIconButtonContainerProps
                   }
                   disabled={
                     disabledPossible
-                      ? displayedSpecificFilters.length === 1
+                      ? displayedApiFilters.length === 1
                       : undefined
                   }
                   onDelete={
@@ -368,7 +370,7 @@ FilterIconButtonContainerProps
               >
                 <FilterIconButtonGlobalOperator
                   currentIndex={index}
-                  displayedFilters={displayedSpecificFilters}
+                  displayedFilters={displayedApiFilters}
                   classOperator={classOperator}
                   globalMode={globalMode}
                   handleSwitchGlobalMode={handleSwitchGlobalMode}
@@ -408,7 +410,7 @@ FilterIconButtonContainerProps
           </Fragment>
         );
       })}
-      {displayedSpecificFilters.length > 0 && othersFilters.length > 0 && (
+      {displayedApiFilters.length > 0 && classicalFilters.length > 0 && (
         <Box
           sx={{
             padding: styleNumber === 3 ? '0 4px' : '8px 4px 8px 8px',
@@ -420,13 +422,14 @@ FilterIconButtonContainerProps
           </div>
         </Box>
       )}
-      {othersFilters.map((currentFilter, index) => {
+      {classicalFilters.map((currentFilter, index) => {
         const filterKey = currentFilter.key;
+        const filterLabel = filterKeysMap?.get(filterKey)?.label ?? filterKey;
         const filterOperator = currentFilter.operator;
         const isOperatorDisplayed = operatorIcon.includes(filterOperator);
         const keyLabel = (
           <>
-            {truncate(t(filterKey), 20)}
+            {truncate(t(filterLabel), 20)}
             {!isOperatorDisplayed && (
               <Box
                 component={'span'}
@@ -440,7 +443,7 @@ FilterIconButtonContainerProps
               : currentFilter.values.length > 0 && ':'}
           </>
         );
-        const isNotLastFilter = index < othersFilters.length - 1;
+        const isNotLastFilter = index < classicalFilters.length - 1;
         return (
           <Fragment key={currentFilter.id ?? `filter-${index}`}>
             <Tooltip
@@ -491,7 +494,7 @@ FilterIconButtonContainerProps
                     />
                   }
                   disabled={
-                    disabledPossible ? othersFilters.length === 1 : undefined
+                    disabledPossible ? classicalFilters.length === 1 : undefined
                   }
                   onDelete={
                     isReadWriteFilter
@@ -514,7 +517,7 @@ FilterIconButtonContainerProps
               >
                 <FilterIconButtonGlobalOperator
                   currentIndex={index}
-                  displayedFilters={othersFilters}
+                  displayedFilters={classicalFilters}
                   classOperator={classOperator}
                   globalMode={globalMode}
                   handleSwitchGlobalMode={handleSwitchGlobalMode}

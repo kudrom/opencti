@@ -27,6 +27,7 @@ import Box from '@mui/material/Box';
 import Filters from '../../private/components/common/lists/Filters';
 import SearchInput from '../SearchInput';
 import inject18n from '../i18n';
+import { UserContext } from '../../utils/hooks/useAuth';
 import StixDomainObjectsExports from '../../private/components/common/stix_domain_objects/StixDomainObjectsExports';
 import Security from '../../utils/Security';
 import { KNOWLEDGE_KNGETEXPORT } from '../../utils/hooks/useGranted';
@@ -160,7 +161,7 @@ class ListLines extends Component {
     );
   }
 
-  renderContent(selectedIds = []) {
+  renderContent(filterKeysMap, selectedIds = []) {
     const {
       t,
       classes,
@@ -188,7 +189,6 @@ class ListLines extends Component {
       exportEntityType,
       exportContext,
       numberOfElements,
-      availableFilterKeys,
       noHeaders,
       iconExtension,
       searchVariant,
@@ -209,6 +209,13 @@ class ListLines extends Component {
       helpers,
       inline,
     } = this.props;
+    const filterKeys = [];
+    filterKeysMap.forEach((_, key) => {
+      filterKeys.push(key);
+    });
+    const availableFilterKeys = exportEntityType === 'Report'
+      ? filterKeys
+      : this.props.availableFilterKeys;
     const exportDisabled = numberOfElements
       && ((selectedIds.length > export_max_size
         && numberOfElements.number > export_max_size)
@@ -442,6 +449,7 @@ class ListLines extends Component {
         <FilterIconButton
           helpers={helpers}
           availableFilterKeys={availableFilterKeys}
+          filterKeysMap={filterKeysMap}
           filters={filters}
           handleRemoveFilter={handleRemoveFilter}
           handleSwitchGlobalMode={handleSwitchGlobalMode}
@@ -628,16 +636,23 @@ class ListLines extends Component {
   }
 
   render() {
-    const { disableExport } = this.props;
-    if (disableExport) {
-      return this.renderContent();
-    }
+    const { disableExport, exportEntityType } = this.props;
     return (
-      <ExportContext.Consumer>
-        {({ selectedIds }) => {
-          return this.renderContent(selectedIds);
+      <UserContext.Consumer>
+        {({ schema }) => {
+          const filterKeysMap = schema.filterKeysSchema.get(exportEntityType);
+          if (disableExport) {
+            return this.renderContent(filterKeysMap);
+          }
+          return (
+            <ExportContext.Consumer>
+              {({ selectedIds }) => {
+                return this.renderContent(filterKeysMap, selectedIds);
+              }}
+            </ExportContext.Consumer>
+          );
         }}
-      </ExportContext.Consumer>
+      </UserContext.Consumer>
     );
   }
 }
