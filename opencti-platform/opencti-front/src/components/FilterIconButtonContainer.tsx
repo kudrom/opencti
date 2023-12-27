@@ -305,6 +305,7 @@ FilterIconButtonContainerProps
                   filtersRepresentativesMap={filtersRepresentativesMap}
                   helpers={helpers}
                   redirection={redirection}
+                  filterKeysMap={filterKeysMap}
                 />
               }
             >
@@ -338,9 +339,9 @@ FilterIconButtonContainerProps
                       filtersRepresentativesMap={filtersRepresentativesMap}
                       redirection={redirection}
                       helpers={helpers}
-                      onClickLabel={(event) => handleChipClick(event, currentFilter?.id)
-                      }
+                      onClickLabel={(event) => handleChipClick(event, currentFilter?.id)}
                       isReadWriteFilter={isReadWriteFilter}
+                      filterKeysMap={filterKeysMap}
                     />
                   }
                   disabled={
@@ -456,6 +457,7 @@ FilterIconButtonContainerProps
                   filtersRepresentativesMap={filtersRepresentativesMap}
                   helpers={helpers}
                   redirection={redirection}
+                  filterKeysMap={filterKeysMap}
                 />
               }
             >
@@ -488,9 +490,9 @@ FilterIconButtonContainerProps
                       filtersRepresentativesMap={filtersRepresentativesMap}
                       redirection={redirection}
                       helpers={helpers}
-                      onClickLabel={(event) => handleChipClick(event, currentFilter?.id)
-                      }
+                      onClickLabel={(event) => handleChipClick(event, currentFilter?.id)}
                       isReadWriteFilter={isReadWriteFilter}
+                      filterKeysMap={filterKeysMap}
                     />
                   }
                   disabled={
@@ -536,6 +538,7 @@ FilterIconButtonContainerProps
             open={open}
             helpers={helpers}
             availableRelationFilterTypes={availableRelationFilterTypes}
+            filterKeysMap={filterKeysMap}
           />
         </Box>
       )}

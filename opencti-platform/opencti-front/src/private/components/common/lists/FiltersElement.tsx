@@ -3,7 +3,7 @@ import TextField from '@mui/material/TextField';
 import React, { FunctionComponent } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 import { useFormatter } from '../../../../components/i18n';
-import { dateFilters, directFilters, FiltersVariant } from '../../../../utils/filters/filtersUtils';
+import { dateFilters, directFilters, FilterDefinition, FiltersVariant } from '../../../../utils/filters/filtersUtils';
 import FilterDate from './FilterDate';
 import FilterAutocomplete from './FilterAutocomplete';
 import type { Theme } from '../../../../components/Theme';
@@ -50,6 +50,7 @@ export interface FiltersElementProps {
   availableRelationshipTypes?: string[];
   availableRelationFilterTypes?: Record<string, string[]>;
   allEntityTypes?: boolean;
+  filterKeysMap?: Map<string, FilterDefinition>;
 }
 
 const FiltersElement: FunctionComponent<FiltersElementProps> = ({
@@ -66,26 +67,12 @@ const FiltersElement: FunctionComponent<FiltersElementProps> = ({
   availableRelationshipTypes,
   availableRelationFilterTypes,
   allEntityTypes,
+  filterKeysMap,
 }) => {
   const { t } = useFormatter();
   const classes = useStyles();
   const displayedFilters = availableFilterKeys
     .filter((n) => noDirectFilters || !directFilters.includes(n))
-    .map((key) => {
-      if (dateFilters.includes(key)) {
-        if (key === 'valid_until') {
-          return [{ key, operator: 'lt' }];
-        }
-        if (key === 'valid_from') {
-          return [{ key, operator: 'gt' }];
-        }
-        return [
-          { key, operator: 'gt' },
-          { key, operator: 'lt' },
-        ];
-      }
-      return { key, operator: undefined };
-    })
     .flat();
   return (
     <>
@@ -102,24 +89,22 @@ const FiltersElement: FunctionComponent<FiltersElementProps> = ({
             />
           </Grid>
         )}
-        {displayedFilters.map((filter, index) => {
-          const filterKey = filter.key;
-          if (dateFilters.includes(filterKey)) {
+        {displayedFilters.map((filterKey, index) => {
+          const isDateFilter = filterKeysMap?.get(filterKey)?.type === 'date' || dateFilters.includes(filterKey); // TODO remove hardcode
+          if (isDateFilter) {
             return (
               <Grid
-                key={`${filter.key}_${filter.operator}_${index}`}
+                key={`${filterKey}_${index}`}
                 item={true}
                 xs={6}
               >
                 <FilterDate
                   defaultHandleAddFilter={defaultHandleAddFilter}
                   filterKey={filterKey}
-                  operator={filter.operator}
                   inputValues={inputValues}
                   setInputValues={setInputValues}
                 />
-              </Grid>
-            );
+              </Grid>);
           }
           return (
             <Grid key={filterKey} item={true} xs={6}>

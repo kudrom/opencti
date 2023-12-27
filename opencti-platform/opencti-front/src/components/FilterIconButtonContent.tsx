@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'react-relay';
 import { Link } from 'react-router-dom';
-import { entityFilters, filterValue } from '../utils/filters/filtersUtils';
+import { entityFilters, FilterDefinition, filterValue } from '../utils/filters/filtersUtils';
 import { truncate } from '../utils/String';
 import { useFormatter } from './i18n';
 
@@ -19,15 +19,16 @@ interface FilterIconButtonContentProps {
   filterKey: string;
   id: string | null;
   value?: string | null;
+  filterType?: string;
 }
 
 const FilterIconButtonContent: FunctionComponent<
 FilterIconButtonContentProps
-> = ({ redirection, isFilterTooltip, filterKey, id, value }) => {
+> = ({ redirection, isFilterTooltip, filterKey, id, value, filterType }) => {
   const { t } = useFormatter();
   const displayedValue = isFilterTooltip
-    ? filterValue(filterKey, value)
-    : truncate(filterValue(filterKey, value), 15);
+    ? filterValue(filterKey, value, filterType)
+    : truncate(filterValue(filterKey, value, filterType), 15);
   if (displayedValue === null) {
     return (
       <>

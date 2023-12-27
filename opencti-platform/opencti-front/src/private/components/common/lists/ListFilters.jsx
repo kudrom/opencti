@@ -30,6 +30,7 @@ const ListFilters = ({
   variant,
   type,
   helpers,
+  filterKeysMap,
 }) => {
   const { t } = useFormatter();
   const [inputValue, setInputValue] = React.useState('');
@@ -49,11 +50,11 @@ const ListFilters = ({
   const handleClearFilters = () => {
     const dFilter = availableFilterKeys.filter((n) => directFilters.includes(n));
     helpers.handleClearAllFilters(
-      dFilter.map((key) => getDefaultFilterObject(key)),
+      dFilter.map((key) => getDefaultFilterObject(key, filterKeysMap)),
     );
   };
   const handleChange = (value) => {
-    helpers.handleAddFilterWithEmptyValue(getDefaultFilterObject(value));
+    helpers.handleAddFilterWithEmptyValue(getDefaultFilterObject(value, filterKeysMap));
   };
   return (
     <>

@@ -250,6 +250,7 @@ class ListLines extends Component {
                 helpers={helpers}
                 searchContext={searchContextFinal}
                 availableFilterKeys={availableFilterKeys}
+                filterKeysMap={filterKeysMap}
                 handleAddFilter={handleAddFilter}
                 handleSwitchFilter={handleSwitchFilter}
                 handleRemoveFilter={handleRemoveFilter}

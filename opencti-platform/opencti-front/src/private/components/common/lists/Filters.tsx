@@ -1,7 +1,15 @@
 import React, { ChangeEvent, FunctionComponent, useState } from 'react';
 import { useNavigate } from 'react-router-dom-v5-compat';
 import ListFiltersWithoutLocalStorage from '@components/common/lists/ListFiltersWithoutLocalStorage';
-import { constructHandleAddFilter, constructHandleRemoveFilter, Filter, FilterGroup, FiltersVariant, emptyFilterGroup } from '../../../../utils/filters/filtersUtils';
+import {
+  constructHandleAddFilter,
+  constructHandleRemoveFilter,
+  Filter,
+  FilterGroup,
+  FiltersVariant,
+  emptyFilterGroup,
+  FilterDefinition,
+} from '../../../../utils/filters/filtersUtils';
 import FiltersElement, { FilterElementsInputValue } from './FiltersElement';
 import ListFilters from './ListFilters';
 import DialogFilters from './DialogFilters';
@@ -14,6 +22,7 @@ interface FiltersProps {
   size?: number;
   fontSize?: number;
   availableFilterKeys: string[];
+  filterKeysMap?: Map<string, FilterDefinition>;
   noDirectFilters?: boolean;
   availableEntityTypes?: string[];
   availableRelationshipTypes?: string[];
@@ -51,6 +60,7 @@ const Filters: FunctionComponent<FiltersProps> = ({
   searchContext,
   type,
   helpers,
+  filterKeysMap,
 }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -138,6 +148,7 @@ const Filters: FunctionComponent<FiltersProps> = ({
       availableRelationshipTypes={availableRelationshipTypes}
       availableRelationFilterTypes={availableRelationFilterTypes}
       allEntityTypes={allEntityTypes}
+      filterKeysMap={filterKeysMap}
     />
   );
   if (variant === FiltersVariant.dialog) {
@@ -173,6 +184,7 @@ const Filters: FunctionComponent<FiltersProps> = ({
           variant={variant}
           type={type}
           helpers={helpers}
+          filterKeysMap={filterKeysMap}
         />
       ) : (
         <ListFiltersWithoutLocalStorage

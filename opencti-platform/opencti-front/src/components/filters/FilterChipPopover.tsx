@@ -9,7 +9,7 @@ import FilterDate from '@components/common/lists/FilterDate';
 import { MenuItem, Select } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import SearchScopeElement from '@components/common/lists/SearchScopeElement';
-import { dateFilters, Filter, getAvailableOperatorForFilter, integerFilters, isStixObjectTypes, textFilters } from '../../utils/filters/filtersUtils';
+import { dateFilters, Filter, FilterDefinition, getAvailableOperatorForFilter, integerFilters, isStixObjectTypes, textFilters } from '../../utils/filters/filtersUtils';
 import { useFormatter } from '../i18n';
 import ItemIcon from '../ItemIcon';
 import { getOptionsFromEntities, getUseSearch } from '../../utils/filters/SearchEntitiesUtil';
@@ -22,6 +22,7 @@ interface FilterChipMenuProps {
   filters: Filter[];
   helpers?: UseLocalStorageHelpers;
   availableRelationFilterTypes?: Record<string, string[]>;
+  filterKeysMap?: Map<string, FilterDefinition>;
 }
 
 export interface FilterChipsParameter {
@@ -128,6 +129,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
   filters,
   helpers,
   availableRelationFilterTypes,
+  filterKeysMap,
 }) => {
   const filter = filters.find((f) => f.id === params.filterId);
   const filterKey = filter?.key ?? '';
@@ -187,9 +189,9 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
 
   const isSpecificFilter = (fKey: string) => {
     return (
-      dateFilters.includes(fKey)
-      || integerFilters.includes(fKey)
-      || textFilters.includes(fKey)
+      filterKeysMap?.get(fKey)?.type === 'date' || dateFilters.includes(fKey)
+      || filterKeysMap?.get(fKey)?.type === 'numeric' || integerFilters.includes(fKey)
+      || filterKeysMap?.get(fKey)?.type === 'string' || textFilters.includes(fKey)
     );
   };
 
@@ -203,10 +205,10 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
     />
   );
   const getSpecificFilter = (fKey: string): ReactNode => {
-    if (dateFilters.includes(fKey)) {
+    if (filterKeysMap?.get(fKey)?.type === 'date' || dateFilters.includes(fKey)) {
       return <BasicFilterDate />;
     }
-    if (integerFilters.includes(fKey)) {
+    if (filterKeysMap?.get(fKey)?.type === 'numeric' || integerFilters.includes(fKey)) {
       return (
         <BasicNumberInput
           filter={filter}
@@ -216,7 +218,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
         />
       );
     }
-    if (textFilters.includes(fKey)) {
+    if (filterKeysMap?.get(fKey)?.type === 'string' || textFilters.includes(fKey)) {
       return (
         <BasicTextInput
           filter={filter}
@@ -264,7 +266,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
           onChange={handleChangeOperator}
           style={{ marginBottom: 15 }}
         >
-          {getAvailableOperatorForFilter(filterKey).map((value) => (
+          {getAvailableOperatorForFilter(filterKey, filterKeysMap).map((value) => (
             <MenuItem key={value} value={value}>
               {t(OperatorKeyValues[value])}
             </MenuItem>

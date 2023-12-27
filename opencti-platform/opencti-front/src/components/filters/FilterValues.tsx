@@ -4,7 +4,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useFormatter } from '../i18n';
 import FilterIconButtonContent from '../FilterIconButtonContent';
 import type { Theme } from '../Theme';
-import { Filter, filtersUsedAsApiParameters } from '../../utils/filters/filtersUtils';
+import { Filter, FilterDefinition, filtersUsedAsApiParameters } from '../../utils/filters/filtersUtils';
 import { UseLocalStorageHelpers } from '../../utils/hooks/useLocalStorage';
 
 const useStyles = makeStyles<Theme>((theme) => ({
@@ -49,6 +49,7 @@ interface FilterValuesProps {
   onClickLabel?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   helpers?: UseLocalStorageHelpers;
   isReadWriteFilter?: boolean;
+  filterKeysMap?: Map<string, FilterDefinition>;
 }
 
 const FilterValues: FunctionComponent<FilterValuesProps> = ({
@@ -61,6 +62,7 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
   onClickLabel,
   helpers,
   isReadWriteFilter,
+  filterKeysMap,
 }) => {
   const { t } = useFormatter();
   const filterKey = currentFilter.key;
@@ -96,6 +98,7 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
             filterKey={filterKey}
             id={id}
             value={filtersRepresentativesMap.get(id)}
+            filterType={filterKeysMap?.get(filterKey)?.type ?? undefined}
           />
         )}
         {last(filterValues) !== id && (

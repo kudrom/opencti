@@ -69,14 +69,14 @@ export const directFilters = [
 ];
 export const inlineFilters = ['is_read', 'trigger_type', 'instance_trigger'];
 
-export const integerFilters = [
+export const integerFilters = [ // TODO to remove
   'x_opencti_base_score',
   'x_opencti_score',
   'confidence',
   'likelihood',
 ];
 
-export const textFilters = [
+export const textFilters = [ // TODO to remove
   'name',
   'description',
   'value',
@@ -131,7 +131,7 @@ export const filtersUsedAsApiParameters = [
 ];
 
 // filters that represents a date, can have lt (end date) or gt (start date) operators
-export const dateFilters = [
+export const dateFilters = [ // TODO to remove when date type is known from schema
   'published',
   'created',
   'created_at',
@@ -373,13 +373,12 @@ export const buildFiltersAndOptionsForWidgets = (
 };
 
 // return the i18n label corresponding to a value
-export const filterValue = (filterKey: string, value?: string | null) => {
+export const filterValue = (filterKey: string, value?: string | null, filterType?: string) => {
   const { t, nsd } = useFormatter();
   if (
     value
-    && (booleanFilters.includes(filterKey) || inlineFilters.includes(filterKey))
+    && (filterType === 'boolean' || booleanFilters.includes(filterKey) || inlineFilters.includes(filterKey))
   ) {
-    // TODO: improvement: boolean filters based on schema definition (not an enum)
     return t(value);
   }
   if (filterKey === 'x_opencti_negative') {
@@ -394,8 +393,7 @@ export const filterValue = (filterKey: string, value?: string | null) => {
           : `relationship_${value.toString()}`,
       );
   }
-  if (dateFilters.includes(filterKey)) {
-    // TODO: improvement: date filters based on schema definition (not an enum)
+  if (filterType === 'date' || dateFilters.includes(filterKey)) {
     return nsd(value);
   }
   return value;
@@ -721,48 +719,48 @@ const defaultFilterObject: Filter = {
   operator: '',
   mode: 'or',
 };
-export const getDefaultOperatorFilter = (filterKey: string) => {
+export const getDefaultOperatorFilter = (filterKey: string, filterKeysMap?: Map<string, FilterDefinition>) => {
   if (EqFilters.includes(filterKey)) {
     return 'eq';
   }
-  if (dateFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'date' || dateFilters.includes(filterKey)) {
     return 'gte';
   }
-  if (integerFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'numeric' || integerFilters.includes(filterKey)) {
     return 'gt';
   }
-  if (booleanFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'boolean' || booleanFilters.includes(filterKey)) {
     return 'eq';
   }
-  if (textFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'string' || textFilters.includes(filterKey)) {
     return 'starts_with';
   }
   return 'eq';
 };
 
-export const getDefaultFilterObject = (key: string): Filter => {
+export const getDefaultFilterObject = (key: string, filterKeysMap?: Map<string, FilterDefinition>): Filter => {
   return {
     ...defaultFilterObject,
     id: uuid(),
     key,
-    operator: getDefaultOperatorFilter(key),
+    operator: getDefaultOperatorFilter(key, filterKeysMap),
   };
 };
 
-export const getAvailableOperatorForFilter = (filterKey: string): string[] => {
+export const getAvailableOperatorForFilter = (filterKey: string, filterKeysMap?: Map<string, FilterDefinition>): string[] => {
   if (filtersUsedAsApiParameters.includes(filterKey)) {
     return ['eq'];
   }
-  if (dateFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'date' || dateFilters.includes(filterKey)) {
     return ['gt', 'gte', 'lt', 'lte'];
   }
-  if (integerFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'numeric' || integerFilters.includes(filterKey)) {
     return ['gt', 'gte', 'lt', 'lte'];
   }
-  if (booleanFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'boolean' || booleanFilters.includes(filterKey)) {
     return ['eq', 'not_eq'];
   }
-  if (textFilters.includes(filterKey)) {
+  if (filterKeysMap?.get(filterKey)?.type === 'string' || textFilters.includes(filterKey)) {
     return ['eq', 'not_eq', 'nil', 'not_nil', 'contains', 'not_contains',
       'starts_with', 'not_starts_with', 'ends_with', 'not_ends_with'];
   }
