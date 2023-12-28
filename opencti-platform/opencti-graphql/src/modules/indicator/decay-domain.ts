@@ -1,3 +1,6 @@
+import moment from 'moment';
+import type { Moment } from 'moment';
+
 export interface DecayRule {
   id: string
   decay_lifetime: number // in days
@@ -40,9 +43,10 @@ export const URL_DECAY_RULE: DecayRule = {
   order: 1,
   enabled: true,
 };
-const BUILT_IN_DECAY_RULES = [
+export const BUILT_IN_DECAY_RULES = [
   IP_DECAY_RULE, URL_DECAY_RULE, FALLBACK_DECAY_RULE,
 ];
+
 const DECAY_FACTOR: number = 3.0;
 
 /**
@@ -69,11 +73,17 @@ export const computeTimeFromExpectedScore = (initialScore: number, score: number
   return (Math.E ** (Math.log(1 - (score / initialScore)) * (DECAY_FACTOR * model.decay_pound))) * model.decay_lifetime;
 };
 
-export const findDecayRuleForIndicator = (indicatorObservableType: string) => {
+export const computeNextScoreReactionDate = (initialScore: number, stableScore: number, model: DecayRule, startDate: Moment) => {
+  const nextKeyPoint = model.decay_points.find((p) => p < stableScore) || model.decay_revoke_score;
+  const daysDelay = computeTimeFromExpectedScore(initialScore, nextKeyPoint, model);
+  return moment(startDate).add(daysDelay, 'days').toDate();
+};
+
+export const findDecayRuleForIndicator = (indicatorObservableType: string, enabledRules: DecayRule[]) => {
   if (!indicatorObservableType) {
     return FALLBACK_DECAY_RULE;
   }
-  const orderedRules = [...BUILT_IN_DECAY_RULES].sort((a, b) => b.order - a.order);
+  const orderedRules = [...enabledRules].sort((a, b) => b.order - a.order);
   const decayRule = orderedRules.find((rule) => rule.indicator_types.includes(indicatorObservableType) || rule.indicator_types.length === 0);
   return decayRule || FALLBACK_DECAY_RULE;
 };
