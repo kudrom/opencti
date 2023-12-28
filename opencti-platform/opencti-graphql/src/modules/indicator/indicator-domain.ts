@@ -25,6 +25,7 @@ import type { AuthContext, AuthUser } from '../../types/user';
 import { type BasicStoreEntityIndicator, ENTITY_TYPE_INDICATOR, type StoreEntityIndicator } from './indicator-types';
 import type { IndicatorAddInput, QueryIndicatorsArgs, QueryIndicatorsNumberArgs } from '../../generated/graphql';
 import type { NumberResult } from '../../types/store';
+import { findDecayRuleForIndicator } from './decay-domain';
 
 export const findById = (context: AuthContext, user: AuthUser, indicatorId: string) => {
   return storeLoadById<BasicStoreEntityIndicator>(context, user, indicatorId, ENTITY_TYPE_INDICATOR);
@@ -98,13 +99,25 @@ export const addIndicator = async (context: AuthContext, user: AuthUser, indicat
   if (check === false) {
     throw FunctionalError(`Indicator of type ${indicator.pattern_type} is not correctly formatted.`);
   }
-  const { validFrom, validUntil, revoked, validPeriod } = await computeValidPeriod(context, user, indicator);
+  // save decay rule
+  const decayRule = findDecayRuleForIndicator(observableType);
+  const indicatorDecayRule = {
+    decay_lifetime: decayRule.decay_lifetime,
+    decay_pound: decayRule.decay_pound,
+    decay_points: [...decayRule.decay_points],
+    decay_revoke_score: decayRule.decay_revoke_score,
+  };
+  // TODO compute valid period from decay rule
+  const { validFrom, validUntil, revoked, validPeriod } = await computeValidPeriod(context, user, indicator, decayRule);
+  const indicatorBaseScore = indicator.x_opencti_score ?? 50;
   const indicatorToCreate = R.pipe(
     R.dissoc('createObservables'),
     R.dissoc('basedOn'),
     R.assoc('pattern', formattedPattern),
+    R.assoc('x_opencti_decay_rule', indicatorDecayRule),
     R.assoc('x_opencti_main_observable_type', observableType),
-    R.assoc('x_opencti_score', indicator.x_opencti_score ?? 50),
+    R.assoc('x_opencti_score', indicatorBaseScore),
+    R.assoc('x_opencti_base_score', indicatorBaseScore),
     R.assoc('x_opencti_detection', indicator.x_opencti_detection ?? false),
     R.assoc('valid_from', validFrom),
     R.assoc('valid_until', validUntil),

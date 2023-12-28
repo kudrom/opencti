@@ -7,6 +7,7 @@ import type { IndicatorAddInput } from '../../generated/graphql';
 import type { BasicStoreEntity } from '../../types/store';
 import { isNotEmptyField } from '../../database/utils';
 import { utcDate } from '../../utils/format';
+import { type DecayRule } from './decay-domain';
 
 interface TTL_DEFINITION {
   target: Array<string>;
@@ -78,17 +79,17 @@ const computeValidFrom = (indicator: IndicatorAddInput): Moment => {
   return utcDate();
 };
 
-const computeValidUntil = async (context: AuthContext, user: AuthUser, indicator: IndicatorAddInput, validFrom: Moment): Promise<Moment> => {
+const computeValidUntil = async (context: AuthContext, user: AuthUser, indicator: IndicatorAddInput, validFrom: Moment, decayRule: DecayRule): Promise<Moment> => {
   if (isNotEmptyField(indicator.valid_until)) {
     return utcDate(indicator.valid_until);
   }
-  const ttl = await computeValidTTL(context, user, indicator);
+  const ttl = decayRule.decay_lifetime; // await computeValidTTL(context, user, indicator, decayRule);
   return validFrom.clone().add(ttl, 'days');
 };
 
-export const computeValidPeriod = async (context: AuthContext, user: AuthUser, indicator: IndicatorAddInput) => {
+export const computeValidPeriod = async (context: AuthContext, user: AuthUser, indicator: IndicatorAddInput, decayRule: DecayRule) => {
   const validFrom = computeValidFrom(indicator);
-  const validUntil = await computeValidUntil(context, user, indicator, validFrom);
+  const validUntil = await computeValidUntil(context, user, indicator, validFrom, decayRule);
 
   return {
     validFrom: validFrom.toISOString(),

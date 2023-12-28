@@ -3,7 +3,7 @@ export interface DecayRule {
   decay_lifetime: number // in days
   decay_pound: number // can be changed in other model when feature is ready.
   decay_points: number[] // reactions points
-  decay_revoked_cutoff: number // revoked when score is <= 20
+  decay_revoke_score: number // revoked when score is <= 20
   indicator_types: string[] // x_opencti_main_observable_type
   order: number // low priority = 0
   enabled: boolean
@@ -13,9 +13,9 @@ export interface DecayRule {
 export const FALLBACK_DECAY_RULE: DecayRule = {
   id: 'FALLBACK_DECAY_RULE',
   decay_lifetime: 365, // 1 year
-  decay_pound: 1,
+  decay_pound: 1.0,
   decay_points: [80, 60, 40, 20],
-  decay_revoked_cutoff: 0,
+  decay_revoke_score: 0,
   indicator_types: [],
   order: 0,
   enabled: true,
@@ -23,9 +23,9 @@ export const FALLBACK_DECAY_RULE: DecayRule = {
 export const IP_DECAY_RULE: DecayRule = {
   id: 'IP_DECAY_RULE',
   decay_lifetime: 60,
-  decay_pound: 1,
+  decay_pound: 1.0,
   decay_points: [80, 60, 40, 20],
-  decay_revoked_cutoff: 0,
+  decay_revoke_score: 0,
   indicator_types: ['IPv4-Addr', 'IPv6-Addr'],
   order: 1,
   enabled: true,
@@ -33,14 +33,14 @@ export const IP_DECAY_RULE: DecayRule = {
 export const URL_DECAY_RULE: DecayRule = {
   id: 'URL_DECAY_RULE',
   decay_lifetime: 180,
-  decay_pound: 1,
+  decay_pound: 1.0,
   decay_points: [80, 60, 40, 20],
-  decay_revoked_cutoff: 0,
+  decay_revoke_score: 0,
   indicator_types: ['Url'],
   order: 1,
   enabled: true,
 };
-export const BUILT_IN_DECAY_RULES = [
+const BUILT_IN_DECAY_RULES = [
   IP_DECAY_RULE, URL_DECAY_RULE, FALLBACK_DECAY_RULE,
 ];
 const DECAY_FACTOR: number = 3.0;
@@ -67,4 +67,13 @@ export const computeScoreFromExpectedTime = (initialScore: number, daysFromStart
 export const computeTimeFromExpectedScore = (initialScore: number, score: number, model: DecayRule) => {
   // Polynomial implementation (MISP approach)
   return (Math.E ** (Math.log(1 - (score / initialScore)) * (DECAY_FACTOR * model.decay_pound))) * model.decay_lifetime;
+};
+
+export const findDecayRuleForIndicator = (indicatorObservableType: string) => {
+  if (!indicatorObservableType) {
+    return FALLBACK_DECAY_RULE;
+  }
+  const orderedRules = [...BUILT_IN_DECAY_RULES].sort((a, b) => b.order - a.order);
+  const decayRule = orderedRules.find((rule) => rule.indicator_types.includes(indicatorObservableType) || rule.indicator_types.length === 0);
+  return decayRule || FALLBACK_DECAY_RULE;
 };
