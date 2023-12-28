@@ -26,7 +26,7 @@ const CsvMapperRepresentionAttributeSelectedConfigurations:
 FunctionComponent<CsvMapperRepresentionAttributSelectedConfigurationsProps> = ({ configuration }) => {
   const classes = useStyles();
   const { t } = useFormatter();
-  if (!configuration?.pattern_date && !configuration?.separator && !configuration?.default_values) {
+  if (!configuration?.pattern_date && !configuration?.separator) {
     return null;
   }
 

@@ -13,7 +13,7 @@ import { extractRepresentative } from '../database/entity-representative';
 import { telemetry } from '../config/tracing';
 import { INTERNAL_ATTRIBUTES, INTERNAL_REFS } from './attribute-utils';
 import { isStixCoreRelationship } from '../schema/stixCoreRelationship';
-import type { RefAttribute } from '../schema/attribute-definition';
+import type { AttributeDefinition, RefAttribute } from '../schema/attribute-definition';
 
 interface ScaleAttribute {
   name: string
@@ -39,97 +39,134 @@ interface AttributeConfigMeta {
 
 // -- ATTRIBUTE CONFIGURATION --
 
+const getAttributesConfig = async (
+  context: AuthContext,
+  user: AuthUser,
+  entitySetting: BasicStoreEntityEntitySetting,
+  forCsvMapper = false
+): Promise<AttributeConfigMeta[]> => {
+  if (!entitySetting) {
+    return [];
+  }
+
+  const attributeFiltering = forCsvMapper
+    // For CsvMapper retrieve all attributes definition which are not internals.
+    ? (attr: AttributeDefinition) => (!INTERNAL_ATTRIBUTES.includes(attr.name))
+    // Otherwise retrieve attributes definition which are configurable.
+    : (attr: AttributeDefinition) => (
+      attr.editDefault
+      || attr.mandatoryType === 'external'
+      || attr.mandatoryType === 'customizable'
+    );
+
+  const refFiltering = forCsvMapper
+    // For CsvMapper retrieve all refs definition which are not internals.
+    ? (ref: RefAttribute) => (!INTERNAL_REFS.includes(ref.name))
+    // Otherwise retrieve refs definition which are configurable.
+    : (ref: RefAttribute) => (
+      ref.mandatoryType === 'external'
+      || ref.mandatoryType === 'customizable'
+    );
+
+  const attributesDefinition = schemaAttributesDefinition.getAttributes(entitySetting.target_type);
+  const refsDefinition = schemaRelationsRefDefinition.getRelationsRef(entitySetting.target_type);
+
+  const attributesConfig: AttributeConfigMeta[] = [
+    // Configs for attributes definition
+    ...Array.from(attributesDefinition.values())
+      .filter(attributeFiltering)
+      .map((attr) => ({
+        name: attr.name,
+        label: attr.label,
+        type: attr.type,
+        mandatoryType: attr.mandatoryType,
+        editDefault: attr.editDefault,
+        multiple: attr.multiple,
+        mandatory: attr.mandatoryType === 'external',
+        scale: attr.scalable ? defaultScale : undefined
+      })),
+    // Configs for refs definition
+    ...Array.from(refsDefinition.values())
+      .filter(refFiltering)
+      .map((ref) => ({
+        name: ref.name,
+        label: ref.label,
+        editDefault: ref.editDefault,
+        type: 'ref',
+        mandatoryType: ref.mandatoryType,
+        multiple: ref.multiple,
+        mandatory: ref.mandatoryType === 'external',
+      })),
+  ];
+
+  if (forCsvMapper && isStixCoreRelationship(entitySetting.target_type)) {
+    attributesConfig.push({
+      name: 'from',
+      label: 'from',
+      type: 'ref',
+      mandatoryType: 'external',
+      multiple: false,
+      mandatory: true,
+      editDefault: false
+    });
+    attributesConfig.push({
+      name: 'to',
+      label: 'to',
+      type: 'ref',
+      mandatoryType: 'external',
+      multiple: false,
+      mandatory: true,
+      editDefault: false
+    });
+  }
+
+  // Override with stored attributes configuration in entitySettings
+  getAttributesConfiguration(entitySetting)?.forEach((userDefinedAttr) => {
+    const customizableAttr = attributesConfig.find((a) => a.name === userDefinedAttr.name);
+    if (customizableAttr) {
+      if (customizableAttr.mandatoryType === 'customizable' && isNotEmptyField(userDefinedAttr.mandatory)) {
+        customizableAttr.mandatory = userDefinedAttr.mandatory;
+      }
+      if (isNotEmptyField(userDefinedAttr.default_values)) {
+        customizableAttr.defaultValues = userDefinedAttr.default_values?.map((v) => ({ id: v } as DefaultValue));
+      }
+      if (customizableAttr.scale && isNotEmptyField(userDefinedAttr.scale)) {
+        // override default scale
+        customizableAttr.scale = JSON.stringify(userDefinedAttr.scale);
+      }
+    }
+  });
+
+  // Resolve default values ref
+  const resolveRef = (attributes: AttributeConfigMeta[]) => {
+    return Promise.all(attributes.map((attr) => {
+      if (attr.name !== 'objectMarking' && refsDefinition.map((ref) => ref.name).includes(attr.name)) {
+        return internalFindByIds(context, user, attr.defaultValues?.map((v) => v.id) ?? [])
+          .then((data) => ({
+            ...attr,
+            defaultValues: data.map((v) => ({
+              id: v.internal_id,
+              name: extractRepresentative(v).main ?? v.internal_id,
+            }))
+          }));
+      }
+      return {
+        ...attr,
+        defaultValues: attr.defaultValues?.map((v) => ({
+          id: v.id,
+          name: v.id
+        }))
+      };
+    }));
+  };
+  return resolveRef(attributesConfig);
+};
+
 // Returns a filtered list of AttributeConfigMeta objects built from schema attributes definition and
 // stored entity settings attributes configuration (only attributes that can be customized in entity settings)
 export const queryAttributesDefinition = async (context: AuthContext, user: AuthUser, entitySetting: BasicStoreEntityEntitySetting): Promise<AttributeConfigMeta[]> => {
   const queryAttributesDefinitionFn = async () => {
-    if (!entitySetting) {
-      return [];
-    }
-    const attributesConfiguration: AttributeConfigMeta[] = [];
-    // From schema attributes
-    const attributesDefinition = schemaAttributesDefinition.getAttributes(entitySetting.target_type);
-    attributesDefinition.forEach((attr) => {
-      if (attr.editDefault || attr.mandatoryType === 'external' || attr.mandatoryType === 'customizable') {
-        const attributeConfig: AttributeConfigMeta = {
-          name: attr.name,
-          label: attr.label,
-          type: attr.type,
-          mandatoryType: attr.mandatoryType,
-          editDefault: attr.editDefault,
-          multiple: attr.multiple,
-          mandatory: false,
-        };
-        if (attr.mandatoryType === 'external') {
-          attributeConfig.mandatory = true;
-        }
-        if (attr.type === 'numeric' && attr.scalable) { // return default scale
-          attributeConfig.scale = defaultScale;
-        }
-        attributesConfiguration.push(attributeConfig);
-      }
-    });
-
-    // From schema relations ref
-    const relationsRef: RefAttribute[] = schemaRelationsRefDefinition.getRelationsRef(entitySetting.target_type);
-    relationsRef.forEach((rel) => {
-      if (rel.mandatoryType === 'external' || rel.mandatoryType === 'customizable') {
-        const attributeConfig: AttributeConfigMeta = {
-          name: rel.name,
-          label: rel.label,
-          editDefault: rel.editDefault,
-          type: 'string',
-          mandatoryType: rel.mandatoryType,
-          multiple: rel.multiple,
-          mandatory: false,
-        };
-        if (rel.mandatoryType === 'external') {
-          attributeConfig.mandatory = true;
-        }
-        attributesConfiguration.push(attributeConfig);
-      }
-    });
-
-    // override with stored attributes configuration in entitySettings
-    const userDefinedAttributes = getAttributesConfiguration(entitySetting);
-    userDefinedAttributes?.forEach((userDefinedAttr) => {
-      const customizableAttr = attributesConfiguration.find((a) => a.name === userDefinedAttr.name);
-      if (customizableAttr) {
-        if (customizableAttr.mandatoryType === 'customizable' && isNotEmptyField(userDefinedAttr.mandatory)) {
-          customizableAttr.mandatory = userDefinedAttr.mandatory;
-        }
-        if (isNotEmptyField(userDefinedAttr.default_values)) {
-          customizableAttr.defaultValues = userDefinedAttr.default_values?.map((v) => ({ id: v } as DefaultValue));
-        }
-        if (customizableAttr.scale && isNotEmptyField(userDefinedAttr.scale)) {
-          // override default scale
-          customizableAttr.scale = JSON.stringify(userDefinedAttr.scale);
-        }
-      }
-    });
-    // Resolve default values ref
-    const resolveRef = (attributes: AttributeConfigMeta[]) => {
-      return Promise.all(attributes.map((attr) => {
-        if (attr.name !== 'objectMarking' && relationsRef.map((ref) => ref.name).includes(attr.name)) {
-          return internalFindByIds(context, user, attr.defaultValues?.map((v) => v.id) ?? [])
-            .then((data) => ({
-              ...attr,
-              defaultValues: data.map((v) => ({
-                id: v.internal_id,
-                name: extractRepresentative(v).main ?? v.internal_id,
-              }))
-            }));
-        }
-        return {
-          ...attr,
-          defaultValues: attr.defaultValues?.map((v) => ({
-            id: v.id,
-            name: v.id
-          }))
-        };
-      }));
-    };
-    return resolveRef(attributesConfiguration);
+    return getAttributesConfig(context, user, entitySetting);
   };
 
   return telemetry(context, user, 'ATTRIBUTES', {
@@ -170,68 +207,7 @@ export const getSchemaAttributeNames = (elementTypes: string[]) => {
   return buildPagination(0, null, finalResult, finalResult.length);
 };
 
-export const getSchemaAttributes = async (context: AuthContext, entityType: string) => {
-  // Handle attributes
-  const mapAttributes = schemaAttributesDefinition.getAttributes(entityType);
-  const resultAttributes: AttributeConfigMeta[] = Array.from(mapAttributes.values())
-    .filter((attribute) => !INTERNAL_ATTRIBUTES.includes(attribute.name))
-    .map((attribute) => ({
-      ...attribute,
-      mandatory: attribute.mandatoryType === 'external',
-    }));
-
-  // Handle ref
-  const refs = schemaRelationsRefDefinition.getRelationsRef(entityType);
-  const resultRefs: AttributeConfigMeta[] = refs
-    .filter((ref) => !INTERNAL_REFS.includes(ref.name))
-    .map((ref) => ({
-      name: ref.name,
-      label: ref.label,
-      editDefault: ref.editDefault,
-      type: 'ref',
-      mandatoryType: ref.mandatoryType,
-      multiple: ref.multiple,
-      mandatory: ref.mandatoryType === 'external',
-    }));
-  if (isStixCoreRelationship(entityType)) {
-    resultRefs.push({
-      name: 'from',
-      label: 'from',
-      type: 'ref',
-      mandatoryType: 'external',
-      multiple: false,
-      mandatory: true,
-      editDefault: false
-    });
-    resultRefs.push({
-      name: 'to',
-      label: 'to',
-      type: 'ref',
-      mandatoryType: 'external',
-      multiple: false,
-      mandatory: true,
-      editDefault: false
-    });
-  }
-
-  const results = [...resultAttributes, ...resultRefs];
-
-  // Handle user defined attributes
+export const getSchemaAttributes = async (context: AuthContext, user: AuthUser, entityType: string) => {
   const entitySetting = await getEntitySettingFromCache(context, entityType);
-  if (entitySetting) {
-    const userDefinedAttributes = getAttributesConfiguration(entitySetting);
-    userDefinedAttributes?.forEach((userDefinedAttr) => {
-      const customizableAttr = results.find((a) => a.name === userDefinedAttr.name);
-      if (customizableAttr) {
-        if (customizableAttr.mandatoryType === 'customizable' && isNotEmptyField(userDefinedAttr.mandatory)) {
-          customizableAttr.mandatory = userDefinedAttr.mandatory;
-        }
-        if (isNotEmptyField(userDefinedAttr.default_values)) {
-          customizableAttr.defaultValues = userDefinedAttr.default_values?.map((v) => ({ id: v } as DefaultValue));
-        }
-      }
-    });
-  }
-
-  return results;
+  return entitySetting ? getAttributesConfig(context, user, entitySetting, true) : [];
 };

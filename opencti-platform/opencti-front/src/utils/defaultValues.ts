@@ -33,6 +33,8 @@ export const defaultValuesToStringArray = (
   let default_values: string[] | null = null;
   if (!defaultValues) return default_values;
 
+  console.log('pouet', defaultValues);
+
   if (Array.isArray(defaultValues)) {
     if (attributeName === INPUT_AUTHORIZED_MEMBERS) {
       default_values = (defaultValues as Option[])
@@ -69,7 +71,7 @@ export const defaultValuesToStringArray = (
  * @returns Default values usable by the form.
  */
 export const defaultValuesStringArrayToForm = (
-  defaultValues: readonly string[],
+  defaultValues: readonly { id: string, name: string }[],
   attributeType: string,
   attributeMultiple: boolean,
   attributeName: string,
@@ -78,13 +80,13 @@ export const defaultValuesStringArrayToForm = (
   if (!defaultValues) return default_values;
 
   if (attributeName === 'createdBy') {
-    default_values = defaultValues.map((v) => ({ value: v, label: v }))[0] ?? '';
+    default_values = defaultValues.map((v) => ({ value: v.id, label: v.name }))[0] ?? '';
   } else if (attributeMultiple) {
-    default_values = defaultValues.map((v) => ({ value: v, label: v })) ?? '';
+    default_values = defaultValues.map((v) => ({ value: v.id, label: v.name })) ?? '';
   } else if (attributeType === 'boolean') {
-    default_values = Boolean(defaultValues[0]);
+    default_values = Boolean(defaultValues[0]?.id);
   } else {
-    default_values = defaultValues[0] ?? '';
+    default_values = defaultValues[0]?.id ?? '';
   }
   return default_values;
 };

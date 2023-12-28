@@ -20,6 +20,7 @@ export const schemaAttributesQuery = graphql`
       editDefault
       defaultValues {
         id
+        name
       }
     }
   }

@@ -33,7 +33,7 @@ CsvMapperRepresentationAttributeOptionsProps
       `${attributeName}.default_values`,
     );
     if (rawDefaultValue.value && defaultValue.value === undefined) {
-      console.log('pouet', defaultValuesStringArrayToForm(
+      console.log('mapper default', defaultValuesStringArrayToForm(
         rawDefaultValue.value,
         schemaAttribute.type,
         !!schemaAttribute.multiple,

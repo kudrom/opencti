@@ -8,7 +8,6 @@ interface AttributeColumnConfiguration {
   separator?: string
   pattern_date?: string
   timezone?: string
-  default_values?: string[]
 }
 export interface AttributeColumn {
   column_name: string
@@ -27,6 +26,7 @@ interface CsvMapperRepresentationAttribute {
   key: string
   column?: AttributeColumn
   based_on?: AttributeBasedOn
+  default_values?: string[]
   ref?: AttributeRef
 }
 export enum Operator {

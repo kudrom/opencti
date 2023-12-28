@@ -1,7 +1,11 @@
 import {
   CsvMapperRepresentationAttributesFormQuery$data,
 } from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesFormQuery.graphql';
-import { CsvMapperRepresentationAttribute, CsvMapperRepresentationAttributeFormData } from '@components/data/csvMapper/representations/attributes/Attribute';
+import {
+  CsvMapperRepresentationAttribute,
+  CsvMapperRepresentationAttributeEdit,
+  CsvMapperRepresentationAttributeFormData,
+} from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
 import { isNotEmptyField } from '../../../../../../utils/utils';
 import { defaultValuesToStringArray } from '../../../../../../utils/defaultValues';
@@ -79,7 +83,7 @@ export const csvMapperAttributeToFormData = (
     // before injected inside the form, but for this we need the schemaAttribute,
     // a data we do not have at form init. So the value used in the form is initialized
     // with undefined, and keep the raw default value to be able to parse it later on.
-    raw_default_values: attribute.column?.configuration?.default_values ?? undefined,
+    raw_default_values: attribute.default_values ?? undefined,
     default_values: undefined,
     based_on: attribute.based_on?.representations
       ? [...(attribute.based_on?.representations ?? [])]
@@ -90,22 +94,25 @@ export const csvMapperAttributeToFormData = (
 /**
  * Transform mapper attribute in formik format to backend format.
  * @param data The formik data.
+ * @param name Name attribute.
  *
  * @returns Data in backend format.
  */
 export const formDataToCsvMapperAttribute = (
   data: CsvMapperRepresentationAttributeFormData,
-): CsvMapperRepresentationAttribute => {
+  name?: string,
+): CsvMapperRepresentationAttributeEdit => {
   const based_on = isNotEmptyField(data.based_on)
     ? { representations: data.based_on }
     : null;
 
-  const default_values = defaultValuesToStringArray(data.default_values ?? null);
-  const configuration = isNotEmptyField(default_values)
-    || isNotEmptyField(data.pattern_date)
+  const default_values = isNotEmptyField(data.default_values)
+    ? defaultValuesToStringArray(data.default_values ?? null)
+    : null;
+
+  const configuration = isNotEmptyField(data.pattern_date)
     || isNotEmptyField(data.separator)
     ? {
-      default_values: default_values ?? null,
       pattern_date: data.pattern_date ?? null,
       separator: data.separator ?? null,
     }
@@ -119,8 +126,9 @@ export const formDataToCsvMapperAttribute = (
     : null;
 
   return {
-    key: data.key,
+    key: name ?? data.key,
     column,
+    default_values,
     based_on,
   };
 };

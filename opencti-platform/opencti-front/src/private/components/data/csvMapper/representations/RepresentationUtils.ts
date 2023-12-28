@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { CsvMapperRepresentationType } from '@components/data/csvMapper/__generated__/CsvMapperEditionContainerFragment_csvMapper.graphql';
-import { CsvMapperRepresentation, CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
+import { CsvMapperRepresentation, CsvMapperRepresentationEdit, CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
 import { csvMapperAttributeToFormData, formDataToCsvMapperAttribute } from '@components/data/csvMapper/representations/attributes/AttributeUtils';
 import { isEmptyField } from '../../../../../utils/utils';
 
@@ -65,16 +65,20 @@ export const csvMapperRepresentationToFormData = (
  */
 export const formDataToCsvMapperRepresentation = (
   data: CsvMapperRepresentationFormData,
-): CsvMapperRepresentation => {
+): CsvMapperRepresentationEdit => {
   return {
     id: data.id,
     type: data.type as CsvMapperRepresentationType,
     target: {
       entity_type: data.target_type ?? '',
     },
-    attributes: (Object.values(data.attributes)).flatMap((attribute) => {
-      const mapperAttribute = formDataToCsvMapperAttribute(attribute);
-      return isEmptyField(mapperAttribute.column) && isEmptyField(mapperAttribute.based_on)
+    attributes: (Object.entries(data.attributes)).flatMap(([name, attribute]) => {
+      const mapperAttribute = formDataToCsvMapperAttribute(attribute, name);
+      return (
+        isEmptyField(mapperAttribute.column)
+        && isEmptyField(mapperAttribute.based_on)
+        && isEmptyField(mapperAttribute.default_values)
+      )
         ? []
         : mapperAttribute;
     }),

@@ -182,9 +182,8 @@ const handleAttributes = (record: string[], representation: CsvMapperRepresentat
       if (recordValue) {
         handleDirectAttribute(attribute.key, attribute.column, input, recordValue);
       }
-      if (!recordValue && isNotEmptyField(attribute.column?.configuration?.default_values)) {
-        // @ts-ignore
-        input[attribute.key] = attribute.column.configuration.default_values;
+      if (!recordValue && attribute.default_values !== undefined) {
+        input[attribute.key] = attribute.default_values;
       }
       // Handle based_on attribute
     } else if (attribute.based_on) {

@@ -98,7 +98,6 @@ CsvMapperRepresentationFormProps
       target_type: option?.value ?? undefined,
     };
     await setFieldValue(name, newValue);
-    await setFieldTouched(name, false);
   };
 
   const deleteRepresentation = async () => {

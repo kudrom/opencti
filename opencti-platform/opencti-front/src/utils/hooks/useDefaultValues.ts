@@ -23,7 +23,7 @@ export const useComputeDefaultValues = (
   if (attributeName === 'createdBy') {
     return (
       head(
-        defaultValues.map((v) => ({ value: v.id, label: v.name } as Option)),
+        defaultValues.map((v) => ({ value: v.id } as Option)),
       ) ?? ''
     );
   }

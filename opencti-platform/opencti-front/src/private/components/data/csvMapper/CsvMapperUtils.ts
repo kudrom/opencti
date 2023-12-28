@@ -1,5 +1,5 @@
 import { CsvMapperEditionContainerFragment_csvMapper$data } from '@components/data/csvMapper/__generated__/CsvMapperEditionContainerFragment_csvMapper.graphql';
-import { CsvMapperFormData } from '@components/data/csvMapper/CsvMapper';
+import { CsvMapperEdit, CsvMapperFormData } from '@components/data/csvMapper/CsvMapper';
 import { csvMapperRepresentationToFormData, formDataToCsvMapperRepresentation } from '@components/data/csvMapper/representations/RepresentationUtils';
 import { isNotEmptyField } from '../../../../utils/utils';
 
@@ -26,7 +26,7 @@ export const csvMapperToFormData = (
       if (rep.type !== 'relationship') return [];
       return csvMapperRepresentationToFormData(rep);
     }),
-    errors: csvMapper.errors,
+    errors: csvMapper.errors ?? undefined,
   };
 };
 
@@ -38,7 +38,7 @@ export const csvMapperToFormData = (
  */
 export const formDataToCsvMapper = (
   data: CsvMapperFormData,
-): Omit<CsvMapperEditionContainerFragment_csvMapper$data, ' $fragmentType' | 'errors'> => {
+): CsvMapperEdit => {
   return {
     id: data.id,
     name: data.name ?? '',

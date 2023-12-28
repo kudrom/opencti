@@ -1,4 +1,4 @@
-import type { AuthContext } from '../../../types/user';
+import type { AuthContext, AuthUser } from '../../../types/user';
 import type { BasicStoreEntityCsvMapper, CsvMapperRepresentation } from './csvMapper-types';
 import { getSchemaAttributes } from '../../../domain/attribute';
 import { isEmptyField, isNotEmptyField } from '../../../database/utils';
@@ -7,6 +7,10 @@ import { isStixObject } from '../../../schema/stixCoreObject';
 import { CsvMapperRepresentationType } from './csvMapper-types';
 import { fillDefaultValues, getEntitySettingFromCache } from '../../entitySetting/entitySetting-utils';
 import { FunctionalError } from '../../../config/errors';
+import { schemaRelationsRefDefinition } from '../../../schema/schema-relationsRef';
+import { INTERNAL_REFS } from '../../../domain/attribute-utils';
+import { internalFindByIds } from '../../../database/middleware-loader';
+import type { BasicStoreEntity } from '../../../types/store';
 
 const representationLabel = (idx: number, representation: CsvMapperRepresentation) => {
   const number = `#${idx + 1}`;
@@ -16,11 +20,45 @@ const representationLabel = (idx: number, representation: CsvMapperRepresentatio
   return `${number} ${representation.target.entity_type}`;
 };
 
-export const parseCsvMapper = (entity: any) => {
+export const parseCsvMapper = (entity: any): BasicStoreEntityCsvMapper => {
   return {
     ...entity,
     representations: typeof entity.representations === 'string' ? JSON.parse(entity.representations) : entity.representations,
   };
+};
+
+export const representationsDefaultValues = async (context: AuthContext, user: AuthUser, csvMapper: BasicStoreEntityCsvMapper) => {
+  return Promise.all(csvMapper.representations.map(async (r) => {
+    const refsDefinition = schemaRelationsRefDefinition
+      .getRelationsRef(r.target.entity_type)
+      .filter((ref) => !INTERNAL_REFS.includes(ref.inputName));
+
+    return {
+      ...r,
+      attributes: await Promise.all(r.attributes.map(async (attr) => {
+        if (!attr.default_values) {
+          return attr;
+        }
+        let defaultValues = attr.default_values?.map((val) => {
+          return {
+            id: val,
+            name: val
+          };
+        });
+        if (attr.key !== 'objectMarking' && refsDefinition.map((ref) => ref.inputName).includes(attr.key)) {
+          const entities = await internalFindByIds(context, user, attr.default_values);
+          defaultValues = entities.map((entity) => ({
+            id: entity.internal_id,
+            name: (entity as BasicStoreEntity).name
+          }));
+        }
+        return {
+          ...attr,
+          default_values: defaultValues
+        };
+      }))
+    };
+  }));
 };
 
 export const isValidTargetType = (representation: CsvMapperRepresentation) => {
@@ -35,7 +73,7 @@ export const isValidTargetType = (representation: CsvMapperRepresentation) => {
   }
 };
 
-export const validate = async (context: AuthContext, mapper: BasicStoreEntityCsvMapper) => {
+export const validate = async (context: AuthContext, user: AuthUser, mapper: BasicStoreEntityCsvMapper) => {
   // consider empty csv mapper as invalid to avoid being used in the importer
   if (mapper.representations.length === 0) {
     throw Error(`CSV Mapper '${mapper.name}' has no representation`);
@@ -48,13 +86,13 @@ export const validate = async (context: AuthContext, mapper: BasicStoreEntityCsv
     // Validate required attributes
     const entitySetting = await getEntitySettingFromCache(context, representation.target.entity_type);
     const defaultValues = fillDefaultValues(context.user, {}, entitySetting);
-    const schemaAttributes = await getSchemaAttributes(context, representation.target.entity_type);
+    const schemaAttributes = await getSchemaAttributes(context, user, representation.target.entity_type);
     schemaAttributes.filter((schemaAttribute) => schemaAttribute.mandatory)
       .forEach((schemaAttribute) => {
         const attribute = representation.attributes.find((a) => schemaAttribute.name === a.key);
         const isColumnEmpty = isEmptyField(attribute?.column?.column_name) && isEmptyField(attribute?.based_on?.representations);
         const isDefaultValueEmpty = isEmptyField(defaultValues[schemaAttribute.name]);
-        const isAttributeDefaultValueEmpty = isEmptyField(attribute?.column?.configuration?.default_values);
+        const isAttributeDefaultValueEmpty = isEmptyField(attribute?.default_values);
         if (isColumnEmpty && isDefaultValueEmpty && isAttributeDefaultValueEmpty) {
           throw FunctionalError('Missing values for required attribute', { representation: representationLabel(idx, representation), attribute: schemaAttribute.name });
         }
@@ -88,9 +126,9 @@ export const validate = async (context: AuthContext, mapper: BasicStoreEntityCsv
   }));
 };
 
-export const errors = async (context: AuthContext, csvMapper: BasicStoreEntityCsvMapper) => {
+export const errors = async (context: AuthContext, user: AuthUser, csvMapper: BasicStoreEntityCsvMapper) => {
   try {
-    await validate(context, parseCsvMapper(csvMapper));
+    await validate(context, user, parseCsvMapper(csvMapper));
     return null;
   } catch (error) {
     if (error instanceof Error) {
