@@ -1,7 +1,6 @@
 import { schemaAttributesDefinition } from '../schema/schema-attributes';
 import { schemaTypesDefinition } from '../schema/schema-types';
-import type { AttributeDefinition, NestedAttribute } from '../schema/attribute-definition';
-import { typesAttributeWithNested } from '../schema/attribute-definition';
+import type { AttributeDefinition, ComplexAttribute } from '../schema/attribute-definition';
 import { schemaRelationsRefDefinition } from '../schema/schema-relationsRef';
 import type { RelationRefDefinition } from '../schema/relationRef-definition';
 
@@ -41,13 +40,13 @@ const buildFilterDefinitionFromRelationRefDefinition = (refDefinition: RelationR
 
 const completeFilterDefinitionMapWithNestedAttribute = (
   attributesMapWithFilterDefinition: Map<string, FilterDefinition>, // map in construction
-  nestedAttributeDefinition: NestedAttribute, // nested attribute to study
+  attributeDefinition: ComplexAttribute, // nested attribute to study
   types: string[], // entity types to apply
 ) => {
-  const { mappings } = nestedAttributeDefinition;
-  mappings.forEach((mappingAttributeDefinition) => {
+  const { mappings } = attributeDefinition;
+  (mappings ?? []).forEach((mappingAttributeDefinition) => {
     if (mappingAttributeDefinition.isFilterable) {
-      if (typesAttributeWithNested.includes(mappingAttributeDefinition.type)) { // case 1: nested attribute
+      if (mappingAttributeDefinition.type === 'object' && mappingAttributeDefinition.format === 'nested') { // case 1: nested attribute
         throw Error('A nested attribute can\'t contain a nested attribute'); // not supported for the moment
       } else if (mappingAttributeDefinition.associatedFilterKeys) { // case 2: not nested attribute and associatedFilterKeys is set
         // the keys to add are the ones in associatedFilterKeys
@@ -58,7 +57,7 @@ const completeFilterDefinitionMapWithNestedAttribute = (
           );
         });
       } else { // case 3: not nested attribute and the key to add is composed with the attribute name and the mapping attribute name
-        const composedMappingName = `${nestedAttributeDefinition.name}.${mappingAttributeDefinition.name}`;
+        const composedMappingName = `${attributeDefinition.name}.${mappingAttributeDefinition.name}`;
         attributesMapWithFilterDefinition.set(
           composedMappingName,
           buildFilterDefinitionFromAttributeDefinition({ ...mappingAttributeDefinition, name: composedMappingName }, types),
@@ -100,8 +99,8 @@ const completeFilterDefinitionMapForType = (
   const attributesMap = schemaAttributesDefinition.getAttributes(type);
   attributesMap.forEach((attributeDefinition, attributeName) => {
     if (attributeDefinition.isFilterable) { // if it is filterable
-      if (typesAttributeWithNested.includes(attributeDefinition.type)) { // case 1.1: nested attribute
-        completeFilterDefinitionMapWithNestedAttribute(filterKeyDefinitionMap, attributeDefinition as NestedAttribute, [type]);
+      if (attributeDefinition.type === 'object' && attributeDefinition.format === 'nested') { // case 1.1: nested attribute
+        completeFilterDefinitionMapWithNestedAttribute(filterKeyDefinitionMap, attributeDefinition, [type]);
       } else { // case 1.2: not nested attribute
         completeFilterDefinitionMapWithElement(filterKeyDefinitionMap, type, attributeName, attributeDefinition, 'attribute');
       }

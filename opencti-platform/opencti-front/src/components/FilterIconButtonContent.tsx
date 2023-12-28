@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { graphql } from 'react-relay';
 import { Link } from 'react-router-dom';
-import { entityFilters, FilterDefinition, filterValue } from '../utils/filters/filtersUtils';
+import { entityFilters, filterValue } from '../utils/filters/filtersUtils';
 import { truncate } from '../utils/String';
 import { useFormatter } from './i18n';
 
