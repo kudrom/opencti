@@ -1,8 +1,7 @@
 import { schemaAttributesDefinition } from '../schema/schema-attributes';
 import { schemaTypesDefinition } from '../schema/schema-types';
-import type { AttributeDefinition, ComplexAttribute } from '../schema/attribute-definition';
+import type { AttributeDefinition, NestedObjectAttribute, RefAttribute } from '../schema/attribute-definition';
 import { schemaRelationsRefDefinition } from '../schema/schema-relationsRef';
-import type { RelationRefDefinition } from '../schema/relationRef-definition';
 
 type FilterDefinition = {
   filterKey: string
@@ -28,9 +27,9 @@ const buildFilterDefinitionFromAttributeDefinition = (attributeDefinition: Attri
 // build the FilterDefinition object that is saved in the filterKeysShema
 // by removing some useless attributes of RelationRefDefinition
 // and adding the subEntityTypes (usage in the subtypes)
-const buildFilterDefinitionFromRelationRefDefinition = (refDefinition: RelationRefDefinition, subEntityTypes: string[]) => {
+const buildFilterDefinitionFromRelationRefDefinition = (refDefinition: RefAttribute, subEntityTypes: string[]) => {
   return {
-    filterKey: refDefinition.inputName,
+    filterKey: refDefinition.name,
     type: 'id', // TODO add the entity type of the id
     label: refDefinition.label,
     multiple: refDefinition.multiple,
@@ -40,11 +39,11 @@ const buildFilterDefinitionFromRelationRefDefinition = (refDefinition: RelationR
 
 const completeFilterDefinitionMapWithNestedAttribute = (
   attributesMapWithFilterDefinition: Map<string, FilterDefinition>, // map in construction
-  attributeDefinition: ComplexAttribute, // nested attribute to study
+  attributeDefinition: NestedObjectAttribute, // nested attribute to study
   types: string[], // entity types to apply
 ) => {
   const { mappings } = attributeDefinition;
-  (mappings ?? []).forEach((mappingAttributeDefinition) => {
+  mappings.forEach((mappingAttributeDefinition) => {
     if (mappingAttributeDefinition.isFilterable) {
       if (mappingAttributeDefinition.type === 'object' && mappingAttributeDefinition.format === 'nested') { // case 1: nested attribute
         throw Error('A nested attribute can\'t contain a nested attribute'); // not supported for the moment
@@ -71,14 +70,14 @@ const completeFilterDefinitionMapWithElement = (
   filterKeyDefinitionMap: Map<string, FilterDefinition>,
   type: string,
   elementName: string,
-  elementDefinition: AttributeDefinition | RelationRefDefinition,
+  elementDefinition: AttributeDefinition,
   elementDefinitionType: string, // 'attribute' or 'relationRef'
 ) => {
   const filterDefinition = filterKeyDefinitionMap.get(elementName);
   if (!filterDefinition) { // case 1.2.2: the attribute is in the type but not in the map
     const newFilterDefinition = elementDefinitionType === 'attribute'
       ? buildFilterDefinitionFromAttributeDefinition(elementDefinition as AttributeDefinition, [type])
-      : buildFilterDefinitionFromRelationRefDefinition(elementDefinition as RelationRefDefinition, [type]);
+      : buildFilterDefinitionFromRelationRefDefinition(elementDefinition as RefAttribute, [type]);
     filterKeyDefinitionMap.set( // add it in the map
       elementName,
       newFilterDefinition,
@@ -110,7 +109,7 @@ const completeFilterDefinitionMapForType = (
   const relationRefs = schemaRelationsRefDefinition.getRelationsRef(type);
   relationRefs.forEach((ref) => {
     if (ref.isFilterable) {
-      completeFilterDefinitionMapWithElement(filterKeyDefinitionMap, type, ref.inputName, ref, 'relationRef');
+      completeFilterDefinitionMapWithElement(filterKeyDefinitionMap, type, ref.name, ref, 'relationRef');
     }
   });
 };
