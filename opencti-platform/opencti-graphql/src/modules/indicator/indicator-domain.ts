@@ -25,7 +25,7 @@ import type { AuthContext, AuthUser } from '../../types/user';
 import { type BasicStoreEntityIndicator, ENTITY_TYPE_INDICATOR, type StoreEntityIndicator } from './indicator-types';
 import type { IndicatorAddInput, QueryIndicatorsArgs, QueryIndicatorsNumberArgs } from '../../generated/graphql';
 import type { NumberResult } from '../../types/store';
-import { BUILT_IN_DECAY_RULES, computeNextScoreReactionDate, findDecayRuleForIndicator } from './decay-domain';
+import { BUILT_IN_DECAY_RULES, computeNextScoreReactionDate, type DecayHistory, findDecayRuleForIndicator } from './decay-domain';
 
 export const findById = (context: AuthContext, user: AuthUser, indicatorId: string) => {
   return storeLoadById<BasicStoreEntityIndicator>(context, user, indicatorId, ENTITY_TYPE_INDICATOR);
@@ -83,6 +83,7 @@ export const promoteIndicatorToObservable = async (context: AuthContext, user: A
   return createObservablesFromIndicator(context, user, input, indicator);
 };
 
+// TODO verify how the merge of Indicator is done
 export const addIndicator = async (context: AuthContext, user: AuthUser, indicator: IndicatorAddInput) => {
   let observableType: string = isEmptyField(indicator.x_opencti_main_observable_type) ? 'Unknown' : indicator.x_opencti_main_observable_type as string;
   if (observableType === 'File') {
@@ -110,12 +111,18 @@ export const addIndicator = async (context: AuthContext, user: AuthUser, indicat
   const { validFrom, validUntil, revoked, validPeriod } = await computeValidPeriod(indicator, decayRule);
   const indicatorBaseScore = indicator.x_opencti_score ?? 50;
   const nextScoreReactionDate = computeNextScoreReactionDate(indicatorBaseScore, indicatorBaseScore, decayRule, validFrom);
+  const decayHistory: DecayHistory[] = [];
+  decayHistory.push({
+    date: validFrom.toDate(),
+    score: indicatorBaseScore,
+  });
   const indicatorToCreate = R.pipe(
     R.dissoc('createObservables'),
     R.dissoc('basedOn'),
     R.assoc('pattern', formattedPattern),
     R.assoc('x_opencti_decay_rule', indicatorDecayRule),
     R.assoc('next_score_reaction_date', nextScoreReactionDate),
+    R.assoc('x_opencti_decay_history', decayHistory),
     R.assoc('x_opencti_main_observable_type', observableType),
     R.assoc('x_opencti_score', indicatorBaseScore),
     R.assoc('x_opencti_base_score', indicatorBaseScore),

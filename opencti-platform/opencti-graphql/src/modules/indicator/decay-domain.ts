@@ -1,6 +1,10 @@
 import moment from 'moment';
 import type { Moment } from 'moment';
 
+export interface DecayHistory {
+  date: Date
+  score: number
+}
 export interface DecayRule {
   id: string
   decay_lifetime: number // in days

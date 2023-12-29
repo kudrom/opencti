@@ -5159,6 +5159,24 @@ export enum DataSourcesOrdering {
   XOpenctiWorkflowId = 'x_opencti_workflow_id'
 }
 
+export type DecayHistory = {
+  __typename?: 'DecayHistory';
+  date: Scalars['DateTime']['output'];
+  score: Scalars['Int']['output'];
+};
+
+export type DecayRule = {
+  __typename?: 'DecayRule';
+  decay_lifetime?: Maybe<Scalars['Int']['output']>;
+  decay_points?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
+  decay_pound?: Maybe<Scalars['Float']['output']>;
+  decay_revoke_score?: Maybe<Scalars['Int']['output']>;
+  enabled?: Maybe<Scalars['Boolean']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  indicator_types?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  order?: Maybe<Scalars['Int']['output']>;
+};
+
 export type DefaultMarking = {
   __typename?: 'DefaultMarking';
   entity_type?: Maybe<Scalars['String']['output']>;
@@ -8849,6 +8867,9 @@ export type Indicator = BasicObject & StixCoreObject & StixDomainObject & StixOb
   valid_until?: Maybe<Scalars['DateTime']['output']>;
   workflowEnabled?: Maybe<Scalars['Boolean']['output']>;
   x_mitre_platforms?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  x_opencti_base_score?: Maybe<Scalars['Int']['output']>;
+  x_opencti_decay_history?: Maybe<Array<DecayHistory>>;
+  x_opencti_decay_rule?: Maybe<DecayRule>;
   x_opencti_detection?: Maybe<Scalars['Boolean']['output']>;
   x_opencti_graph_data?: Maybe<Scalars['String']['output']>;
   x_opencti_inferences?: Maybe<Array<Maybe<Inference>>>;
@@ -27369,6 +27390,8 @@ export type ResolversTypes = ResolversObject<{
   DataSourceEdge: ResolverTypeWrapper<Omit<DataSourceEdge, 'node'> & { node: ResolversTypes['DataSource'] }>;
   DataSourcesOrdering: DataSourcesOrdering;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  DecayHistory: ResolverTypeWrapper<DecayHistory>;
+  DecayRule: ResolverTypeWrapper<DecayRule>;
   DefaultMarking: ResolverTypeWrapper<DefaultMarking>;
   DefaultMarkingInput: DefaultMarkingInput;
   DefaultValue: ResolverTypeWrapper<DefaultValue>;
@@ -28083,6 +28106,8 @@ export type ResolversParentTypes = ResolversObject<{
   DataSourceConnection: Omit<DataSourceConnection, 'edges'> & { edges?: Maybe<Array<Maybe<ResolversParentTypes['DataSourceEdge']>>> };
   DataSourceEdge: Omit<DataSourceEdge, 'node'> & { node: ResolversParentTypes['DataSource'] };
   DateTime: Scalars['DateTime']['output'];
+  DecayHistory: DecayHistory;
+  DecayRule: DecayRule;
   DefaultMarking: DefaultMarking;
   DefaultMarkingInput: DefaultMarkingInput;
   DefaultValue: DefaultValue;
@@ -30263,6 +30288,24 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
   name: 'DateTime';
 }
 
+export type DecayHistoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['DecayHistory'] = ResolversParentTypes['DecayHistory']> = ResolversObject<{
+  date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DecayRuleResolvers<ContextType = any, ParentType extends ResolversParentTypes['DecayRule'] = ResolversParentTypes['DecayRule']> = ResolversObject<{
+  decay_lifetime?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  decay_points?: Resolver<Maybe<Array<Maybe<ResolversTypes['Int']>>>, ParentType, ContextType>;
+  decay_pound?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  decay_revoke_score?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  enabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  indicator_types?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  order?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type DefaultMarkingResolvers<ContextType = any, ParentType extends ResolversParentTypes['DefaultMarking'] = ResolversParentTypes['DefaultMarking']> = ResolversObject<{
   entity_type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   values?: Resolver<Maybe<Array<ResolversTypes['MarkingDefinition']>>, ParentType, ContextType>;
@@ -31452,6 +31495,9 @@ export type IndicatorResolvers<ContextType = any, ParentType extends ResolversPa
   valid_until?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   workflowEnabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   x_mitre_platforms?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  x_opencti_base_score?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  x_opencti_decay_history?: Resolver<Maybe<Array<ResolversTypes['DecayHistory']>>, ParentType, ContextType>;
+  x_opencti_decay_rule?: Resolver<Maybe<ResolversTypes['DecayRule']>, ParentType, ContextType>;
   x_opencti_detection?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   x_opencti_graph_data?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   x_opencti_inferences?: Resolver<Maybe<Array<Maybe<ResolversTypes['Inference']>>>, ParentType, ContextType>;
@@ -36838,6 +36884,8 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   DataSourceConnection?: DataSourceConnectionResolvers<ContextType>;
   DataSourceEdge?: DataSourceEdgeResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  DecayHistory?: DecayHistoryResolvers<ContextType>;
+  DecayRule?: DecayRuleResolvers<ContextType>;
   DefaultMarking?: DefaultMarkingResolvers<ContextType>;
   DefaultValue?: DefaultValueResolvers<ContextType>;
   DefaultValueAttribute?: DefaultValueAttributeResolvers<ContextType>;

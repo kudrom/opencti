@@ -30,6 +30,24 @@ const INDICATOR_DEFINITION: ModuleDefinition<StoreEntityIndicator, StixIndicator
     { name: 'x_opencti_detection', label: 'Detection', type: 'boolean', mandatoryType: 'no', editDefault: false, multiple: false, upsert: true, isFilterable: true },
     { name: 'x_opencti_main_observable_type', label: 'Main observable type', type: 'string', format: 'short', mandatoryType: 'external', editDefault: true, multiple: false, upsert: true, isFilterable: true },
     { name: 'x_mitre_platforms', label: 'Platforms', type: 'string', format: 'short', mandatoryType: 'customizable', editDefault: true, multiple: true, upsert: true, isFilterable: true },
+    {
+      name: 'x_opencti_base_score',
+      type: 'numeric',
+      mandatoryType: 'no',
+      editDefault: true,
+      multiple: false,
+      upsert: true,
+      label: 'Base score'
+    },
+    {
+      name: 'x_opencti_decay_history',
+      type: 'object',
+      mandatoryType: 'no',
+      editDefault: false,
+      multiple: true,
+      upsert: true,
+      label: 'Decay history'
+    },
   ],
   relations: [],
   relationsRefs: [objectOrganization, killChainPhases],
