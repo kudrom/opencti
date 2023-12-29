@@ -74,7 +74,7 @@ CsvMapperRepresentationFormProps
   const classes = useStyles();
 
   const { name, value } = field;
-  const { setFieldValue, setFieldTouched } = form;
+  const { setFieldValue } = form;
 
   const deletion = useDeletion({});
   const { setDeleting, handleCloseDelete, handleOpenDelete } = deletion;

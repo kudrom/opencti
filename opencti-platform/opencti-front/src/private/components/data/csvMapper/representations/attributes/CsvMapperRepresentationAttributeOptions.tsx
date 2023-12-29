@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import CsvMapperRepresentationAttributeOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOption';
 import DialogContentText from '@mui/material/DialogContentText';
 import {
@@ -22,6 +22,7 @@ CsvMapperRepresentationAttributeOptionsProps
 > = ({ schemaAttribute, attributeName, form }) => {
   const { t } = useFormatter();
   const { setFieldValue, getFieldProps } = form;
+  const [defaultValueRdy, setDefaultValueRdy] = useState(false);
 
   const settingsDefaultValues = schemaAttribute.defaultValues?.join(',');
 
@@ -32,13 +33,7 @@ CsvMapperRepresentationAttributeOptionsProps
     const defaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['default_values']>(
       `${attributeName}.default_values`,
     );
-    if (rawDefaultValue.value && defaultValue.value === undefined) {
-      console.log('mapper default', defaultValuesStringArrayToForm(
-        rawDefaultValue.value,
-        schemaAttribute.type,
-        !!schemaAttribute.multiple,
-        schemaAttribute.name,
-      ));
+    if (rawDefaultValue.value && defaultValue.value === null) {
       setFieldValue(`${attributeName}.default_values`, defaultValuesStringArrayToForm(
         rawDefaultValue.value,
         schemaAttribute.type,
@@ -46,6 +41,7 @@ CsvMapperRepresentationAttributeOptionsProps
         schemaAttribute.name,
       ));
     }
+    setDefaultValueRdy(true);
   }, [form]);
 
   return (
@@ -84,11 +80,13 @@ CsvMapperRepresentationAttributeOptionsProps
             t('A default value is not set in Settings > Customization. If you want to specify a value, you can fill the field below.')
           )}
         </DialogContentText>
-        <DefaultValueField
-          attribute={schemaAttribute}
-          setFieldValue={setFieldValue}
-          name={`${attributeName}.default_values`}
-        />
+        {defaultValueRdy && (
+          <DefaultValueField
+            attribute={schemaAttribute}
+            setFieldValue={setFieldValue}
+            name={`${attributeName}.default_values`}
+          />
+        )}
       </>
       )}
     </>

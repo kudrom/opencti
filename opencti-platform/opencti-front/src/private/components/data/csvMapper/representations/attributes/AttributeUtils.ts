@@ -84,7 +84,7 @@ export const csvMapperAttributeToFormData = (
     // a data we do not have at form init. So the value used in the form is initialized
     // with undefined, and keep the raw default value to be able to parse it later on.
     raw_default_values: attribute.default_values ?? undefined,
-    default_values: undefined,
+    default_values: null,
     based_on: attribute.based_on?.representations
       ? [...(attribute.based_on?.representations ?? [])]
       : undefined,

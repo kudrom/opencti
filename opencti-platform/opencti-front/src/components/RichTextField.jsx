@@ -78,6 +78,7 @@ const RichTextField = (props) => {
       onSelect(selection.trim());
     }
   };
+  console.log('pouet', field.value);
   return (
     <div style={style} className={!R.isNil(meta.error) ? 'error' : 'main'}>
       <InputLabel shrink={true} style={{ float: 'left' }}>

@@ -205,7 +205,6 @@ const EntitySettingAttributeEdition = ({
       ? getScaleConfig(attribute.scale)
       : ({} as ScaleConfig),
   };
-  console.log('settings default', values);
   const customScale = (values.scale && isCustomScale(values.scale)) ? values.scale : null;
   const text = attribute.label ?? attribute.name;
   const attributeName = t(text.charAt(0).toUpperCase() + text.slice(1));

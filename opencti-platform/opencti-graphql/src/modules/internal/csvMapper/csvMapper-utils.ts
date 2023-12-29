@@ -27,38 +27,48 @@ export const parseCsvMapper = (entity: any): BasicStoreEntityCsvMapper => {
   };
 };
 
-export const representationsDefaultValues = async (context: AuthContext, user: AuthUser, csvMapper: BasicStoreEntityCsvMapper) => {
-  return Promise.all(csvMapper.representations.map(async (r) => {
-    const refsDefinition = schemaRelationsRefDefinition
-      .getRelationsRef(r.target.entity_type)
-      .filter((ref) => !INTERNAL_REFS.includes(ref.inputName));
+export const parseCsvMapperWithDefaultValues = async (context: AuthContext, user: AuthUser, entity: any) => {
+  if (typeof entity.representations !== 'string') {
+    return entity;
+  }
 
-    return {
-      ...r,
-      attributes: await Promise.all(r.attributes.map(async (attr) => {
-        if (!attr.default_values) {
-          return attr;
-        }
-        let defaultValues = attr.default_values?.map((val) => {
+  const parsedRepresentations: CsvMapperRepresentation[] = JSON.parse(entity.representations);
+  const refAttributesIndexes: string[] = [];
+  const refDefaultValues = parsedRepresentations.flatMap((representation, i) => {
+    const refsDefinition = schemaRelationsRefDefinition
+      .getRelationsRef(representation.target.entity_type)
+      .filter((ref) => !INTERNAL_REFS.includes(ref.inputName));
+    return representation.attributes.flatMap((attribute, j) => {
+      if (
+        attribute.default_values
+        && attribute.key !== 'objectMarking'
+        && refsDefinition.map((ref) => ref.inputName).includes(attribute.key)
+      ) {
+        refAttributesIndexes.push(`${i}-${j}`);
+        return attribute.default_values;
+      }
+      return [];
+    });
+  });
+
+  const entities = await internalFindByIds<BasicStoreEntity>(context, user, refDefaultValues);
+  return {
+    ...entity,
+    representations: parsedRepresentations.map((representation, i) => ({
+      ...representation,
+      attributes: representation.attributes.map((attribute, j) => ({
+        ...attribute,
+        default_values: attribute.default_values?.map((val) => {
           return {
             id: val,
-            name: val
+            name: refAttributesIndexes.includes(`${i}-${j}`)
+              ? entities.find((e) => e.id === val)?.name
+              : val
           };
-        });
-        if (attr.key !== 'objectMarking' && refsDefinition.map((ref) => ref.inputName).includes(attr.key)) {
-          const entities = await internalFindByIds(context, user, attr.default_values);
-          defaultValues = entities.map((entity) => ({
-            id: entity.internal_id,
-            name: (entity as BasicStoreEntity).name
-          }));
-        }
-        return {
-          ...attr,
-          default_values: defaultValues
-        };
+        })
       }))
-    };
-  }));
+    })),
+  };
 };
 
 export const isValidTargetType = (representation: CsvMapperRepresentation) => {
