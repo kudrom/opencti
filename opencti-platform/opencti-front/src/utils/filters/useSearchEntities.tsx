@@ -669,40 +669,16 @@ const useSearchEntities = ({
         buildOptionsFromStaticList(filterKey, confidences, ['lte', 'gt']);
         break;
       }
-      case 'confidence_gt': {
-        buildOptionsFromStaticList(filterKey, confidences);
-        break;
-      }
-      case 'confidence_lte': {
-        buildOptionsFromStaticList(filterKey, confidences);
-        break;
-      }
       // endregion
       // region likelihood
       case 'likelihood': {
         buildOptionsFromStaticList(filterKey, likelihoods, ['lte', 'gt']);
         break;
       }
-      case 'likelihood_gt': {
-        buildOptionsFromStaticList(filterKey, likelihoods);
-        break;
-      }
-      case 'likelihood_lte': {
-        buildOptionsFromStaticList(filterKey, likelihoods);
-        break;
-      }
       // endregion
       // region x_opencti_score
       case 'x_opencti_score': {
         buildOptionsFromStaticList(filterKey, scores, ['lte', 'gt']);
-        break;
-      }
-      case 'x_opencti_score_gt': {
-        buildOptionsFromStaticList(filterKey, scores);
-        break;
-      }
-      case 'x_opencti_score_lte': {
-        buildOptionsFromStaticList(filterKey, scores);
         break;
       }
       // endregion

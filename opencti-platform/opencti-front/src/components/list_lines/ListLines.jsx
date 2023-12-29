@@ -209,12 +209,7 @@ class ListLines extends Component {
       helpers,
       inline,
     } = this.props;
-    const filterKeys = [];
-    if (filterKeysMap) {
-      filterKeysMap.forEach((_, key) => {
-        filterKeys.push(key);
-      });
-    }
+    const filterKeys = Array.from(filterKeysMap.keys());
     const availableFilterKeys = exportEntityType === 'Report'
       ? filterKeys
       : this.props.availableFilterKeys;
