@@ -42,10 +42,11 @@ interface AttributeConfigMeta {
 const getAttributesConfig = async (
   context: AuthContext,
   user: AuthUser,
-  entitySetting: BasicStoreEntityEntitySetting,
+  entityType: string,
+  entitySetting: BasicStoreEntityEntitySetting | undefined,
   forCsvMapper = false
 ): Promise<AttributeConfigMeta[]> => {
-  if (!entitySetting) {
+  if (!entityType) {
     return [];
   }
 
@@ -68,8 +69,8 @@ const getAttributesConfig = async (
       || ref.mandatoryType === 'customizable'
     );
 
-  const attributesDefinition = schemaAttributesDefinition.getAttributes(entitySetting.target_type);
-  const refsDefinition = schemaRelationsRefDefinition.getRelationsRef(entitySetting.target_type);
+  const attributesDefinition = schemaAttributesDefinition.getAttributes(entityType);
+  const refsDefinition = schemaRelationsRefDefinition.getRelationsRef(entityType);
 
   const attributesConfig: AttributeConfigMeta[] = [
     // Configs for attributes definition
@@ -99,7 +100,7 @@ const getAttributesConfig = async (
       })),
   ];
 
-  if (forCsvMapper && isStixCoreRelationship(entitySetting.target_type)) {
+  if (forCsvMapper && isStixCoreRelationship(entityType)) {
     attributesConfig.push({
       name: 'from',
       label: 'from',
@@ -121,21 +122,23 @@ const getAttributesConfig = async (
   }
 
   // Override with stored attributes configuration in entitySettings
-  getAttributesConfiguration(entitySetting)?.forEach((userDefinedAttr) => {
-    const customizableAttr = attributesConfig.find((a) => a.name === userDefinedAttr.name);
-    if (customizableAttr) {
-      if (customizableAttr.mandatoryType === 'customizable' && isNotEmptyField(userDefinedAttr.mandatory)) {
-        customizableAttr.mandatory = userDefinedAttr.mandatory;
+  if (entitySetting) {
+    getAttributesConfiguration(entitySetting)?.forEach((userDefinedAttr) => {
+      const customizableAttr = attributesConfig.find((a) => a.name === userDefinedAttr.name);
+      if (customizableAttr) {
+        if (customizableAttr.mandatoryType === 'customizable' && isNotEmptyField(userDefinedAttr.mandatory)) {
+          customizableAttr.mandatory = userDefinedAttr.mandatory;
+        }
+        if (isNotEmptyField(userDefinedAttr.default_values)) {
+          customizableAttr.defaultValues = userDefinedAttr.default_values?.map((v) => ({ id: v } as DefaultValue));
+        }
+        if (customizableAttr.scale && isNotEmptyField(userDefinedAttr.scale)) {
+          // override default scale
+          customizableAttr.scale = JSON.stringify(userDefinedAttr.scale);
+        }
       }
-      if (isNotEmptyField(userDefinedAttr.default_values)) {
-        customizableAttr.defaultValues = userDefinedAttr.default_values?.map((v) => ({ id: v } as DefaultValue));
-      }
-      if (customizableAttr.scale && isNotEmptyField(userDefinedAttr.scale)) {
-        // override default scale
-        customizableAttr.scale = JSON.stringify(userDefinedAttr.scale);
-      }
-    }
-  });
+    });
+  }
 
   // Resolve default values ref
   const resolveRef = (attributes: AttributeConfigMeta[]) => {
@@ -166,7 +169,7 @@ const getAttributesConfig = async (
 // stored entity settings attributes configuration (only attributes that can be customized in entity settings)
 export const queryAttributesDefinition = async (context: AuthContext, user: AuthUser, entitySetting: BasicStoreEntityEntitySetting): Promise<AttributeConfigMeta[]> => {
   const queryAttributesDefinitionFn = async () => {
-    return getAttributesConfig(context, user, entitySetting);
+    return getAttributesConfig(context, user, entitySetting.target_type, entitySetting);
   };
 
   return telemetry(context, user, 'ATTRIBUTES', {
@@ -209,5 +212,5 @@ export const getSchemaAttributeNames = (elementTypes: string[]) => {
 
 export const getSchemaAttributes = async (context: AuthContext, user: AuthUser, entityType: string) => {
   const entitySetting = await getEntitySettingFromCache(context, entityType);
-  return entitySetting ? getAttributesConfig(context, user, entitySetting, true) : [];
+  return entitySetting ? getAttributesConfig(context, user, entityType, entitySetting, true) : [];
 };
