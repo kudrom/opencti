@@ -90,10 +90,10 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
     );
   }
   const { filterKeysSchema } = useAuth().schema;
-  const filterKeysMap = new Map();
-  (entityTypes ?? []).forEach((entity_type) => {
+  let filterType = undefined as string | undefined;
+  (entityTypes ?? ['Stix-Core-Object']).forEach((entity_type) => {
     const currentMap = filterKeysSchema.get(entity_type);
-    if (currentMap) currentMap.forEach((filterDef, fKey) => filterKeysMap.set(fKey, filterDef));
+    filterType = currentMap?.get(filterKey)?.type ?? undefined;
   });
   const values = filterValues.map((id) => {
     return (
@@ -105,7 +105,7 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
             filterKey={filterKey}
             id={id}
             value={filtersRepresentativesMap.get(id)}
-            filterType={filterKeysMap?.get(filterKey)?.type ?? undefined}
+            filterType={filterType}
           />
         )}
         {last(filterValues) !== id && (

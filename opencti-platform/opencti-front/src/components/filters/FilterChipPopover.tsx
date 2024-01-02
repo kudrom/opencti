@@ -9,15 +9,7 @@ import FilterDate from '@components/common/lists/FilterDate';
 import { MenuItem, Select } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import SearchScopeElement from '@components/common/lists/SearchScopeElement';
-import {
-  dateFilters,
-  Filter,
-  FilterDefinition,
-  getAvailableOperatorForFilter,
-  integerFilters,
-  isStixObjectTypes,
-  isTextFilter
-} from '../../utils/filters/filtersUtils';
+import { dateFilters, Filter, FilterDefinition, getAvailableOperatorForFilter, integerFilters, isStixObjectTypes, isTextFilter } from '../../utils/filters/filtersUtils';
 import { useFormatter } from '../i18n';
 import ItemIcon from '../ItemIcon';
 import { getOptionsFromEntities, getUseSearch } from '../../utils/filters/SearchEntitiesUtil';
@@ -146,7 +138,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
   const filterValues = filter?.values ?? [];
   const { filterKeysSchema } = useAuth().schema;
   let filterDefinition = undefined as FilterDefinition | undefined;
-  (entityTypes ?? []).forEach((entity_type) => {
+  (entityTypes ?? ['Stix-Core-Object']).forEach((entity_type) => {
     const currentMap = filterKeysSchema.get(entity_type);
     filterDefinition = currentMap?.get(filterKey);
   });

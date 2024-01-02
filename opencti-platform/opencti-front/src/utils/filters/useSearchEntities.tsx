@@ -28,7 +28,7 @@ import { StatusTemplateFieldSearchQuery$data } from '@components/common/form/__g
 import { buildScaleFilters } from '../hooks/useScale';
 import useAuth from '../hooks/useAuth';
 import { useSearchEntitiesStixCoreObjectsSearchQuery$data } from './__generated__/useSearchEntitiesStixCoreObjectsSearchQuery.graphql';
-import { vocabCategoriesQuery } from '../hooks/useVocabularyCategory';
+import useVocabularyCategory, { vocabCategoriesQuery } from '../hooks/useVocabularyCategory';
 import { useFormatter } from '../../components/i18n';
 import { defaultValue } from '../Graph';
 import { fetchQuery } from '../../relay/environment';
@@ -36,6 +36,7 @@ import { useVocabularyCategoryQuery$data } from '../hooks/__generated__/useVocab
 import { useSearchEntitiesStixCoreObjectsContainersSearchQuery$data } from './__generated__/useSearchEntitiesStixCoreObjectsContainersSearchQuery.graphql';
 import { useSearchEntitiesSchemaSCOSearchQuery$data } from './__generated__/useSearchEntitiesSchemaSCOSearchQuery.graphql';
 import type { Theme } from '../../components/Theme';
+import { FilterDefinition, isTextFilter } from './filtersUtils';
 
 const filtersStixCoreObjectsContainersSearchQuery = graphql`
   query useSearchEntitiesStixCoreObjectsContainersSearchQuery(
@@ -290,7 +291,7 @@ const useSearchEntities = ({
   const { t } = useFormatter();
   const { schema, me } = useAuth();
   const theme = useTheme() as Theme;
-
+  const { isVocabularyField, fieldToCategory } = useVocabularyCategory();
   const unionSetEntities = (key: string, newEntities: EntityValue[]) => setEntities((c) => ({
     ...c,
     [key]: [...newEntities, ...(c[key] ?? [])].filter(
@@ -462,6 +463,21 @@ const useSearchEntities = ({
       }
       unionSetEntities(key, entitiesToAdd);
     };
+
+    const { filterKeysSchema } = schema;
+    let filterDefinition = undefined as FilterDefinition | undefined;
+    (searchContext.entityTypes).forEach((entity_type) => {
+      const currentMap = filterKeysSchema.get(entity_type);
+      filterDefinition = currentMap?.get(filterKey) ?? undefined;
+    });
+
+    // depending on the filter type, fetch the right data and build the options list
+    if (isVocabularyField(undefined, filterKey)) {
+      const category = fieldToCategory(entityType ?? undefined, filterKey) as string;
+      if (category) buildOptionsFromVocabularySearchQuery(filterKey, [category]);
+    } else if (isTextFilter(filterKey, filterDefinition?.type)) {
+      console.log('text');
+    }
 
     // depending on filter key, fetch the right data and build the options list
     switch (filterKey) {
@@ -757,9 +773,6 @@ const useSearchEntities = ({
         break;
       case 'incident_type':
         buildOptionsFromVocabularySearchQuery(filterKey, ['incident_type_ov']);
-        break;
-      case 'report_types':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['report_types_ov']);
         break;
       case 'channel_types':
         buildOptionsFromVocabularySearchQuery(filterKey, ['channel_types_ov']);

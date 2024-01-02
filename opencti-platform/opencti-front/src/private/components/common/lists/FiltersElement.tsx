@@ -77,7 +77,7 @@ const FiltersElement: FunctionComponent<FiltersElementProps> = ({
     .flat();
   const { filterKeysSchema } = useAuth().schema;
   const filterKeysMap = new Map();
-  (entityTypes ?? []).forEach((entity_type) => {
+  (entityTypes ?? ['Stix-Core-Object']).forEach((entity_type) => {
     const currentMap = filterKeysSchema.get(entity_type);
     if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
   });

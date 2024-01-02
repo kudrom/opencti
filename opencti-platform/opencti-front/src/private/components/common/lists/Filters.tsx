@@ -181,7 +181,7 @@ const Filters: FunctionComponent<FiltersProps> = ({
           variant={variant}
           type={type}
           helpers={helpers}
-          entityTypes={searchContext?.entityTypes ?? []}
+          entityTypes={searchContext?.entityTypes ?? ['Stix-Core-Object']}
         />
       ) : (
         <ListFiltersWithoutLocalStorage

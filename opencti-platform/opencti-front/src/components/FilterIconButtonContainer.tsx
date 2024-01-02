@@ -17,8 +17,8 @@ import FilterValues from './filters/FilterValues';
 import { FilterChipPopover, FilterChipsParameter } from './filters/FilterChipPopover';
 import DisplayFilterGroup from './filters/DisplayFilterGroup';
 import { UseLocalStorageHelpers } from '../utils/hooks/useLocalStorage';
-import FilterIconButtonGlobalMode from './FilterIconButtonGlobalMode';
 import useAuth from '../utils/hooks/useAuth';
+import FilterIconButtonGlobalMode from './FilterIconButtonGlobalMode';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   filter3: {
@@ -165,7 +165,7 @@ FilterIconButtonContainerProps
   const open = Boolean(filterChipsParams.anchorEl);
   const { filterKeysSchema } = useAuth().schema;
   const filterKeysMap = new Map();
-  (entityTypes ?? []).forEach((entity_type) => {
+  (entityTypes ?? ['Stix-Core-Object']).forEach((entity_type) => {
     const currentMap = filterKeysSchema.get(entity_type);
     if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
   });
