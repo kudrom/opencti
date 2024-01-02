@@ -4,15 +4,15 @@ import { useTheme } from '@mui/material/styles';
 import { useFormatter } from './i18n';
 import { Filter, filtersUsedAsApiParameters } from '../utils/filters/filtersUtils';
 
-interface FilterIconButtonGlobalOperatorProps {
+interface FilterIconButtonGlobalModeProps {
   classOperator: string;
   globalMode: string;
   displayedFilters: Filter[];
   currentIndex: number;
   handleSwitchGlobalMode?: () => void;
 }
-const FilterIconButtonGlobalOperator: FunctionComponent<
-FilterIconButtonGlobalOperatorProps
+const FilterIconButtonGlobalMode: FunctionComponent<
+FilterIconButtonGlobalModeProps
 > = ({
   classOperator,
   globalMode,
@@ -46,4 +46,4 @@ FilterIconButtonGlobalOperatorProps
   );
 };
 
-export default FilterIconButtonGlobalOperator;
+export default FilterIconButtonGlobalMode;

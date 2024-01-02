@@ -13,7 +13,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
-import { FormatListGroup, RelationManyToMany, VectorPolygon, Group, FileDelimitedOutline } from 'mdi-material-ui';
+import { FileDelimitedOutline, FormatListGroup, Group, RelationManyToMany, VectorPolygon } from 'mdi-material-ui';
 import DialogTitle from '@mui/material/DialogTitle';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -24,10 +24,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import { UserContext } from '../../utils/hooks/useAuth';
 import Filters from '../../private/components/common/lists/Filters';
 import SearchInput from '../SearchInput';
 import inject18n from '../i18n';
-import { UserContext } from '../../utils/hooks/useAuth';
 import StixDomainObjectsExports from '../../private/components/common/stix_domain_objects/StixDomainObjectsExports';
 import Security from '../../utils/Security';
 import { KNOWLEDGE_KNGETEXPORT } from '../../utils/hooks/useGranted';
@@ -247,7 +247,6 @@ class ListLines extends Component {
                 helpers={helpers}
                 searchContext={searchContextFinal}
                 availableFilterKeys={availableFilterKeys}
-                filterKeysMap={filterKeysMap}
                 handleAddFilter={handleAddFilter}
                 handleSwitchFilter={handleSwitchFilter}
                 handleRemoveFilter={handleRemoveFilter}
@@ -447,13 +446,13 @@ class ListLines extends Component {
         <FilterIconButton
           helpers={helpers}
           availableFilterKeys={availableFilterKeys}
-          filterKeysMap={filterKeysMap}
           filters={filters}
           handleRemoveFilter={handleRemoveFilter}
           handleSwitchGlobalMode={handleSwitchGlobalMode}
           handleSwitchLocalMode={handleSwitchLocalMode}
           availableRelationFilterTypes={availableRelationFilterTypes}
           redirection
+          entityTypes={[exportEntityType]}
         />
         {message && (
           <div style={{ width: '100%', marginTop: 10 }}>

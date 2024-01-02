@@ -9,11 +9,12 @@ import FilterDate from '@components/common/lists/FilterDate';
 import { MenuItem, Select } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import SearchScopeElement from '@components/common/lists/SearchScopeElement';
-import { dateFilters, Filter, FilterDefinition, getAvailableOperatorForFilter, integerFilters, isStixObjectTypes, textFilters } from '../../utils/filters/filtersUtils';
+import { dateFilters, Filter, getAvailableOperatorForFilter, integerFilters, isStixObjectTypes, textFilters } from '../../utils/filters/filtersUtils';
 import { useFormatter } from '../i18n';
 import ItemIcon from '../ItemIcon';
 import { getOptionsFromEntities, getUseSearch } from '../../utils/filters/SearchEntitiesUtil';
 import { UseLocalStorageHelpers } from '../../utils/hooks/useLocalStorage';
+import useAuth from '../../utils/hooks/useAuth';
 
 interface FilterChipMenuProps {
   handleClose: () => void;
@@ -22,7 +23,7 @@ interface FilterChipMenuProps {
   filters: Filter[];
   helpers?: UseLocalStorageHelpers;
   availableRelationFilterTypes?: Record<string, string[]>;
-  filterKeysMap?: Map<string, FilterDefinition>;
+  entityTypes: string[];
 }
 
 export interface FilterChipsParameter {
@@ -129,12 +130,18 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
   filters,
   helpers,
   availableRelationFilterTypes,
-  filterKeysMap,
+  entityTypes,
 }) => {
   const filter = filters.find((f) => f.id === params.filterId);
   const filterKey = filter?.key ?? '';
   const filterOperator = filter?.operator ?? '';
   const filterValues = filter?.values ?? [];
+  const { filterKeysSchema } = useAuth().schema;
+  const filterKeysMap = new Map();
+  (entityTypes ?? []).forEach((entity_type) => {
+    const currentMap = filterKeysSchema.get(entity_type);
+    if (currentMap) currentMap.forEach((filterDef, fKey) => filterKeysMap.set(fKey, filterDef));
+  });
   const [inputValues, setInputValues] = useState<
   {
     key: string;

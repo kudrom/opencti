@@ -6,6 +6,7 @@ import FilterIconButtonContent from '../FilterIconButtonContent';
 import type { Theme } from '../Theme';
 import { Filter, FilterDefinition, filtersUsedAsApiParameters } from '../../utils/filters/filtersUtils';
 import { UseLocalStorageHelpers } from '../../utils/hooks/useLocalStorage';
+import useAuth from '../../utils/hooks/useAuth';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   inlineOperator: {
@@ -49,7 +50,7 @@ interface FilterValuesProps {
   onClickLabel?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   helpers?: UseLocalStorageHelpers;
   isReadWriteFilter?: boolean;
-  filterKeysMap?: Map<string, FilterDefinition>;
+  entityTypes: string[];
 }
 
 const FilterValues: FunctionComponent<FilterValuesProps> = ({
@@ -62,7 +63,7 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
   onClickLabel,
   helpers,
   isReadWriteFilter,
-  filterKeysMap,
+  entityTypes,
 }) => {
   const { t } = useFormatter();
   const filterKey = currentFilter.key;
@@ -88,6 +89,12 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
       </>
     );
   }
+  const { filterKeysSchema } = useAuth().schema;
+  const filterKeysMap = new Map();
+  (entityTypes ?? []).forEach((entity_type) => {
+    const currentMap = filterKeysSchema.get(entity_type);
+    if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
+  });
   const values = filterValues.map((id) => {
     return (
       <Fragment key={id}>

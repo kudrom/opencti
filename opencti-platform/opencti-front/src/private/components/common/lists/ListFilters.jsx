@@ -10,6 +10,7 @@ import TextField from '@mui/material/TextField';
 import MUIAutocomplete from '@mui/material/Autocomplete';
 import { useFormatter } from '../../../../components/i18n';
 import { directFilters, getDefaultFilterObject } from '../../../../utils/filters/filtersUtils';
+import useAuth from '../../../../utils/hooks/useAuth';
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -30,9 +31,15 @@ const ListFilters = ({
   variant,
   type,
   helpers,
-  filterKeysMap,
+  entityTypes,
 }) => {
   const { t } = useFormatter();
+  const { filterKeysSchema } = useAuth().schema;
+  const filterKeysMap = new Map();
+  (entityTypes ?? []).forEach((entity_type) => {
+    const currentMap = filterKeysSchema.get(entity_type);
+    if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
+  });
   const [inputValue, setInputValue] = React.useState('');
   const classes = useStyles();
   let icon = <FilterListOutlined fontSize={fontSize || 'medium'} />;

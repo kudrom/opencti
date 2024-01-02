@@ -10,14 +10,15 @@ import { truncate } from '../utils/String';
 import { DataColumns } from './list_lines';
 import { useFormatter } from './i18n';
 import type { Theme } from './Theme';
-import { Filter, FilterDefinition, FilterGroup, filtersUsedAsApiParameters } from '../utils/filters/filtersUtils';
+import { Filter, FilterGroup, filtersUsedAsApiParameters } from '../utils/filters/filtersUtils';
 import { filterIconButtonContentQuery } from './FilterIconButtonContent';
 import { FilterIconButtonContentQuery } from './__generated__/FilterIconButtonContentQuery.graphql';
 import FilterValues from './filters/FilterValues';
 import { FilterChipPopover, FilterChipsParameter } from './filters/FilterChipPopover';
 import DisplayFilterGroup from './filters/DisplayFilterGroup';
 import { UseLocalStorageHelpers } from '../utils/hooks/useLocalStorage';
-import FilterIconButtonGlobalOperator from './FilterIconButtonGlobalOperator';
+import FilterIconButtonGlobalMode from './FilterIconButtonGlobalMode';
+import useAuth from '../utils/hooks/useAuth';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   filter3: {
@@ -118,7 +119,7 @@ interface FilterIconButtonContainerProps {
   hasRenderedRef: boolean;
   setHasRenderedRef: () => void;
   availableRelationFilterTypes?: Record<string, string[]>;
-  filterKeysMap?: Map<string, FilterDefinition>;
+  entityTypes: string[];
 }
 
 const FilterIconButtonContainer: FunctionComponent<
@@ -137,7 +138,7 @@ FilterIconButtonContainerProps
   hasRenderedRef,
   setHasRenderedRef,
   availableRelationFilterTypes,
-  filterKeysMap,
+  entityTypes,
 }) => {
   const { t } = useFormatter();
   const classes = useStyles();
@@ -162,6 +163,12 @@ FilterIconButtonContainerProps
     anchorEl: undefined,
   } as FilterChipsParameter);
   const open = Boolean(filterChipsParams.anchorEl);
+  const { filterKeysSchema } = useAuth().schema;
+  const filterKeysMap = new Map();
+  (entityTypes ?? []).forEach((entity_type) => {
+    const currentMap = filterKeysSchema.get(entity_type);
+    if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
+  });
   if (helpers) {
     // activate popover feature on chip only when "helper" is defined, not the best way to handle but
     // it means that the new filter feature is activated. Will be removed in the next version when we generalize the feature on every filter.
@@ -305,7 +312,7 @@ FilterIconButtonContainerProps
                   filtersRepresentativesMap={filtersRepresentativesMap}
                   helpers={helpers}
                   redirection={redirection}
-                  filterKeysMap={filterKeysMap}
+                  entityTypes={entityTypes}
                 />
               }
             >
@@ -341,7 +348,7 @@ FilterIconButtonContainerProps
                       helpers={helpers}
                       onClickLabel={(event) => handleChipClick(event, currentFilter?.id)}
                       isReadWriteFilter={isReadWriteFilter}
-                      filterKeysMap={filterKeysMap}
+                      entityTypes={entityTypes}
                     />
                   }
                   disabled={
@@ -369,7 +376,7 @@ FilterIconButtonContainerProps
                   ...backgroundGroupingChipsStyle,
                 }}
               >
-                <FilterIconButtonGlobalOperator
+                <FilterIconButtonGlobalMode
                   currentIndex={index}
                   displayedFilters={displayedApiFilters}
                   classOperator={classOperator}
@@ -457,7 +464,7 @@ FilterIconButtonContainerProps
                   filtersRepresentativesMap={filtersRepresentativesMap}
                   helpers={helpers}
                   redirection={redirection}
-                  filterKeysMap={filterKeysMap}
+                  entityTypes={entityTypes}
                 />
               }
             >
@@ -492,7 +499,7 @@ FilterIconButtonContainerProps
                       helpers={helpers}
                       onClickLabel={(event) => handleChipClick(event, currentFilter?.id)}
                       isReadWriteFilter={isReadWriteFilter}
-                      filterKeysMap={filterKeysMap}
+                      entityTypes={entityTypes}
                     />
                   }
                   disabled={
@@ -517,7 +524,7 @@ FilterIconButtonContainerProps
                   display: 'flex',
                 }}
               >
-                <FilterIconButtonGlobalOperator
+                <FilterIconButtonGlobalMode
                   currentIndex={index}
                   displayedFilters={classicalFilters}
                   classOperator={classOperator}
@@ -538,7 +545,7 @@ FilterIconButtonContainerProps
             open={open}
             helpers={helpers}
             availableRelationFilterTypes={availableRelationFilterTypes}
-            filterKeysMap={filterKeysMap}
+            entityTypes={entityTypes}
           />
         </Box>
       )}

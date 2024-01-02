@@ -3,11 +3,12 @@ import TextField from '@mui/material/TextField';
 import React, { FunctionComponent } from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 import { useFormatter } from '../../../../components/i18n';
-import { dateFilters, directFilters, FilterDefinition, FiltersVariant } from '../../../../utils/filters/filtersUtils';
+import { dateFilters, directFilters, FiltersVariant } from '../../../../utils/filters/filtersUtils';
 import FilterDate from './FilterDate';
 import FilterAutocomplete from './FilterAutocomplete';
 import type { Theme } from '../../../../components/Theme';
 import { HandleAddFilter } from '../../../../utils/hooks/useLocalStorage';
+import useAuth from '../../../../utils/hooks/useAuth';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   helpertext: {
@@ -50,7 +51,7 @@ export interface FiltersElementProps {
   availableRelationshipTypes?: string[];
   availableRelationFilterTypes?: Record<string, string[]>;
   allEntityTypes?: boolean;
-  filterKeysMap?: Map<string, FilterDefinition>;
+  entityTypes?: string[];
 }
 
 const FiltersElement: FunctionComponent<FiltersElementProps> = ({
@@ -67,13 +68,19 @@ const FiltersElement: FunctionComponent<FiltersElementProps> = ({
   availableRelationshipTypes,
   availableRelationFilterTypes,
   allEntityTypes,
-  filterKeysMap,
+  entityTypes,
 }) => {
   const { t } = useFormatter();
   const classes = useStyles();
   const displayedFilters = availableFilterKeys
     .filter((n) => noDirectFilters || !directFilters.includes(n))
     .flat();
+  const { filterKeysSchema } = useAuth().schema;
+  const filterKeysMap = new Map();
+  (entityTypes ?? []).forEach((entity_type) => {
+    const currentMap = filterKeysSchema.get(entity_type);
+    if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
+  });
   return (
     <>
       <Grid container={true} spacing={2}>

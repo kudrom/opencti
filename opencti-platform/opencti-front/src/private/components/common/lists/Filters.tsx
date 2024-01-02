@@ -4,11 +4,10 @@ import ListFiltersWithoutLocalStorage from '@components/common/lists/ListFilters
 import {
   constructHandleAddFilter,
   constructHandleRemoveFilter,
+  emptyFilterGroup,
   Filter,
   FilterGroup,
   FiltersVariant,
-  emptyFilterGroup,
-  FilterDefinition,
 } from '../../../../utils/filters/filtersUtils';
 import FiltersElement, { FilterElementsInputValue } from './FiltersElement';
 import ListFilters from './ListFilters';
@@ -22,7 +21,6 @@ interface FiltersProps {
   size?: number;
   fontSize?: number;
   availableFilterKeys: string[];
-  filterKeysMap?: Map<string, FilterDefinition>;
   noDirectFilters?: boolean;
   availableEntityTypes?: string[];
   availableRelationshipTypes?: string[];
@@ -60,7 +58,6 @@ const Filters: FunctionComponent<FiltersProps> = ({
   searchContext,
   type,
   helpers,
-  filterKeysMap,
 }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -148,7 +145,7 @@ const Filters: FunctionComponent<FiltersProps> = ({
       availableRelationshipTypes={availableRelationshipTypes}
       availableRelationFilterTypes={availableRelationFilterTypes}
       allEntityTypes={allEntityTypes}
-      filterKeysMap={filterKeysMap}
+      entityTypes={searchScope.entityTypes}
     />
   );
   if (variant === FiltersVariant.dialog) {
@@ -184,7 +181,7 @@ const Filters: FunctionComponent<FiltersProps> = ({
           variant={variant}
           type={type}
           helpers={helpers}
-          filterKeysMap={filterKeysMap}
+          entityTypes={searchContext?.entityTypes ?? []}
         />
       ) : (
         <ListFiltersWithoutLocalStorage
