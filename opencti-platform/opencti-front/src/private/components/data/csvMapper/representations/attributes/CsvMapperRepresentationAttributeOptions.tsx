@@ -68,18 +68,6 @@ CsvMapperRepresentationAttributeOptionsProps
       )}
       {schemaAttribute.editDefault && (
       <>
-        <DialogContentText sx={{ width: 500 }}>
-          {settingsDefaultValues ? (
-            <>
-              {t('', {
-                id: 'The default value set in Settings > Customization is ...',
-                values: { value: settingsDefaultValues },
-              })}
-            </>
-          ) : (
-            t('A default value is not set in Settings > Customization. If you want to specify a value, you can fill the field below.')
-          )}
-        </DialogContentText>
         {defaultValueRdy && (
           <DefaultValueField
             attribute={schemaAttribute}
@@ -87,6 +75,15 @@ CsvMapperRepresentationAttributeOptionsProps
             name={`${attributeName}.default_values`}
           />
         )}
+        <DialogContentText sx={{ width: 450, mt: '8px' }}>
+          {settingsDefaultValues
+            ? t('', {
+              id: 'The default value set in Settings > Customization is ...',
+              values: { value: settingsDefaultValues },
+            })
+            : t('No default value set in Settings...')
+          }
+        </DialogContentText>
       </>
       )}
     </>

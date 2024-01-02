@@ -59,6 +59,9 @@ export const parseCsvMapperWithDefaultValues = async (context: AuthContext, user
       attributes: representation.attributes.map((attribute, j) => ({
         ...attribute,
         default_values: attribute.default_values?.map((val) => {
+          if (refAttributesIndexes.includes(`${i}-${j}`)) {
+            console.log(val, entities.find((e) => e.id === val)?.name);
+          }
           return {
             id: val,
             name: refAttributesIndexes.includes(`${i}-${j}`)
