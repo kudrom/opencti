@@ -12,6 +12,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import CsvMapperRepresentationForm, { RepresentationFormEntityOption } from '@components/data/csvMapper/representations/CsvMapperRepresentationForm';
 import { CsvMapperFormData } from '@components/data/csvMapper/CsvMapper';
 import classNames from 'classnames';
+import { formDataToCsvMapper } from '@components/data/csvMapper/CsvMapperUtils';
 import type { Theme } from '../../../../components/Theme';
 import { useFormatter } from '../../../../components/i18n';
 import TextField from '../../../../components/TextField';
@@ -337,7 +338,7 @@ const CsvMapperForm: FunctionComponent<CsvMapperFormProps> = ({ csvMapper, onSub
               <CsvMapperTestDialog
                 open={open}
                 onClose={() => setOpen(false)}
-                configuration={JSON.stringify(values)}
+                configuration={JSON.stringify(formDataToCsvMapper(values))}
               />
             </Form>
           );

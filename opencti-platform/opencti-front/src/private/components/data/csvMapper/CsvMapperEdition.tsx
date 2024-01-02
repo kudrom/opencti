@@ -33,6 +33,7 @@ const CsvMapperEdition: FunctionComponent<CsvMapperEditionProps> = ({
     { setSubmitting },
   ) => {
     const formattedValues = formDataToCsvMapper(values);
+    console.log(formattedValues);
     const input = formikFieldToEditInput(
       {
         ...R.omit(['id', 'errors'], formattedValues),

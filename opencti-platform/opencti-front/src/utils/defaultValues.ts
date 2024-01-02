@@ -33,8 +33,6 @@ export const defaultValuesToStringArray = (
   let default_values: string[] | null = null;
   if (!defaultValues) return default_values;
 
-  console.log('pouet', defaultValues);
-
   if (Array.isArray(defaultValues)) {
     if (attributeName === INPUT_AUTHORIZED_MEMBERS) {
       default_values = (defaultValues as Option[])
@@ -56,37 +54,6 @@ export const defaultValuesToStringArray = (
   } else {
     // Default case -> string
     default_values = [defaultValues as string];
-  }
-  return default_values;
-};
-
-/**
- * Transforms a default value in backend into
- * the format used in the form.
- *
- * @param defaultValues The value in backend format.
- * @param attributeType Type in the schema attribute.
- * @param attributeMultiple True if the value is multiple.
- * @param attributeName Name in the schema attribute.
- * @returns Default values usable by the form.
- */
-export const defaultValuesStringArrayToForm = (
-  defaultValues: readonly { id: string, name: string }[],
-  attributeType: string,
-  attributeMultiple: boolean,
-  attributeName: string,
-): DefaultValues => {
-  let default_values: DefaultValues = null;
-  if (!defaultValues) return default_values;
-
-  if (attributeName === 'createdBy') {
-    default_values = defaultValues.map((v) => ({ value: v.id, label: v.name }))[0] ?? '';
-  } else if (attributeMultiple) {
-    default_values = defaultValues.map((v) => ({ value: v.id, label: v.name })) ?? '';
-  } else if (attributeType === 'boolean') {
-    default_values = Boolean(defaultValues[0]?.id);
-  } else {
-    default_values = defaultValues[0]?.id ?? '';
   }
   return default_values;
 };

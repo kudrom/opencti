@@ -9,7 +9,7 @@ import DefaultValueField from '@components/common/form/DefaultValueField';
 import { CsvMapperFormData } from '@components/data/csvMapper/CsvMapper';
 import { CsvMapperRepresentationAttributeFormData } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { useFormatter } from '../../../../../../components/i18n';
-import { defaultValuesStringArrayToForm } from '../../../../../../utils/defaultValues';
+import { useComputeDefaultValues } from '../../../../../../utils/hooks/useDefaultValues';
 
 interface CsvMapperRepresentationAttributeOptionsProps {
   schemaAttribute: CsvMapperRepresentationAttributesFormQuery$data['schemaAttributes'][number];
@@ -24,7 +24,11 @@ CsvMapperRepresentationAttributeOptionsProps
   const { setFieldValue, getFieldProps } = form;
   const [defaultValueRdy, setDefaultValueRdy] = useState(false);
 
-  const settingsDefaultValues = schemaAttribute.defaultValues?.join(',');
+  const settingsDefaultValues = schemaAttribute.defaultValues?.map((v) => v.name).join(',') ?? t('none');
+
+  // Retrieve the entity type of the current representation for open vocab fields.
+  const representationName = attributeName.split('.')[0];
+  const entityType: string = getFieldProps(representationName).value.target_type;
 
   useEffect(() => {
     const rawDefaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['raw_default_values']>(
@@ -34,11 +38,12 @@ CsvMapperRepresentationAttributeOptionsProps
       `${attributeName}.default_values`,
     );
     if (rawDefaultValue.value && defaultValue.value === null) {
-      setFieldValue(`${attributeName}.default_values`, defaultValuesStringArrayToForm(
-        rawDefaultValue.value,
-        schemaAttribute.type,
-        !!schemaAttribute.multiple,
+      setFieldValue(`${attributeName}.default_values`, useComputeDefaultValues(
+        entityType,
         schemaAttribute.name,
+        !!schemaAttribute.multiple,
+        schemaAttribute.type,
+        rawDefaultValue.value,
       ));
     }
     setDefaultValueRdy(true);
@@ -73,17 +78,29 @@ CsvMapperRepresentationAttributeOptionsProps
             attribute={schemaAttribute}
             setFieldValue={setFieldValue}
             name={`${attributeName}.default_values`}
+            entityType={entityType}
           />
         )}
-        <DialogContentText sx={{ width: 450, mt: '8px' }}>
           {settingsDefaultValues
-            ? t('', {
-              id: 'The default value set in Settings > Customization is ...',
-              values: { value: settingsDefaultValues },
-            })
-            : t('No default value set in Settings...')
+            ? (
+              <>
+                <DialogContentText sx={{ width: 450, mt: '8px' }}>
+                  {t('', {
+                    id: 'Settings default values',
+                    values: { value: settingsDefaultValues },
+                  })}
+                </DialogContentText>
+                <DialogContentText>
+                  {t('Settings default values usage...')}
+                </DialogContentText>
+              </>
+            )
+            : (
+              <DialogContentText sx={{ width: 450, mt: '8px' }}>
+                {t('No default value set in Settings...')}
+              </DialogContentText>
+            )
           }
-        </DialogContentText>
       </>
       )}
     </>
