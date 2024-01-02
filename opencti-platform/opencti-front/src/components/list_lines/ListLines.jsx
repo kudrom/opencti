@@ -442,6 +442,7 @@ class ListLines extends Component {
           filters={filters}
           availableFilterKeys={availableFilterKeys}
           helpers={helpers}
+          entityTypes={exportEntityType ? [exportEntityType] : ['Stix-Core-Object']}
         />
         <FilterIconButton
           helpers={helpers}
@@ -452,7 +453,7 @@ class ListLines extends Component {
           handleSwitchLocalMode={handleSwitchLocalMode}
           availableRelationFilterTypes={availableRelationFilterTypes}
           redirection
-          entityTypes={[exportEntityType]}
+          entityTypes={exportEntityType ? [exportEntityType] : ['Stix-Core-Object']}
         />
         {message && (
           <div style={{ width: '100%', marginTop: 10 }}>

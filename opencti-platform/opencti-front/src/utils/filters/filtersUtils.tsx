@@ -1,8 +1,8 @@
 import * as R from 'ramda';
 import { v4 as uuid } from 'uuid';
 import { useFormatter } from '../../components/i18n';
-
 import type { FilterGroup as GqlFilterGroup } from './__generated__/useSearchEntitiesStixCoreObjectsContainersSearchQuery.graphql';
+import useVocabularyCategory from '../hooks/useVocabularyCategory';
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -200,6 +200,11 @@ export const isFilterFormatCorrect = (stringFilters: string): boolean => {
 };
 
 export const isUniqFilter = (key: string) => uniqFilters.includes(key) || dateFilters.includes(key);
+
+export const isTextFilter = (filterKey: string, filterType?: string | null) => {
+  const { isVocabularyField } = useVocabularyCategory();
+  return (filterType === 'string' || textFilters.includes(filterKey)) && !isVocabularyField(undefined, filterKey);
+};
 
 export const findFilterFromKey = (
   filters: Filter[],
@@ -719,52 +724,54 @@ const defaultFilterObject: Filter = {
   operator: '',
   mode: 'or',
 };
-export const getDefaultOperatorFilter = (filterKey: string, filterKeysMap?: Map<string, FilterDefinition>) => {
+export const getDefaultOperatorFilter = (filterKey: string, filterDefinition: FilterDefinition) => {
+  const filterType = filterDefinition.type;
   if (EqFilters.includes(filterKey)) {
     return 'eq';
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'date' || dateFilters.includes(filterKey)) {
+  if (filterType === 'date' || dateFilters.includes(filterKey)) {
     return 'gte';
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'numeric' || integerFilters.includes(filterKey)) {
+  if (filterType === 'numeric' || integerFilters.includes(filterKey)) {
     return 'gt';
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'boolean' || booleanFilters.includes(filterKey)) {
+  if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {
     return 'eq';
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'string' || textFilters.includes(filterKey)) {
+  if (isTextFilter(filterKey, filterType)) {
     return 'starts_with';
   }
   return 'eq';
 };
 
-export const getDefaultFilterObject = (key: string, filterKeysMap?: Map<string, FilterDefinition>): Filter => {
+export const getDefaultFilterObject = (key: string, filterDefinition: FilterDefinition): Filter => {
   return {
     ...defaultFilterObject,
     id: uuid(),
     key,
-    operator: getDefaultOperatorFilter(key, filterKeysMap),
+    operator: getDefaultOperatorFilter(key, filterDefinition),
   };
 };
 
-export const getAvailableOperatorForFilter = (filterKey: string, filterKeysMap?: Map<string, FilterDefinition>): string[] => {
+export const getAvailableOperatorForFilter = (filterKey: string, filterDefinition?: FilterDefinition): string[] => {
+  const filterType = filterDefinition?.type;
   if (filtersUsedAsApiParameters.includes(filterKey)) {
     return ['eq'];
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'date' || dateFilters.includes(filterKey)) {
+  if (filterType === 'date' || dateFilters.includes(filterKey)) {
     return ['gt', 'gte', 'lt', 'lte'];
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'numeric' || integerFilters.includes(filterKey)) {
+  if (filterType === 'numeric' || integerFilters.includes(filterKey)) {
     return ['gt', 'gte', 'lt', 'lte'];
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'boolean' || booleanFilters.includes(filterKey)) {
+  if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {
     return ['eq', 'not_eq'];
   }
-  if (filterKeysMap?.get(filterKey)?.type === 'string' || textFilters.includes(filterKey)) {
+  if (isTextFilter(filterKey, filterType)) {
     return ['eq', 'not_eq', 'nil', 'not_nil', 'contains', 'not_contains',
       'starts_with', 'not_starts_with', 'ends_with', 'not_ends_with'];
   }
-  return ['eq', 'not_eq', 'nil', 'not_nil'];
+  return ['eq', 'not_eq', 'nil', 'not_nil']; // vocabulary or id
 };
 
 export const removeIdFromFilterGroupObject = (

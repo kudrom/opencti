@@ -57,11 +57,11 @@ const ListFilters = ({
   const handleClearFilters = () => {
     const dFilter = availableFilterKeys.filter((n) => directFilters.includes(n));
     helpers.handleClearAllFilters(
-      dFilter.map((key) => getDefaultFilterObject(key, filterKeysMap)),
+      dFilter.map((key) => getDefaultFilterObject(key, filterKeysMap.get(key))),
     );
   };
   const handleChange = (value) => {
-    helpers.handleAddFilterWithEmptyValue(getDefaultFilterObject(value, filterKeysMap));
+    helpers.handleAddFilterWithEmptyValue(getDefaultFilterObject(value, filterKeysMap.get(value)));
   };
   return (
     <>

@@ -4,7 +4,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { useFormatter } from '../i18n';
 import FilterIconButtonContent from '../FilterIconButtonContent';
 import type { Theme } from '../Theme';
-import { Filter, FilterDefinition, filtersUsedAsApiParameters } from '../../utils/filters/filtersUtils';
+import { Filter, filtersUsedAsApiParameters } from '../../utils/filters/filtersUtils';
 import { UseLocalStorageHelpers } from '../../utils/hooks/useLocalStorage';
 import useAuth from '../../utils/hooks/useAuth';
 
@@ -93,7 +93,7 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
   const filterKeysMap = new Map();
   (entityTypes ?? []).forEach((entity_type) => {
     const currentMap = filterKeysSchema.get(entity_type);
-    if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
+    if (currentMap) currentMap.forEach((filterDef, fKey) => filterKeysMap.set(fKey, filterDef));
   });
   const values = filterValues.map((id) => {
     return (
