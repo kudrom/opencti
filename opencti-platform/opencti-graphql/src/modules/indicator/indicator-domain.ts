@@ -83,7 +83,6 @@ export const promoteIndicatorToObservable = async (context: AuthContext, user: A
   return createObservablesFromIndicator(context, user, input, indicator);
 };
 
-// TODO verify how the merge of Indicator is done
 export const addIndicator = async (context: AuthContext, user: AuthUser, indicator: IndicatorAddInput) => {
   let observableType: string = isEmptyField(indicator.x_opencti_main_observable_type) ? 'Unknown' : indicator.x_opencti_main_observable_type as string;
   if (observableType === 'File') {
