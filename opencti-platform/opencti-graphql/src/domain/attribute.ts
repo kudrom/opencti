@@ -212,5 +212,5 @@ export const getSchemaAttributeNames = (elementTypes: string[]) => {
 
 export const getSchemaAttributes = async (context: AuthContext, user: AuthUser, entityType: string) => {
   const entitySetting = await getEntitySettingFromCache(context, entityType);
-  return entitySetting ? getAttributesConfig(context, user, entityType, entitySetting, true) : [];
+  return getAttributesConfig(context, user, entityType, entitySetting, true);
 };
