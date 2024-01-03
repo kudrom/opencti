@@ -11,6 +11,7 @@ import { schemaRelationsRefDefinition } from '../../../schema/schema-relationsRe
 import { INTERNAL_REFS } from '../../../domain/attribute-utils';
 import { internalFindByIds } from '../../../database/middleware-loader';
 import type { BasicStoreEntity } from '../../../types/store';
+import { extractRepresentative } from '../../../database/entity-representative';
 
 const representationLabel = (idx: number, representation: CsvMapperRepresentation) => {
   const number = `#${idx + 1}`;
@@ -59,13 +60,13 @@ export const parseCsvMapperWithDefaultValues = async (context: AuthContext, user
       attributes: representation.attributes.map((attribute, j) => ({
         ...attribute,
         default_values: attribute.default_values?.map((val) => {
-          if (refAttributesIndexes.includes(`${i}-${j}`)) {
-            console.log(val, entities.find((e) => e.id === val)?.name);
-          }
+          const refEntity = entities.find((e) => e.id === val);
+          const representative = refEntity ? extractRepresentative(refEntity)?.main : undefined;
+
           return {
             id: val,
-            name: refAttributesIndexes.includes(`${i}-${j}`)
-              ? entities.find((e) => e.id === val)?.name
+            name: refAttributesIndexes.includes(`${i}-${j}`) && representative
+              ? representative
               : val
           };
         })

@@ -19,7 +19,7 @@ const useStyles = makeStyles(() => ({
   container: {
     width: '100%',
     display: 'inline-grid',
-    gridTemplateColumns: '1fr 1fr 1fr',
+    gridTemplateColumns: '2fr 3fr 50px',
     alignItems: 'center',
     marginTop: '10px',
     gap: '10px',

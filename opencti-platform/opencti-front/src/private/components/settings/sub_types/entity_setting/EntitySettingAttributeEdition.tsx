@@ -91,6 +91,7 @@ const EntitySettingAttributeEdition = ({
 }: EntitySettingAttributeEditionProps) => {
   const { t } = useFormatter();
   const classes = useStyles();
+  const computeDefaultValues = useComputeDefaultValues();
 
   const attributesConfiguration: AttributeConfiguration[] = entitySetting.attributes_configuration
     ? JSON.parse(entitySetting.attributes_configuration)
@@ -188,7 +189,7 @@ const EntitySettingAttributeEdition = ({
     if (attribute.name === 'objectMarking') {
       return head(values)?.id ?? false;
     }
-    return useComputeDefaultValues(
+    return computeDefaultValues(
       entitySetting.target_type,
       attribute.name,
       attribute.multiple ?? false,

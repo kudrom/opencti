@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useEffect } from 'react';
 import CsvMapperRepresentationAttributeOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOption';
 import DialogContentText from '@mui/material/DialogContentText';
 import {
@@ -22,7 +22,7 @@ CsvMapperRepresentationAttributeOptionsProps
 > = ({ schemaAttribute, attributeName, form }) => {
   const { t } = useFormatter();
   const { setFieldValue, getFieldProps } = form;
-  const [defaultValueRdy, setDefaultValueRdy] = useState(false);
+  const computeDefaultValues = useComputeDefaultValues();
 
   const settingsDefaultValues = schemaAttribute.defaultValues?.map((v) => v.name).join(',') ?? t('none');
 
@@ -30,24 +30,24 @@ CsvMapperRepresentationAttributeOptionsProps
   const representationName = attributeName.split('.')[0];
   const entityType: string = getFieldProps(representationName).value.target_type;
 
+  const defaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['default_values']>(
+    `${attributeName}.default_values`,
+  );
+
   useEffect(() => {
-    const rawDefaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['raw_default_values']>(
-      `${attributeName}.raw_default_values`,
-    );
-    const defaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['default_values']>(
-      `${attributeName}.default_values`,
-    );
-    if (rawDefaultValue.value && defaultValue.value === null) {
-      setFieldValue(`${attributeName}.default_values`, useComputeDefaultValues(
+    if (defaultValue.value === null) {
+      const rawDefaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['raw_default_values']>(
+        `${attributeName}.raw_default_values`,
+      );
+      setFieldValue(`${attributeName}.default_values`, computeDefaultValues(
         entityType,
         schemaAttribute.name,
         !!schemaAttribute.multiple,
         schemaAttribute.type,
-        rawDefaultValue.value,
+        rawDefaultValue.value ?? [],
       ));
     }
-    setDefaultValueRdy(true);
-  }, [form]);
+  }, []);
 
   return (
     <>
@@ -73,7 +73,7 @@ CsvMapperRepresentationAttributeOptionsProps
       )}
       {schemaAttribute.editDefault && (
       <>
-        {defaultValueRdy && (
+        {defaultValue.value !== null && (
           <DefaultValueField
             attribute={schemaAttribute}
             setFieldValue={setFieldValue}
