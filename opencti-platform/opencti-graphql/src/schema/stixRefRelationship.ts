@@ -561,6 +561,7 @@ export const objects: RefAttribute = {
   checker: (fromType,) => isStixDomainObjectContainer(fromType),
   datable: false,
   isFilterable: true,
+  entityTypes: ['Stix-Core-Object'],
 };
 
 export const objectOrganization: RefAttribute = {

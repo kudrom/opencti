@@ -26,9 +26,11 @@ export type Filter = {
 export type FilterDefinition = {
   filterKey: string;
   label: string;
-  type?: string | null;
-  multiple?: boolean | null;
-  subEntityTypes?: readonly string[] | null;
+  type: string;
+  multiple: boolean;
+  subEntityTypes: readonly string[];
+  format?: string;
+  entityTypesOfId: string[];
 };
 
 export const emptyFilterGroup = {
@@ -201,9 +203,12 @@ export const isFilterFormatCorrect = (stringFilters: string): boolean => {
 
 export const isUniqFilter = (key: string) => uniqFilters.includes(key) || dateFilters.includes(key);
 
-export const isTextFilter = (filterKey: string, filterType?: string | null) => {
+export const isTextFilter = (filterKey: string, filterDefinition?: FilterDefinition | null) => {
+  console.log('filterDef', filterDefinition);
   const { isVocabularyField } = useVocabularyCategory();
-  return (filterType === 'string' || textFilters.includes(filterKey)) && !isVocabularyField(undefined, filterKey);
+  return (
+    (filterDefinition?.type === 'string' && filterDefinition?.format !== 'id') || textFilters.includes(filterKey))
+    && !isVocabularyField(undefined, filterKey);
 };
 
 export const findFilterFromKey = (
@@ -738,7 +743,7 @@ export const getDefaultOperatorFilter = (filterKey: string, filterDefinition: Fi
   if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {
     return 'eq';
   }
-  if (isTextFilter(filterKey, filterType)) {
+  if (isTextFilter(filterKey, filterDefinition)) {
     return 'starts_with';
   }
   return 'eq';
@@ -767,7 +772,7 @@ export const getAvailableOperatorForFilter = (filterKey: string, filterDefinitio
   if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {
     return ['eq', 'not_eq'];
   }
-  if (isTextFilter(filterKey, filterType)) {
+  if (isTextFilter(filterKey, filterDefinition)) {
     return ['eq', 'not_eq', 'nil', 'not_nil', 'contains', 'not_contains',
       'starts_with', 'not_starts_with', 'ends_with', 'not_ends_with'];
   }

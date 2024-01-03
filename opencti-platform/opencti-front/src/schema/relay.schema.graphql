@@ -134,9 +134,11 @@ type FilterDefinitionSchema {
 type FilterDefinition {
   filterKey: String!
   label: String!
-  type: String
-  multiple: Boolean
-  subEntityTypes: [String!]
+  type: String!
+  multiple: Boolean!
+  subEntityTypes: [String!]!
+  format: String
+  entityTypesOfId: [String!]
 }
 
 enum EditOperation {

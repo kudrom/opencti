@@ -156,6 +156,8 @@ const rootPrivateQuery = graphql`
           type
           multiple
           subEntityTypes
+          format
+          entityTypesOfId
         }
       }
     }

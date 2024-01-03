@@ -199,7 +199,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
     return (
       filterType === 'date' || dateFilters.includes(fKey)
       || filterType === 'numeric' || integerFilters.includes(fKey)
-      || isTextFilter(fKey, filterType)
+      || isTextFilter(fKey, filterDefinition)
     );
   };
 
@@ -226,7 +226,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
         />
       );
     }
-    if (isTextFilter(fKey, filterDefinition?.type)) {
+    if (isTextFilter(fKey, filterDefinition)) {
       return (
         <BasicTextInput
           filter={filter}

@@ -7047,11 +7047,13 @@ export type Filter = {
 
 export type FilterDefinition = {
   __typename?: 'FilterDefinition';
+  entityTypesOfId?: Maybe<Array<Scalars['String']['output']>>;
   filterKey: Scalars['String']['output'];
+  format?: Maybe<Scalars['String']['output']>;
   label: Scalars['String']['output'];
-  multiple?: Maybe<Scalars['Boolean']['output']>;
-  subEntityTypes?: Maybe<Array<Scalars['String']['output']>>;
-  type?: Maybe<Scalars['String']['output']>;
+  multiple: Scalars['Boolean']['output'];
+  subEntityTypes: Array<Scalars['String']['output']>;
+  type: Scalars['String']['output'];
 };
 
 export type FilterDefinitionSchema = {
@@ -30930,11 +30932,13 @@ export type FilesMetricsResolvers<ContextType = any, ParentType extends Resolver
 }>;
 
 export type FilterDefinitionResolvers<ContextType = any, ParentType extends ResolversParentTypes['FilterDefinition'] = ResolversParentTypes['FilterDefinition']> = ResolversObject<{
+  entityTypesOfId?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   filterKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  format?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  multiple?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  subEntityTypes?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
-  type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  multiple?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  subEntityTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
