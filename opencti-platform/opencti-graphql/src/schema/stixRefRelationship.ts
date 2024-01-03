@@ -127,6 +127,7 @@ export const contains: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: ['Stix-Core-Object'],
 };
 export const resolvesTo: Omit<RefAttribute, 'checker'> = {
   name: INPUT_RESOLVES_TO,

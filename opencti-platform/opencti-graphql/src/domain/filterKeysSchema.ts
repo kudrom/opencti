@@ -1,6 +1,6 @@
 import { schemaAttributesDefinition } from '../schema/schema-attributes';
 import { schemaTypesDefinition } from '../schema/schema-types';
-import type { AttributeDefinition, NestedObjectAttribute, RefAttribute } from '../schema/attribute-definition';
+import type { AttributeDefinition, ComplexAttribute, IdAttribute, NestedObjectAttribute, RefAttribute, StringAttribute } from '../schema/attribute-definition';
 import { schemaRelationsRefDefinition } from '../schema/schema-relationsRef';
 
 type FilterDefinition = {
@@ -8,19 +8,25 @@ type FilterDefinition = {
   type: string
   label: string
   multiple: boolean,
-  subEntityTypes: string[]
+  subEntityTypes: string[] // entity types that have the given type as parent and have this filter key in their schema
+  format?: string // if type = string or type = object
+  entityTypesOfId?: string[] // if format = id
 };
 
 // build the FilterDefinition object that is saved in the filterKeysShema
 // by removing some useless attributes of AttributeDefinition
 // and adding the subEntityTypes (usage in the subtypes)
 const buildFilterDefinitionFromAttributeDefinition = (attributeDefinition: AttributeDefinition, subEntityTypes: string[]) => {
+  const hasFormat = attributeDefinition.type === 'string' || attributeDefinition.type === 'object';
+  const isIdType = hasFormat && attributeDefinition.format === 'id';
   return {
     filterKey: attributeDefinition.name,
-    type: attributeDefinition.type,
+    type: attributeDefinition.type as string,
     label: attributeDefinition.label,
     multiple: attributeDefinition.multiple,
     subEntityTypes,
+    format: hasFormat ? (attributeDefinition as StringAttribute | ComplexAttribute).format as string : undefined,
+    entityTypesOfId: isIdType ? (attributeDefinition as IdAttribute).entityTypes : undefined,
   };
 };
 
@@ -30,10 +36,12 @@ const buildFilterDefinitionFromAttributeDefinition = (attributeDefinition: Attri
 const buildFilterDefinitionFromRelationRefDefinition = (refDefinition: RefAttribute, subEntityTypes: string[]) => {
   return {
     filterKey: refDefinition.name,
-    type: 'id', // TODO add the entity type of the id
+    type: 'string',
     label: refDefinition.label,
     multiple: refDefinition.multiple,
     subEntityTypes,
+    format: 'id',
+    entityTypesOfId: refDefinition.entityTypes,
   };
 };
 
