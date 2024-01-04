@@ -112,7 +112,7 @@ const Entities = () => {
           openExports={openExports}
           handleToggleSelectAll={handleToggleSelectAll}
           availableEntityTypes={['Stix-Domain-Object']}
-          exportEntityType="Stix-Domain-Object"
+          entityType="Stix-Domain-Object"
           selectAll={selectAll}
           disableCards={true}
           keyword={searchTerm}

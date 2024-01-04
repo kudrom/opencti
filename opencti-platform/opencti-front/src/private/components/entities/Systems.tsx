@@ -73,7 +73,7 @@ const Systems = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="System"
+        entityType="System"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

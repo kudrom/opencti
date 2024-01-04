@@ -479,8 +479,27 @@ const useSearchEntities = ({
     } else if (filterDefinition?.type === 'boolean') { // boolean
       buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
     } else if (filterDefinition?.type === 'string' && filterDefinition?.format === 'id') {
+      const idTypes = filterDefinition?.entityTypesOfId;
       console.log('ilterDefinition?.entityTypesOfId', filterDefinition?.entityTypesOfId);
-      if (filterDefinition?.entityTypesOfId.includes('Stix-Core-Object')) {
+      if (idTypes.length === 1 && idTypes.includes('Stix-Core-Object')) {
+        fetchQuery(filtersStixCoreObjectsSearchQuery, {
+          types: (searchScope && searchScope[filterKey]) || filterDefinition?.entityTypesOfId || ['Stix-Core-Object'],
+          search: event.target.value !== 0 ? event.target.value : '',
+          count: 100,
+        })
+          .toPromise()
+          .then((data) => {
+            const elementIdEntities = (
+              (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
+            ).map((n) => ({
+              label: defaultValue(n?.node),
+              value: n?.node.id,
+              type: n?.node.entity_type,
+              parentTypes: n?.node.parent_types,
+            }));
+            unionSetEntities(filterKey, elementIdEntities);
+          });
+      } else if (idTypes.length > 0) {
         fetchQuery(filtersStixCoreObjectsSearchQuery, {
           types: (searchScope && searchScope[filterKey]) || filterDefinition?.entityTypesOfId || ['Stix-Core-Object'],
           search: event.target.value !== 0 ? event.target.value : '',
@@ -501,35 +520,7 @@ const useSearchEntities = ({
       }
     }
 
-    // start region: handle filters with the old UI (streams etc)
-    // depending on filter key, fetch the right data and build the options list // TODO to remove when all filters are in the new UI
     switch (filterKey) {
-      // region member global
-      case 'members_user':
-        buildOptionsFromMembersSearchQuery(filterKey, ['User']);
-        break;
-      case 'members_group':
-        buildOptionsFromMembersSearchQuery(filterKey, ['Group']);
-        break;
-      case 'members_organization':
-        buildOptionsFromMembersSearchQuery(filterKey, ['Organization']);
-        break;
-      // endregion
-      // region user usage (with caching)
-      case 'creator_id':
-      case 'contextCreator':
-        if (!cacheEntities[filterKey]) {
-          // fetch only the identities listed as creator of at least 1 thing + myself
-          fetchQuery(identitySearchCreatorsSearchQuery, {
-            entityTypes: searchContext?.entityTypes ?? [],
-          })
-            .toPromise()
-            .then((response) => {
-              const data = response as IdentitySearchCreatorsSearchQuery$data;
-              buildCachedOptionsFromGenericFetchResponse(filterKey, 'Individual', data?.creators);
-            });
-        }
-        break;
       case 'objectAssignee':
         if (!cacheEntities[filterKey]) {
           // fetch only the identities listed as assignee on at least 1 thing + myself
@@ -556,13 +547,80 @@ const useSearchEntities = ({
             });
         }
         break;
-        // endregion
-      case 'createdBy':
+      // special filter keys //
+      // region member global
+      case 'members_user':
+        buildOptionsFromMembersSearchQuery(filterKey, ['User']);
+        break;
+      case 'members_group':
+        buildOptionsFromMembersSearchQuery(filterKey, ['Group']);
+        break;
+      case 'members_organization':
+        buildOptionsFromMembersSearchQuery(filterKey, ['Organization']);
+        break;
+      // endregion
+      // region user usage (with caching)
+      case 'creator_id':
+      case 'contextCreator':
+        if (!cacheEntities[filterKey]) {
+          // fetch only the identities listed as creator of at least 1 thing + myself
+          fetchQuery(identitySearchCreatorsSearchQuery, {
+            entityTypes: searchContext?.entityTypes ?? [],
+          })
+            .toPromise()
+            .then((response) => {
+              const data = response as IdentitySearchCreatorsSearchQuery$data;
+              buildCachedOptionsFromGenericFetchResponse(filterKey, 'Individual', data?.creators);
+            });
+        }
+        break;
+      // endregion
       case 'contextCreatedBy':
         buildOptionsFromIdentitySearchQuery(filterKey, ['Organization', 'Individual', 'System']);
         break;
-      case 'toSightingId':
-        buildOptionsFromIdentitySearchQuery(filterKey, ['Identity']);
+      case 'workflow_id':
+        fetchQuery(StatusTemplateFieldQuery, {
+          first: 500,
+        })
+          .toPromise()
+          .then((data) => {
+            const statusTemplateEntities = (
+              (data as StatusTemplateFieldSearchQuery$data)?.statusTemplates?.edges
+              ?? []
+            )
+              .filter((n) => !R.isNil(n?.node))
+              .map((n) => ({
+                label: n?.node.name,
+                color: n?.node.color,
+                value: n?.node.id,
+                type: 'Vocabulary',
+              }))
+              .sort((a, b) => (a.label ?? '').localeCompare(b.label ?? ''));
+            unionSetEntities('workflow_id', statusTemplateEntities);
+          });
+        break;
+      case 'elementId':
+      case 'contextEntityId':
+      case 'connectedToId':
+      case 'fromId':
+      case 'toId':
+        fetchQuery(filtersStixCoreObjectsSearchQuery, {
+          types: (searchScope && searchScope[filterKey]) || ['Stix-Core-Object'],
+          search: event.target.value !== 0 ? event.target.value : '',
+          count: 100,
+        })
+          .toPromise()
+          .then((data) => {
+            const elementIdEntities = (
+              (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
+            ).map((n) => ({
+              label: defaultValue(n?.node),
+              value: n?.node.id,
+              type: n?.node.entity_type,
+              parentTypes: n?.node.parent_types,
+            }));
+            unionSetEntities(filterKey, elementIdEntities);
+          });
         break;
       case 'sightedBy':
         fetchQuery(stixDomainObjectsLinesSearchQuery, {
@@ -582,32 +640,43 @@ const useSearchEntities = ({
             unionSetEntities('sightedBy', sightedByEntities);
           });
         break;
-      case 'elementId':
-      case 'contextEntityId':
-      case 'connectedToId':
-      case 'fromId':
-      case 'toId':
-      case 'targets':
-      case 'objects':
-      case 'indicates':
-        fetchQuery(filtersStixCoreObjectsSearchQuery, {
-          types: (searchScope && searchScope[filterKey]) || ['Stix-Core-Object'],
-          search: event.target.value !== 0 ? event.target.value : '',
-          count: 100,
-        })
-          .toPromise()
-          .then((data) => {
-            const elementIdEntities = (
-              (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
-            ).map((n) => ({
-              label: defaultValue(n?.node),
-              value: n?.node.id,
-              type: n?.node.entity_type,
-              parentTypes: n?.node.parent_types,
-            }));
-            unionSetEntities(filterKey, elementIdEntities);
-          });
+      default:
         break;
+    }
+
+    // start region: handle filters with the old UI (streams etc)
+    // depending on filter key, fetch the right data and build the options list // TODO to remove when all filters are in the new UI
+    switch (filterKey) {
+      // case 'createdBy':
+      // case 'contextCreatedBy': // to keep
+      //   buildOptionsFromIdentitySearchQuery(filterKey, ['Organization', 'Individual', 'System']);
+      //   break;
+      // case 'toSightingId':
+      //   buildOptionsFromIdentitySearchQuery(filterKey, ['Identity']);
+      //   break;
+      // case 'fromId':
+      // case 'toId':
+      // case 'targets':
+      // case 'objects':
+      // case 'indicates':
+      //   fetchQuery(filtersStixCoreObjectsSearchQuery, {
+      //     types: (searchScope && searchScope[filterKey]) || ['Stix-Core-Object'],
+      //     search: event.target.value !== 0 ? event.target.value : '',
+      //     count: 100,
+      //   })
+      //     .toPromise()
+      //     .then((data) => {
+      //       const elementIdEntities = (
+      //         (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
+      //       ).map((n) => ({
+      //         label: defaultValue(n?.node),
+      //         value: n?.node.id,
+      //         type: n?.node.entity_type,
+      //         parentTypes: n?.node.parent_types,
+      //       }));
+      //       unionSetEntities(filterKey, elementIdEntities);
+      //     });
+      //   break;
       case 'containers': {
         const filters = [];
         if (searchContext?.elementId) filters.push({ key: 'objects', values: [searchContext?.elementId] });
@@ -636,7 +705,7 @@ const useSearchEntities = ({
         break;
       }
       case 'objectMarking':
-      case 'contextObjectMarking':
+      case 'contextObjectMarking': // to keep
         fetchQuery(markingDefinitionsLinesSearchQuery, {
           search: event.target.value !== 0 ? event.target.value : '',
         })
@@ -673,7 +742,7 @@ const useSearchEntities = ({
           });
         break;
       case 'objectLabel':
-      case 'contextObjectLabel':
+      case 'contextObjectLabel': // to keep
         fetchQuery(labelsSearchQuery, {
           search: event.target.value !== 0 ? event.target.value : '',
           first: 10,
@@ -775,34 +844,34 @@ const useSearchEntities = ({
         );
         break;
       }
-      case 'priority':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['case_priority_ov']);
-        break;
-      case 'severity':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['case_severity_ov', 'incident_severity_ov']);
-        break;
-      case 'pattern_type':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['pattern_type_ov']);
-        break;
-      case 'malware_types':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['malware_type_ov']);
-        break;
+      // case 'priority':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['case_priority_ov']);
+      //   break;
+      // case 'severity':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['case_severity_ov', 'incident_severity_ov']);
+      //   break;
+      // case 'pattern_type':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['pattern_type_ov']);
+      //   break;
+      // case 'malware_types':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['malware_type_ov']);
+      //   break;
       case 'x_opencti_reliability':
-      case 'source_reliability':
+      case 'source_reliability': // to keep
         buildOptionsFromVocabularySearchQuery(filterKey, ['reliability_ov']);
         break;
-      case 'indicator_types':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['indicator_type_ov']);
-        break;
-      case 'incident_type':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['incident_type_ov']);
-        break;
-      case 'channel_types':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['channel_types_ov']);
-        break;
-      case 'event_types':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['event_type_ov']);
-        break;
+      // case 'indicator_types':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['indicator_type_ov']);
+      //   break;
+      // case 'incident_type':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['incident_type_ov']);
+      //   break;
+      // case 'channel_types':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['channel_types_ov']);
+      //   break;
+      // case 'event_types':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['event_type_ov']);
+      //   break;
       case 'context':
         buildOptionsFromVocabularySearchQuery(filterKey, ['grouping_context_ov']);
         break;
@@ -812,27 +881,6 @@ const useSearchEntities = ({
       case 'x_opencti_organization_type':
       case 'source':
         buildOptionsFromAttributesSearchQuery(filterKey);
-        break;
-      case 'workflow_id':
-        fetchQuery(StatusTemplateFieldQuery, {
-          first: 500,
-        })
-          .toPromise()
-          .then((data) => {
-            const statusTemplateEntities = (
-              (data as StatusTemplateFieldSearchQuery$data)?.statusTemplates?.edges
-              ?? []
-            )
-              .filter((n) => !R.isNil(n?.node))
-              .map((n) => ({
-                label: n?.node.name,
-                color: n?.node.color,
-                value: n?.node.id,
-                type: 'Vocabulary',
-              }))
-              .sort((a, b) => (a.label ?? '').localeCompare(b.label ?? ''));
-            unionSetEntities('workflow_id', statusTemplateEntities);
-          });
         break;
       case 'x_opencti_main_observable_type':
         fetchQuery(filtersSchemaSCOSearchQuery)
@@ -1057,9 +1105,9 @@ const useSearchEntities = ({
         unionSetEntities(filterKey, negativeValue);
         break;
       }
-      case 'note_types':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['note_types_ov']);
-        break;
+      // case 'note_types':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['note_types_ov']);
+      //   break;
       default:
         break;
     }

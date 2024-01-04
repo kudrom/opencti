@@ -149,7 +149,7 @@ const Notes: FunctionComponent<NotesProps> = ({ objectId, authorId, onChangeOpen
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
           noPadding={typeof onChangeOpenExports === 'function'}
-          exportEntityType="Note"
+          entityType="Note"
           exportContext={exportContext}
           keyword={searchTerm}
           filters={filters}

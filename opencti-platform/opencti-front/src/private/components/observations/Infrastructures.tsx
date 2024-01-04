@@ -114,7 +114,7 @@ const Infrastructures = () => {
         handleToggleSelectAll={handleToggleSelectAll}
         selectAll={selectAll}
         openExports={openExports}
-        exportEntityType="Infrastructure"
+        entityType="Infrastructure"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

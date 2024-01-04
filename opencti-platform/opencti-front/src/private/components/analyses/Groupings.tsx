@@ -159,7 +159,7 @@ const Groupings: FunctionComponent<GroupingsProps> = ({
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
           noPadding={typeof onChangeOpenExports === 'function'}
-          exportEntityType="Grouping"
+          entityType="Grouping"
           exportContext={exportContext}
           keyword={searchTerm}
           filters={filters}

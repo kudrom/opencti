@@ -78,7 +78,7 @@ const Channels = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Channel"
+        entityType="Channel"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

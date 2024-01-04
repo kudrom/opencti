@@ -118,7 +118,7 @@ const StixSightingRelationships = () => {
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
           openExports={openExports}
-          exportEntityType="stix-sighting-relationship"
+          entityType="stix-sighting-relationship"
           keyword={searchTerm}
           filters={filters}
           paginationOptions={paginationOptions}

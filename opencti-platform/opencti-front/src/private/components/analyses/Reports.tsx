@@ -155,7 +155,7 @@ const Reports: FunctionComponent<ReportsProps> = ({
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
           noPadding={typeof onChangeOpenExports === 'function'}
-          exportEntityType="Report"
+          entityType="Report"
           exportContext={exportContext}
           keyword={searchTerm}
           redirectionMode={redirectionMode}

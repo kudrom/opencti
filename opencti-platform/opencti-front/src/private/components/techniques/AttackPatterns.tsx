@@ -86,7 +86,7 @@ const AttackPatterns = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Attack-Pattern"
+        entityType="Attack-Pattern"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

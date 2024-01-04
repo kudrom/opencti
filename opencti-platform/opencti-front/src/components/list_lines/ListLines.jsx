@@ -186,7 +186,7 @@ class ListLines extends Component {
       filters,
       bottomNav,
       children,
-      exportEntityType,
+      entityType,
       exportContext,
       numberOfElements,
       noHeaders,
@@ -209,6 +209,7 @@ class ListLines extends Component {
       helpers,
       inline,
     } = this.props;
+    console.log('filterKeysMap', filterKeysMap);
     const filterKeys = Array.from(filterKeysMap.keys());
     const availableFilterKeys = filterKeys;
     const exportDisabled = numberOfElements
@@ -218,7 +219,7 @@ class ListLines extends Component {
           && numberOfElements.number > export_max_size));
     const searchContextFinal = {
       ...(searchContext ?? {}),
-      entityTypes: exportEntityType ? [exportEntityType] : [],
+      entityTypes: entityType ? [entityType] : [],
     };
     return (
       <div
@@ -440,7 +441,7 @@ class ListLines extends Component {
           filters={filters}
           availableFilterKeys={availableFilterKeys}
           helpers={helpers}
-          entityTypes={exportEntityType ? [exportEntityType] : ['Stix-Core-Object']}
+          entityTypes={entityType ? [entityType] : ['Stix-Core-Object']}
         />
         <FilterIconButton
           helpers={helpers}
@@ -451,7 +452,7 @@ class ListLines extends Component {
           handleSwitchLocalMode={handleSwitchLocalMode}
           availableRelationFilterTypes={availableRelationFilterTypes}
           redirection
-          entityTypes={exportEntityType ? [exportEntityType] : ['Stix-Core-Object']}
+          entityTypes={entityType ? [entityType] : ['Stix-Core-Object']}
         />
         {message && (
           <div style={{ width: '100%', marginTop: 10 }}>
@@ -540,21 +541,21 @@ class ListLines extends Component {
           {children}
         </List>
         {typeof handleToggleExports === 'function'
-          && exportEntityType !== 'Stix-Core-Object'
-          && exportEntityType !== 'Stix-Cyber-Observable'
-          && exportEntityType !== 'stix-core-relationship' && (
+          && entityType !== 'Stix-Core-Object'
+          && entityType !== 'Stix-Cyber-Observable'
+          && entityType !== 'stix-core-relationship' && (
             <Security needs={[KNOWLEDGE_KNGETEXPORT]}>
               <StixDomainObjectsExports
                 open={openExports}
                 handleToggle={handleToggleExports.bind(this)}
                 paginationOptions={paginationOptions}
-                exportEntityType={exportEntityType}
+                exportEntityType={entityType}
                 context={exportContext}
               />
             </Security>
         )}
         {typeof handleToggleExports === 'function'
-          && exportEntityType === 'stix-core-relationship' && (
+          && entityType === 'stix-core-relationship' && (
             <Security needs={[KNOWLEDGE_KNGETEXPORT]}>
               <StixCoreRelationshipsExports
                 open={openExports}
@@ -565,19 +566,19 @@ class ListLines extends Component {
             </Security>
         )}
         {typeof handleToggleExports === 'function'
-          && exportEntityType === 'Stix-Core-Object' && (
+          && entityType === 'Stix-Core-Object' && (
             <Security needs={[KNOWLEDGE_KNGETEXPORT]}>
               <StixCoreObjectsExports
                 open={openExports}
                 handleToggle={handleToggleExports.bind(this)}
                 paginationOptions={paginationOptions}
-                exportEntityType={exportEntityType}
+                exportEntityType={entityType}
                 context={exportContext}
               />
             </Security>
         )}
         {typeof handleToggleExports === 'function'
-          && exportEntityType === 'Stix-Cyber-Observable' && (
+          && entityType === 'Stix-Cyber-Observable' && (
             <Security needs={[KNOWLEDGE_KNGETEXPORT]}>
               <StixCyberObservablesExports
                 open={openExports}
@@ -632,11 +633,11 @@ class ListLines extends Component {
   }
 
   render() {
-    const { disableExport, exportEntityType } = this.props;
+    const { disableExport, entityType } = this.props;
     return (
       <UserContext.Consumer>
         {({ schema }) => {
-          const filterKeysMap = schema.filterKeysSchema.get(exportEntityType);
+          const filterKeysMap = schema.filterKeysSchema.get(entityType);
           if (disableExport) {
             return this.renderContent(filterKeysMap);
           }
@@ -672,7 +673,7 @@ ListLines.propTypes = {
   noPadding: PropTypes.bool,
   noBottomPadding: PropTypes.bool,
   views: PropTypes.array,
-  exportEntityType: PropTypes.string,
+  entityType: PropTypes.string,
   exportContext: PropTypes.string,
   keyword: PropTypes.string,
   filters: PropTypes.object,

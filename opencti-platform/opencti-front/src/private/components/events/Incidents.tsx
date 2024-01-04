@@ -120,7 +120,7 @@ const Incidents: FunctionComponent = () => {
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
           openExports={openExports}
-          exportEntityType="Incident"
+          entityType="Incident"
           keyword={searchTerm}
           filters={filters}
           paginationOptions={paginationOptions}

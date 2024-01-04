@@ -133,7 +133,7 @@ const Search = () => {
           handleToggleSelectAll={handleToggleSelectAll}
           handleToggleExports={storageHelpers.handleToggleExports}
           openExports={openExports}
-          exportEntityType="Stix-Core-Object"
+          entityType="Stix-Core-Object"
           selectAll={selectAll}
           disableCards={true}
           filters={filters}

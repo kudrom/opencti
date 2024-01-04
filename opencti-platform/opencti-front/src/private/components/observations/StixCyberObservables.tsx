@@ -162,7 +162,7 @@ const StixCyberObservables: FunctionComponent = () => {
           openExports={openExports}
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
-          exportEntityType="Stix-Cyber-Observable"
+          entityType="Stix-Cyber-Observable"
           availableEntityTypes={['Stix-Cyber-Observable']}
           exportContext={null}
           keyword={searchTerm}

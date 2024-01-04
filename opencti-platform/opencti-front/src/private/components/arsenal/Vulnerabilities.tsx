@@ -87,7 +87,7 @@ const Vulnerabilities = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Vulnerability"
+        entityType="Vulnerability"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

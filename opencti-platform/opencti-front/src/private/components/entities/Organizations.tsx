@@ -80,7 +80,7 @@ const Organizations = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Organization"
+        entityType="Organization"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

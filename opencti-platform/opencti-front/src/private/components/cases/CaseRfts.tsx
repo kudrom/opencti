@@ -126,7 +126,7 @@ const CaseRfts: FunctionComponent<CaseRftsProps> = () => {
         handleToggleSelectAll={handleToggleSelectAll}
         selectAll={selectAll}
         openExports={openExports}
-        exportEntityType="Case-Rft"
+        entityType="Case-Rft"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

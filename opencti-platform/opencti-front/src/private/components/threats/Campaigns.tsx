@@ -67,7 +67,7 @@ const Campaigns = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Campaign"
+        entityType="Campaign"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

@@ -68,7 +68,7 @@ const Tasks = () => {
         dataColumns={tasksDataColumns}
         selectAll={selectAll}
         openExports={openExports}
-        exportEntityType="Task"
+        entityType="Task"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

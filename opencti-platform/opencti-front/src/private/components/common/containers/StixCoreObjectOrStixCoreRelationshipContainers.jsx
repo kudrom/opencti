@@ -177,7 +177,7 @@ const StixCoreObjectOrStixCoreRelationshipContainers = ({
         handleChangeView={helpers.handleChangeView}
         openExports={openExports}
         noPadding={typeof onChangeOpenExports === 'function'}
-        exportEntityType="Container"
+        entityType="Container"
         exportContext={exportContext}
         keyword={searchTerm}
         handleSwitchRedirectionMode={(value) => helpers.handleAddProperty('redirectionMode', value)

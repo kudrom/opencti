@@ -278,7 +278,7 @@ const EntityStixCoreRelationshipsIndicatorsContextualViewComponent: FunctionComp
         displayImport
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType={'Stix-Core-Object'}
+        entityType={'Stix-Core-Object'}
         iconExtension
         filters={cleanedFilters}
         availableFilterKeys={availableFilterKeys}

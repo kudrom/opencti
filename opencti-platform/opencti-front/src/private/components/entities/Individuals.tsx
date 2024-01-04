@@ -72,7 +72,7 @@ const Individuals = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Individual"
+        entityType="Individual"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

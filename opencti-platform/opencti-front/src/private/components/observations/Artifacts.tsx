@@ -124,7 +124,7 @@ const Artifacts: FunctionComponent = () => {
           openExports={openExports}
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
-          exportEntityType="Artifact"
+          entityType="Artifact"
           exportContext={null}
           keyword={searchTerm}
           filters={filters}

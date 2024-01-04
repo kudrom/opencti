@@ -233,7 +233,7 @@ const EntityStixCoreRelationshipsRelationshipsView: FunctionComponent<EntityStix
         availableRelationshipTypes={relationshipTypes}
         handleToggleExports={storageHelpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="stix-core-relationship"
+        entityType="stix-core-relationship"
         noPadding={true}
         handleChangeView={
                     handleChangeView || storageHelpers.handleChangeView

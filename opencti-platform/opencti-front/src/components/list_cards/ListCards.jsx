@@ -73,7 +73,7 @@ class ListCards extends Component {
       sortBy,
       orderAsc,
       children,
-      exportEntityType,
+      entityType,
       exportContext,
       numberOfElements,
       availableFilterKeys,
@@ -96,7 +96,7 @@ class ListCards extends Component {
               handleSwitchGlobalMode={handleSwitchGlobalMode}
               handleSwitchLocalMode={handleSwitchLocalMode}
               searchContext={{
-                entityTypes: exportEntityType ? [exportEntityType] : [],
+                entityTypes: entityType ? [entityType] : [],
               }}
             />
           )}
@@ -226,7 +226,7 @@ class ListCards extends Component {
               open={openExports}
               handleToggle={handleToggleExports.bind(this)}
               paginationOptions={paginationOptions}
-              exportEntityType={exportEntityType}
+              exportEntityType={entityType}
               context={exportContext}
             />
           </Security>
@@ -249,7 +249,7 @@ ListCards.propTypes = {
   handleToggleExports: PropTypes.func,
   openExports: PropTypes.bool,
   views: PropTypes.array,
-  exportEntityType: PropTypes.string,
+  entityType: PropTypes.string,
   exportContext: PropTypes.string,
   keyword: PropTypes.string,
   filters: PropTypes.object,

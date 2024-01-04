@@ -70,7 +70,7 @@ const ThreatActorsIndividual = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Threat-Actor-Individual"
+        entityType="Threat-Actor-Individual"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

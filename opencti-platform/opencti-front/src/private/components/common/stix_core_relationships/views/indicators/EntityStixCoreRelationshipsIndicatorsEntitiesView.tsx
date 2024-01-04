@@ -157,7 +157,7 @@ const EntityStixCoreRelationshipsIndicatorsEntitiesView: FunctionComponent<Entit
         displayImport
         handleToggleExports={storageHelpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType={'Stix-Core-Object'}
+        entityType={'Stix-Core-Object'}
         iconExtension
         filters={cleanedFilters}
         availableFilterKeys={availableFilterKeys}

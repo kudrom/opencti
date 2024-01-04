@@ -74,7 +74,7 @@ const AdministrativeAreas: FunctionComponent = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Administrative-Area"
+        entityType="Administrative-Area"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

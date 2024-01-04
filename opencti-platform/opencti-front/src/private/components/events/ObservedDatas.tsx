@@ -140,7 +140,7 @@ const ObservedDatas: FunctionComponent<ObservedDatasProps> = ({
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
           noPadding={typeof onChangeOpenExports === 'function'}
-          exportEntityType="Observed-Data"
+          entityType="Observed-Data"
           exportContext={exportContext}
           keyword={searchTerm}
           filters={filters}

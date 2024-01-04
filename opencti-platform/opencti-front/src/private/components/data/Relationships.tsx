@@ -128,7 +128,7 @@ const Relationships = () => {
           openExports={openExports}
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
-          exportEntityType="stix-core-relationship"
+          entityType="stix-core-relationship"
           disableCards={true}
           iconExtension={true}
           noPadding={true}

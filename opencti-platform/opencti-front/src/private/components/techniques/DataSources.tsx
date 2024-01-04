@@ -76,7 +76,7 @@ const DataSources: FunctionComponent = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Data-Source"
+        entityType="Data-Source"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}

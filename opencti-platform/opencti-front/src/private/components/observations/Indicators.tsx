@@ -155,7 +155,7 @@ const Indicators = () => {
           openExports={openExports}
           handleToggleSelectAll={handleToggleSelectAll}
           selectAll={selectAll}
-          exportEntityType="Indicator"
+          entityType="Indicator"
           exportContext={null}
           iconExtension={true}
           keyword={searchTerm}

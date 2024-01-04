@@ -173,7 +173,7 @@ EntityStixCoreRelationshipsEntitiesViewProps
         displayImport={true}
         handleToggleExports={storageHelpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType={'Stix-Core-Object'}
+        entityType={'Stix-Core-Object'}
         iconExtension={true}
         filters={filters}
         availableFilterKeys={availableFilterKeys}

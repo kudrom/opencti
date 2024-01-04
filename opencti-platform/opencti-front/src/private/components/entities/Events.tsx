@@ -78,7 +78,7 @@ const Events = () => {
         handleSwitchLocalMode={helpers.handleSwitchLocalMode}
         handleToggleExports={helpers.handleToggleExports}
         openExports={openExports}
-        exportEntityType="Event"
+        entityType="Event"
         keyword={searchTerm}
         filters={filters}
         paginationOptions={paginationOptions}
