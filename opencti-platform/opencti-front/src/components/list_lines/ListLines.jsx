@@ -209,8 +209,7 @@ class ListLines extends Component {
       helpers,
       inline,
     } = this.props;
-    console.log('filterKeysMap', filterKeysMap);
-    const filterKeys = Array.from(filterKeysMap.keys());
+    const filterKeys = filterKeysMap ? Array.from(filterKeysMap.keys()) : undefined;
     const availableFilterKeys = filterKeys;
     const exportDisabled = numberOfElements
       && ((selectedIds.length > export_max_size

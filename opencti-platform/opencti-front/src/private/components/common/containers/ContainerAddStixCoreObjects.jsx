@@ -350,9 +350,7 @@ const ContainerAddStixCoreObjects = (props) => {
               orderAsc={orderAsc}
               dataColumns={buildColumns(platformModuleHelpers)}
               handleSearch={setSearchTerm}
-              keyword={
-                                mapping && searchTerm.length === 0 ? selectedText : searchTerm
-                            }
+              keyword={mapping && searchTerm.length === 0 ? selectedText : searchTerm}
               handleSort={handleSort}
               handleAddFilter={handleAddFilter}
               handleRemoveFilter={handleRemoveFilter}

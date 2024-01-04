@@ -76,6 +76,7 @@ const Triggers: FunctionComponent = () => {
         numberOfElements={numberOfElements}
         availableFilterKeys={['trigger_type', 'instance_trigger', 'created']}
         secondaryAction={true}
+        entityType={'Trigger'}
       >
         {queryRef && (
           <React.Suspense

@@ -640,6 +640,9 @@ const useSearchEntities = ({
             unionSetEntities('sightedBy', sightedByEntities);
           });
         break;
+      case 'source_reliability':
+        buildOptionsFromVocabularySearchQuery(filterKey, ['reliability_ov']);
+        break;
       default:
         break;
     }
@@ -790,10 +793,10 @@ const useSearchEntities = ({
         break;
       }
       // endregion
-      case 'x_opencti_detection': {
-        buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
-        break;
-      }
+      // case 'x_opencti_detection': {
+      //   buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
+      //   break;
+      // }
       case 'based-on': {
         fetchQuery(filtersStixCoreObjectsSearchQuery, {
           types: (searchScope && searchScope[filterKey]) || [
@@ -817,22 +820,22 @@ const useSearchEntities = ({
           });
         break;
       }
-      case 'revoked': {
-        buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
-        break;
-      }
+      // case 'revoked': {
+      //   buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
+      //   break;
+      // }
       case 'trigger_type': {
         buildOptionsFromStaticList(filterKey, ['digest', 'live'], [], true);
         break;
       }
-      case 'instance_trigger': {
-        buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
-        break;
-      }
-      case 'is_read': {
-        buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
-        break;
-      }
+      // case 'instance_trigger': {
+      //   buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
+      //   break;
+      // }
+      // case 'is_read': {
+      //   buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
+      //   break;
+      // }
       case 'event_type': {
         buildOptionsFromStaticList(filterKey, ['authentication', 'read', 'mutation', 'file', 'command']);
         break;
@@ -856,10 +859,10 @@ const useSearchEntities = ({
       // case 'malware_types':
       //   buildOptionsFromVocabularySearchQuery(filterKey, ['malware_type_ov']);
       //   break;
-      case 'x_opencti_reliability':
-      case 'source_reliability': // to keep
-        buildOptionsFromVocabularySearchQuery(filterKey, ['reliability_ov']);
-        break;
+      // case 'x_opencti_reliability':
+      // case 'source_reliability': // to keep
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['reliability_ov']);
+      //   break;
       // case 'indicator_types':
       //   buildOptionsFromVocabularySearchQuery(filterKey, ['indicator_type_ov']);
       //   break;
@@ -872,9 +875,9 @@ const useSearchEntities = ({
       // case 'event_types':
       //   buildOptionsFromVocabularySearchQuery(filterKey, ['event_type_ov']);
       //   break;
-      case 'context':
-        buildOptionsFromVocabularySearchQuery(filterKey, ['grouping_context_ov']);
-        break;
+      // case 'context':
+      //   buildOptionsFromVocabularySearchQuery(filterKey, ['grouping_context_ov']);
+      //   break;
 
       case 'x_opencti_base_severity':
       case 'x_opencti_attack_vector':
