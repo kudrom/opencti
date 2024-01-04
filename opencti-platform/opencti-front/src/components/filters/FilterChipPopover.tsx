@@ -15,6 +15,7 @@ import ItemIcon from '../ItemIcon';
 import { getOptionsFromEntities, getUseSearch } from '../../utils/filters/SearchEntitiesUtil';
 import { UseLocalStorageHelpers } from '../../utils/hooks/useLocalStorage';
 import useAuth from '../../utils/hooks/useAuth';
+import useVocabularyCategory from '../../utils/hooks/useVocabularyCategory';
 
 interface FilterChipMenuProps {
   handleClose: () => void;
@@ -194,12 +195,14 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
     helpers?.handleAddSingleValueFilter(filter?.id ?? '', value);
   };
 
+  const { isVocabularyField } = useVocabularyCategory();
+
   const isSpecificFilter = (fKey: string) => {
     const filterType = filterDefinition?.type;
     return (
       filterType === 'date' || dateFilters.includes(fKey)
       || filterType === 'numeric' || integerFilters.includes(fKey)
-      || isTextFilter(fKey, filterDefinition)
+      || isTextFilter(fKey, filterDefinition, isVocabularyField)
     );
   };
 
@@ -226,7 +229,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
         />
       );
     }
-    if (isTextFilter(fKey, filterDefinition)) {
+    if (isTextFilter(fKey, filterDefinition, isVocabularyField)) {
       return (
         <BasicTextInput
           filter={filter}
@@ -274,7 +277,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
           onChange={handleChangeOperator}
           style={{ marginBottom: 15 }}
         >
-          {getAvailableOperatorForFilter(filterKey, filterDefinition).map((value) => (
+          {getAvailableOperatorForFilter(filterKey, filterDefinition, isVocabularyField).map((value) => (
             <MenuItem key={value} value={value}>
               {t(OperatorKeyValues[value])}
             </MenuItem>

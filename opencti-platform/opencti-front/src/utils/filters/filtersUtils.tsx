@@ -2,7 +2,6 @@ import * as R from 'ramda';
 import { v4 as uuid } from 'uuid';
 import { useFormatter } from '../../components/i18n';
 import type { FilterGroup as GqlFilterGroup } from './__generated__/useSearchEntitiesStixCoreObjectsContainersSearchQuery.graphql';
-import useVocabularyCategory from '../hooks/useVocabularyCategory';
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -203,9 +202,11 @@ export const isFilterFormatCorrect = (stringFilters: string): boolean => {
 
 export const isUniqFilter = (key: string) => uniqFilters.includes(key) || dateFilters.includes(key);
 
-export const isTextFilter = (filterKey: string, filterDefinition?: FilterDefinition | null) => {
-  console.log('filterDef', filterDefinition);
-  const { isVocabularyField } = useVocabularyCategory();
+export const isTextFilter = (
+  filterKey: string,
+  filterDefinition: FilterDefinition | undefined,
+  isVocabularyField: (entityType: string | undefined, filterKey: string) => boolean,
+) => {
   return (
     (filterDefinition?.type === 'string' && filterDefinition?.format !== 'id') || textFilters.includes(filterKey))
     && !isVocabularyField(undefined, filterKey);
@@ -729,7 +730,11 @@ const defaultFilterObject: Filter = {
   operator: '',
   mode: 'or',
 };
-export const getDefaultOperatorFilter = (filterKey: string, filterDefinition: FilterDefinition) => {
+export const getDefaultOperatorFilter = (
+  filterKey: string,
+  filterDefinition: FilterDefinition,
+  isVocabularyField: (entityType: string | undefined, filterKeys: string) => boolean,
+) => {
   const filterType = filterDefinition.type;
   if (EqFilters.includes(filterKey)) {
     return 'eq';
@@ -743,22 +748,30 @@ export const getDefaultOperatorFilter = (filterKey: string, filterDefinition: Fi
   if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {
     return 'eq';
   }
-  if (isTextFilter(filterKey, filterDefinition)) {
+  if (isTextFilter(filterKey, filterDefinition, isVocabularyField)) {
     return 'starts_with';
   }
   return 'eq';
 };
 
-export const getDefaultFilterObject = (key: string, filterDefinition: FilterDefinition): Filter => {
+export const getDefaultFilterObject = (
+  key: string,
+  filterDefinition: FilterDefinition,
+  isVocabularyField: (entityType: string | undefined, filterKey: string) => boolean,
+): Filter => {
   return {
     ...defaultFilterObject,
     id: uuid(),
     key,
-    operator: getDefaultOperatorFilter(key, filterDefinition),
+    operator: getDefaultOperatorFilter(key, filterDefinition, isVocabularyField),
   };
 };
 
-export const getAvailableOperatorForFilter = (filterKey: string, filterDefinition?: FilterDefinition): string[] => {
+export const getAvailableOperatorForFilter = (
+  filterKey: string,
+  filterDefinition: FilterDefinition | undefined,
+  isVocabularyField: (entityType: string | undefined, filterKey: string) => boolean,
+): string[] => {
   const filterType = filterDefinition?.type;
   if (filtersUsedAsApiParameters.includes(filterKey)) {
     return ['eq'];
@@ -772,7 +785,7 @@ export const getAvailableOperatorForFilter = (filterKey: string, filterDefinitio
   if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {
     return ['eq', 'not_eq'];
   }
-  if (isTextFilter(filterKey, filterDefinition)) {
+  if (isTextFilter(filterKey, filterDefinition, isVocabularyField)) {
     return ['eq', 'not_eq', 'nil', 'not_nil', 'contains', 'not_contains',
       'starts_with', 'not_starts_with', 'ends_with', 'not_ends_with'];
   }

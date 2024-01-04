@@ -11,6 +11,7 @@ import MUIAutocomplete from '@mui/material/Autocomplete';
 import { useFormatter } from '../../../../components/i18n';
 import { directFilters, getDefaultFilterObject } from '../../../../utils/filters/filtersUtils';
 import useAuth from '../../../../utils/hooks/useAuth';
+import useVocabularyCategory from "../../../../utils/hooks/useVocabularyCategory";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -54,14 +55,16 @@ const ListFilters = ({
     tooltip = t('Dynamic target filters');
     color = 'success';
   }
+
+  const { isVocabularyField } = useVocabularyCategory();
   const handleClearFilters = () => {
     const dFilter = availableFilterKeys.filter((n) => directFilters.includes(n));
     helpers.handleClearAllFilters(
-      dFilter.map((key) => getDefaultFilterObject(key, filterKeysMap.get(key))),
+      dFilter.map((key) => getDefaultFilterObject(key, filterKeysMap.get(key), isVocabularyField)),
     );
   };
   const handleChange = (value) => {
-    helpers.handleAddFilterWithEmptyValue(getDefaultFilterObject(value, filterKeysMap.get(value)));
+    helpers.handleAddFilterWithEmptyValue(getDefaultFilterObject(value, filterKeysMap.get(value), isVocabularyField));
   };
   return (
     <>

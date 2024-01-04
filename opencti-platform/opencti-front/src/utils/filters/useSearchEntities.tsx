@@ -36,7 +36,7 @@ import { useVocabularyCategoryQuery$data } from '../hooks/__generated__/useVocab
 import { useSearchEntitiesStixCoreObjectsContainersSearchQuery$data } from './__generated__/useSearchEntitiesStixCoreObjectsContainersSearchQuery.graphql';
 import { useSearchEntitiesSchemaSCOSearchQuery$data } from './__generated__/useSearchEntitiesSchemaSCOSearchQuery.graphql';
 import type { Theme } from '../../components/Theme';
-import { FilterDefinition, isTextFilter } from './filtersUtils';
+import { FilterDefinition } from './filtersUtils';
 
 const filtersStixCoreObjectsContainersSearchQuery = graphql`
   query useSearchEntitiesStixCoreObjectsContainersSearchQuery(
@@ -471,15 +471,38 @@ const useSearchEntities = ({
       filterDefinition = currentMap?.get(filterKey) ?? undefined;
     });
 
-    // depending on the filter type, fetch the right data and build the options list
-    if (isVocabularyField(undefined, filterKey)) {
+    console.log('filterDef', filterDefinition);
+    // depending on the filter type, fetch the right data and build the options list // TODO to complete
+    if (isVocabularyField(undefined, filterKey)) { // vocabulary
       const category = fieldToCategory(entityType ?? undefined, filterKey) as string;
       if (category) buildOptionsFromVocabularySearchQuery(filterKey, [category]);
-    } else if (isTextFilter(filterKey, filterDefinition?.type)) {
-      console.log('text');
+    } else if (filterDefinition?.type === 'boolean') { // boolean
+      buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
+    } else if (filterDefinition?.type === 'string' && filterDefinition?.format === 'id') {
+      console.log('ilterDefinition?.entityTypesOfId', filterDefinition?.entityTypesOfId);
+      if (filterDefinition?.entityTypesOfId.includes('Stix-Core-Object')) {
+        fetchQuery(filtersStixCoreObjectsSearchQuery, {
+          types: (searchScope && searchScope[filterKey]) || filterDefinition?.entityTypesOfId || ['Stix-Core-Object'],
+          search: event.target.value !== 0 ? event.target.value : '',
+          count: 100,
+        })
+          .toPromise()
+          .then((data) => {
+            const elementIdEntities = (
+              (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
+            ).map((n) => ({
+              label: defaultValue(n?.node),
+              value: n?.node.id,
+              type: n?.node.entity_type,
+              parentTypes: n?.node.parent_types,
+            }));
+            unionSetEntities(filterKey, elementIdEntities);
+          });
+      }
     }
 
-    // depending on filter key, fetch the right data and build the options list
+    // start region: handle filters with the old UI (streams etc)
+    // depending on filter key, fetch the right data and build the options list // TODO to remove when all filters are in the new UI
     switch (filterKey) {
       // region member global
       case 'members_user':
@@ -1040,6 +1063,7 @@ const useSearchEntities = ({
       default:
         break;
     }
+    // endregion
   };
   return [entities, searchEntities];
 };

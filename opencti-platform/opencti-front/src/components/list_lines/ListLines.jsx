@@ -210,9 +210,7 @@ class ListLines extends Component {
       inline,
     } = this.props;
     const filterKeys = Array.from(filterKeysMap.keys());
-    const availableFilterKeys = exportEntityType === 'Report'
-      ? filterKeys
-      : this.props.availableFilterKeys;
+    const availableFilterKeys = filterKeys;
     const exportDisabled = numberOfElements
       && ((selectedIds.length > export_max_size
         && numberOfElements.number > export_max_size)
