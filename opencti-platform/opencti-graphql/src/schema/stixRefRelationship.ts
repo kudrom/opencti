@@ -1,7 +1,8 @@
 import {
+  ABSTRACT_STIX_CORE_OBJECT,
   ABSTRACT_STIX_CYBER_OBSERVABLE_RELATIONSHIP,
   ABSTRACT_STIX_META_RELATIONSHIP,
-  ABSTRACT_STIX_REF_RELATIONSHIP,
+  ABSTRACT_STIX_REF_RELATIONSHIP, ENTITY_TYPE_IDENTITY,
   INPUT_ASSIGNEE,
   INPUT_BORN_IN,
   INPUT_CREATED_BY,
@@ -14,7 +15,13 @@ import {
   INPUT_OBJECTS,
   INPUT_PARTICIPANT
 } from './general';
-import { ENTITY_TYPE_LOCATION_COUNTRY, isStixDomainObjectContainer, isStixDomainObjectIdentity, isStixDomainObjectLocation } from './stixDomainObject';
+import {
+  ENTITY_TYPE_IDENTITY_INDIVIDUAL, ENTITY_TYPE_IDENTITY_SECTOR, ENTITY_TYPE_IDENTITY_SYSTEM,
+  ENTITY_TYPE_LOCATION_COUNTRY,
+  isStixDomainObjectContainer,
+  isStixDomainObjectIdentity,
+  isStixDomainObjectLocation
+} from './stixDomainObject';
 import { ENTITY_TYPE_EXTERNAL_REFERENCE, ENTITY_TYPE_KILL_CHAIN_PHASE, ENTITY_TYPE_LABEL, ENTITY_TYPE_MARKING_DEFINITION } from './stixMetaObject';
 import { ENTITY_TYPE_EVENT } from '../modules/event/event-types';
 import { ENTITY_TYPE_USER } from './internalObject';
@@ -531,6 +538,7 @@ export const createdBy: RefAttribute = {
   label: 'Author',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_IDENTITY],
 };
 
 export const objectMarking: RefAttribute = {
@@ -546,6 +554,7 @@ export const objectMarking: RefAttribute = {
   label: 'Markings',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_MARKING_DEFINITION],
 };
 
 export const objects: RefAttribute = {
@@ -561,7 +570,7 @@ export const objects: RefAttribute = {
   checker: (fromType,) => isStixDomainObjectContainer(fromType),
   datable: false,
   isFilterable: true,
-  entityTypes: ['Stix-Core-Object'],
+  entityTypes: [ABSTRACT_STIX_CORE_OBJECT],
 };
 
 export const objectOrganization: RefAttribute = {
@@ -578,6 +587,7 @@ export const objectOrganization: RefAttribute = {
       || isStixDomainObjectLocation(fromType)) && ENTITY_TYPE_IDENTITY_ORGANIZATION === toType,
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_IDENTITY_ORGANIZATION],
 };
 
 export const objectAssignee: RefAttribute = {
@@ -593,6 +603,7 @@ export const objectAssignee: RefAttribute = {
   label: 'Assignees',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_USER],
 };
 
 export const objectParticipant: RefAttribute = {
@@ -608,6 +619,7 @@ export const objectParticipant: RefAttribute = {
   label: 'Participants',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_USER],
 };
 
 export const bornIn: RefAttribute = {
@@ -624,6 +636,7 @@ export const bornIn: RefAttribute = {
   label: 'Born In',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_LOCATION_COUNTRY],
 };
 
 export const ethnicity: RefAttribute = {
@@ -640,6 +653,7 @@ export const ethnicity: RefAttribute = {
   label: 'Ethnicity',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_LOCATION_COUNTRY],
 };
 
 // INTERNAL
@@ -657,6 +671,7 @@ export const objectLabel: RefAttribute = {
   label: 'Label',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_LABEL],
 };
 
 export const externalReferences: RefAttribute = {
@@ -672,6 +687,7 @@ export const externalReferences: RefAttribute = {
   label: 'External reference',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_EXTERNAL_REFERENCE],
 };
 export const killChainPhases: RefAttribute = {
   name: INPUT_KILLCHAIN,
@@ -686,6 +702,7 @@ export const killChainPhases: RefAttribute = {
   label: 'Kill chain phase',
   datable: false,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_KILL_CHAIN_PHASE],
 };
 
 export const META_RELATIONS: RefAttribute[] = [
