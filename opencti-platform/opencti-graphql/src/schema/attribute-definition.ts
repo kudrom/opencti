@@ -53,7 +53,7 @@ export type JsonAttribute = { type: 'string', format: 'json', multiple: false, s
 export type FlatObjectAttribute = { type: 'object', format: 'flat' } & BasicDefinition;
 export type ObjectAttribute = { type: 'object', format: 'standard' } & BasicObjectDefinition;
 export type NestedObjectAttribute = { type: 'object', format: 'nested' } & BasicObjectDefinition;
-export type RefAttribute = { type: 'ref', databaseName: string, stixName: string, checker: Checker, datable?: boolean, entityTypes: string[] } & BasicDefinition;
+export type RefAttribute = { type: 'ref', databaseName: string, stixName: string, isRefExistingForTypes: Checker, datable?: boolean, toTypes: string[] } & BasicDefinition;
 export type StringAttribute = IdAttribute | TextAttribute | JsonAttribute;
 export type ComplexAttribute = FlatObjectAttribute | ObjectAttribute | NestedObjectAttribute;
 

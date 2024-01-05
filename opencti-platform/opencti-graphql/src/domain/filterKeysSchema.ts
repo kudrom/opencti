@@ -41,7 +41,7 @@ const buildFilterDefinitionFromRelationRefDefinition = (refDefinition: RefAttrib
     multiple: refDefinition.multiple,
     subEntityTypes,
     format: 'id',
-    entityTypesOfId: refDefinition.entityTypes,
+    entityTypesOfId: refDefinition.toTypes,
   };
 };
 

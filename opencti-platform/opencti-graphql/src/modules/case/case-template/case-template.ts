@@ -18,11 +18,13 @@ const CaseTemplateToTaskTemplateRelation: RefAttribute = {
   mandatoryType: 'internal',
   editDefault: false,
   multiple: true,
-  checker: (_, toType) => toType === ENTITY_TYPE_TASK_TEMPLATE,
+  isRefExistingForTypes(_, toType) {
+    return this.toTypes.includes(toType);
+  },
   datable: false,
   upsert: true,
   isFilterable: true,
-  entityTypes: [ENTITY_TYPE_TASK_TEMPLATE],
+  toTypes: [ENTITY_TYPE_TASK_TEMPLATE],
 };
 
 const CASE_TEMPLATE_DEFINITION: ModuleDefinition<StoreEntityCaseTemplate, StixCaseTemplate> = {

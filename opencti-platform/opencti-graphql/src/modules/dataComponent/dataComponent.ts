@@ -60,9 +60,11 @@ const DATA_COMPONENT_DEFINITION: ModuleDefinition<StoreEntityDataComponent, Stix
       editDefault: false,
       multiple: false,
       upsert: true,
-      checker: (fromType, toType) => toType === ENTITY_TYPE_DATA_SOURCE,
+      isRefExistingForTypes(_, toType) {
+        return this.toTypes.includes(toType);
+      },
       isFilterable: true,
-      entityTypes: [ENTITY_TYPE_DATA_SOURCE],
+      toTypes: [ENTITY_TYPE_DATA_SOURCE],
     },
     objectOrganization
   ],
