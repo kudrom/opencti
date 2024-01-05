@@ -164,22 +164,6 @@ const Reports: FunctionComponent<ReportsProps> = ({
           paginationOptions={paginationOptions}
           numberOfElements={numberOfElements}
           iconExtension={true}
-          availableFilterKeys={[
-            'workflow_id',
-            'objectLabel',
-            'objectMarking',
-            'createdBy',
-            'x_opencti_reliability',
-            'confidence',
-            'objectAssignee',
-            'objectParticipant',
-            'report_types',
-            'creator_id',
-            'published',
-            'created_at',
-            'objects',
-            'name',
-          ]}
         >
           {queryRef && (
             <React.Suspense

@@ -209,8 +209,8 @@ class ListLines extends Component {
       helpers,
       inline,
     } = this.props;
-    const filterKeys = filterKeysMap ? Array.from(filterKeysMap.keys()) : undefined;
-    const availableFilterKeys = filterKeys;
+    const filterKeys = filterKeysMap ? Array.from(filterKeysMap.keys()) : undefined; // keys for the entity type according to the schema
+    const availableFilterKeys = this.props.availableFilterKeys ?? filterKeys; // if the available keys are not given, set the keys according to the schema
     const exportDisabled = numberOfElements
       && ((selectedIds.length > export_max_size
         && numberOfElements.number > export_max_size)

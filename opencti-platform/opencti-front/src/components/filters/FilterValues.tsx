@@ -50,7 +50,7 @@ interface FilterValuesProps {
   onClickLabel?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   helpers?: UseLocalStorageHelpers;
   isReadWriteFilter?: boolean;
-  entityTypes: string[];
+  entityTypes?: string[];
 }
 
 const FilterValues: FunctionComponent<FilterValuesProps> = ({
@@ -89,12 +89,14 @@ const FilterValues: FunctionComponent<FilterValuesProps> = ({
       </>
     );
   }
-  const { filterKeysSchema } = useAuth().schema;
   let filterType = undefined as string | undefined;
-  (entityTypes ?? ['Stix-Core-Object']).forEach((entity_type) => {
-    const currentMap = filterKeysSchema.get(entity_type);
-    filterType = currentMap?.get(filterKey)?.type ?? undefined;
-  });
+  if (entityTypes) {
+    const { filterKeysSchema } = useAuth().schema;
+    entityTypes.forEach((entity_type) => {
+      const currentMap = filterKeysSchema.get(entity_type);
+      filterType = currentMap?.get(filterKey)?.type ?? undefined;
+    });
+  }
   const values = filterValues.map((id) => {
     return (
       <Fragment key={id}>

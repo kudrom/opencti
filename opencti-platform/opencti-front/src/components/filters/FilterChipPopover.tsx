@@ -24,7 +24,7 @@ interface FilterChipMenuProps {
   filters: Filter[];
   helpers?: UseLocalStorageHelpers;
   availableRelationFilterTypes?: Record<string, string[]>;
-  entityTypes: string[];
+  entityTypes?: string[];
 }
 
 export interface FilterChipsParameter {
@@ -137,12 +137,14 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
   const filterKey = filter?.key ?? '';
   const filterOperator = filter?.operator ?? '';
   const filterValues = filter?.values ?? [];
-  const { filterKeysSchema } = useAuth().schema;
   let filterDefinition = undefined as FilterDefinition | undefined;
-  (entityTypes ?? ['Stix-Core-Object']).forEach((entity_type) => {
-    const currentMap = filterKeysSchema.get(entity_type);
-    filterDefinition = currentMap?.get(filterKey);
-  });
+  if (entityTypes) {
+    const { filterKeysSchema } = useAuth().schema;
+    entityTypes.forEach((entity_type) => {
+      const currentMap = filterKeysSchema.get(entity_type);
+      filterDefinition = currentMap?.get(filterKey);
+    });
+  }
   const [inputValues, setInputValues] = useState<
   {
     key: string;

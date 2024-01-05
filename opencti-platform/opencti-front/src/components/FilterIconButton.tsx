@@ -21,7 +21,7 @@ interface FilterIconButtonProps {
   redirection?: boolean;
   helpers?: UseLocalStorageHelpers;
   availableRelationFilterTypes?: Record<string, string[]>;
-  entityTypes: string[];
+  entityTypes?: string[];
 }
 
 interface FilterIconButtonIfFiltersProps extends FilterIconButtonProps {

@@ -10,7 +10,7 @@ import { truncate } from '../utils/String';
 import { DataColumns } from './list_lines';
 import { useFormatter } from './i18n';
 import type { Theme } from './Theme';
-import { Filter, FilterGroup, filtersUsedAsApiParameters } from '../utils/filters/filtersUtils';
+import { Filter, FilterDefinition, FilterGroup, filtersUsedAsApiParameters } from '../utils/filters/filtersUtils';
 import { filterIconButtonContentQuery } from './FilterIconButtonContent';
 import { FilterIconButtonContentQuery } from './__generated__/FilterIconButtonContentQuery.graphql';
 import FilterValues from './filters/FilterValues';
@@ -119,7 +119,7 @@ interface FilterIconButtonContainerProps {
   hasRenderedRef: boolean;
   setHasRenderedRef: () => void;
   availableRelationFilterTypes?: Record<string, string[]>;
-  entityTypes: string[];
+  entityTypes?: string[];
 }
 
 const FilterIconButtonContainer: FunctionComponent<
@@ -163,12 +163,15 @@ FilterIconButtonContainerProps
     anchorEl: undefined,
   } as FilterChipsParameter);
   const open = Boolean(filterChipsParams.anchorEl);
-  const { filterKeysSchema } = useAuth().schema;
-  const filterKeysMap = new Map();
-  (entityTypes ?? ['Stix-Core-Object']).forEach((entity_type) => {
-    const currentMap = filterKeysSchema.get(entity_type);
-    if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap.set(filterKey, filterDef));
-  });
+  let filterKeysMap = undefined as Map<string, FilterDefinition> | undefined;
+  if (entityTypes) {
+    const { filterKeysSchema } = useAuth().schema;
+    filterKeysMap = new Map();
+    entityTypes.forEach((entity_type) => {
+      const currentMap = filterKeysSchema.get(entity_type);
+      if (currentMap) currentMap.forEach((filterDef, filterKey) => filterKeysMap?.set(filterKey, filterDef));
+    });
+  }
   if (helpers) {
     // activate popover feature on chip only when "helper" is defined, not the best way to handle but
     // it means that the new filter feature is activated. Will be removed in the next version when we generalize the feature on every filter.
