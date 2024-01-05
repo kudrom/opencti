@@ -3,7 +3,6 @@ import {
   ABSTRACT_STIX_CYBER_OBSERVABLE_RELATIONSHIP,
   ABSTRACT_STIX_META_RELATIONSHIP,
   ABSTRACT_STIX_REF_RELATIONSHIP,
-  ENTITY_TYPE_IDENTITY,
   INPUT_ASSIGNEE,
   INPUT_BORN_IN,
   INPUT_CREATED_BY,
@@ -32,6 +31,23 @@ import { schemaTypesDefinition } from './schema-types';
 import { ENTITY_TYPE_IDENTITY_ORGANIZATION } from '../modules/organization/organization-types';
 import { ENTITY_TYPE_THREAT_ACTOR_INDIVIDUAL } from '../modules/threatActorIndividual/threatActorIndividual-types';
 import type { Checker, RefAttribute } from './attribute-definition';
+import {
+  ENTITY_AUTONOMOUS_SYSTEM,
+  ENTITY_DIRECTORY,
+  ENTITY_DOMAIN_NAME,
+  ENTITY_EMAIL_ADDR,
+  ENTITY_EMAIL_MIME_PART_TYPE,
+  ENTITY_HASHED_OBSERVABLE_ARTIFACT,
+  ENTITY_HASHED_OBSERVABLE_STIX_FILE,
+  ENTITY_IPV4_ADDR,
+  ENTITY_IPV6_ADDR,
+  ENTITY_MAC_ADDR,
+  ENTITY_NETWORK_TRAFFIC,
+  ENTITY_PROCESS,
+  ENTITY_SOFTWARE,
+  ENTITY_USER_ACCOUNT,
+  ENTITY_WINDOWS_REGISTRY_VALUE_TYPE
+} from './stixCyberObservable';
 
 export const ABSTRACT_STIX_NESTED_REF_RELATIONSHIP = 'stix-nested-ref-relationship'; // Only for front usage
 
@@ -97,7 +113,7 @@ export const RELATION_SERVICE_DLL = 'service-dll';
 
 // -- RELATIONS REF ---
 
-export const operatingSystems: Omit<RefAttribute, 'checker'> = {
+export const operatingSystems: RefAttribute = {
   name: INPUT_OPERATING_SYSTEM,
   type: 'ref',
   databaseName: RELATION_OPERATING_SYSTEM,
@@ -109,9 +125,11 @@ export const operatingSystems: Omit<RefAttribute, 'checker'> = {
   datable: true,
   label: 'Operating System',
   isFilterable: true,
+  checker: (_, toType) => ENTITY_SOFTWARE === toType,
+  entityTypes: [ENTITY_SOFTWARE],
 };
 
-export const samples: Omit<RefAttribute, 'checker'> = {
+export const samples: RefAttribute = {
   name: INPUT_SAMPLE,
   type: 'ref',
   databaseName: RELATION_SAMPLE,
@@ -123,6 +141,8 @@ export const samples: Omit<RefAttribute, 'checker'> = {
   datable: true,
   label: 'Sample',
   isFilterable: true,
+  checker: (_, toType) => [ENTITY_HASHED_OBSERVABLE_ARTIFACT, ENTITY_HASHED_OBSERVABLE_STIX_FILE].includes(toType),
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_ARTIFACT, ENTITY_HASHED_OBSERVABLE_STIX_FILE],
 };
 
 export const contains: Omit<RefAttribute, 'checker'> = {
@@ -151,6 +171,7 @@ export const resolvesTo: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_DOMAIN_NAME, ENTITY_IPV4_ADDR, ENTITY_IPV6_ADDR, ENTITY_MAC_ADDR],
 };
 export const belongsTo: Omit<RefAttribute, 'checker'> = {
   name: INPUT_BELONGS_TO,
@@ -164,6 +185,7 @@ export const belongsTo: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_USER_ACCOUNT, ENTITY_AUTONOMOUS_SYSTEM],
 };
 export const from: Omit<RefAttribute, 'checker'> = {
   name: INPUT_FROM,
@@ -177,6 +199,7 @@ export const from: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_EMAIL_ADDR],
 };
 export const sender: Omit<RefAttribute, 'checker'> = {
   name: INPUT_SENDER,
@@ -190,6 +213,7 @@ export const sender: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_EMAIL_ADDR],
 };
 export const to: Omit<RefAttribute, 'checker'> = {
   name: INPUT_TO,
@@ -203,6 +227,7 @@ export const to: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_EMAIL_ADDR],
 };
 export const cc: Omit<RefAttribute, 'checker'> = {
   name: INPUT_CC,
@@ -216,6 +241,7 @@ export const cc: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_EMAIL_ADDR],
 };
 export const bcc: Omit<RefAttribute, 'checker'> = {
   name: INPUT_BCC,
@@ -229,6 +255,7 @@ export const bcc: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_EMAIL_ADDR],
 };
 export const rawEmail: Omit<RefAttribute, 'checker'> = {
   name: INPUT_RAW_EMAIL,
@@ -242,6 +269,7 @@ export const rawEmail: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_ARTIFACT],
 };
 export const bodyRaw: Omit<RefAttribute, 'checker'> = {
   name: INPUT_BODY_RAW,
@@ -255,6 +283,7 @@ export const bodyRaw: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_ARTIFACT, ENTITY_HASHED_OBSERVABLE_STIX_FILE],
 };
 export const parentDirectory: Omit<RefAttribute, 'checker'> = {
   name: INPUT_PARENT_DIRECTORY,
@@ -268,6 +297,7 @@ export const parentDirectory: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_DIRECTORY],
 };
 export const obsContent: Omit<RefAttribute, 'checker'> = {
   name: INPUT_CONTENT,
@@ -281,6 +311,7 @@ export const obsContent: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_ARTIFACT],
 };
 export const src: Omit<RefAttribute, 'checker'> = {
   name: INPUT_SRC,
@@ -294,6 +325,7 @@ export const src: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_DOMAIN_NAME, ENTITY_IPV4_ADDR, ENTITY_IPV6_ADDR, ENTITY_MAC_ADDR],
 };
 export const dst: Omit<RefAttribute, 'checker'> = {
   name: INPUT_DST,
@@ -307,6 +339,7 @@ export const dst: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_DOMAIN_NAME, ENTITY_IPV4_ADDR, ENTITY_IPV6_ADDR, ENTITY_MAC_ADDR],
 };
 export const srcPayload: Omit<RefAttribute, 'checker'> = {
   name: INPUT_SRC_PAYLOAD,
@@ -320,6 +353,7 @@ export const srcPayload: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_ARTIFACT],
 };
 export const dstPayload: Omit<RefAttribute, 'checker'> = {
   name: INPUT_DST_PAYLOAD,
@@ -333,6 +367,7 @@ export const dstPayload: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_ARTIFACT],
 };
 export const encapsulates: Omit<RefAttribute, 'checker'> = {
   name: INPUT_ENCAPSULATES,
@@ -346,6 +381,7 @@ export const encapsulates: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_NETWORK_TRAFFIC],
 };
 export const encapsulatedBy: Omit<RefAttribute, 'checker'> = {
   name: INPUT_ENCAPSULATED_BY,
@@ -359,6 +395,7 @@ export const encapsulatedBy: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_NETWORK_TRAFFIC],
 };
 export const openedConnections: Omit<RefAttribute, 'checker'> = {
   name: INPUT_OPENED_CONNECTION,
@@ -372,6 +409,7 @@ export const openedConnections: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_NETWORK_TRAFFIC],
 };
 export const creatorUser: Omit<RefAttribute, 'checker'> = {
   name: INPUT_CREATOR_USER,
@@ -385,6 +423,7 @@ export const creatorUser: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_USER_ACCOUNT],
 };
 export const image: Omit<RefAttribute, 'checker'> = {
   name: INPUT_IMAGE,
@@ -398,6 +437,7 @@ export const image: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_STIX_FILE],
 };
 export const parent: Omit<RefAttribute, 'checker'> = {
   name: INPUT_PARENT,
@@ -411,6 +451,7 @@ export const parent: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_PROCESS],
 };
 export const child: Omit<RefAttribute, 'checker'> = {
   name: INPUT_CHILD,
@@ -424,6 +465,7 @@ export const child: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_PROCESS],
 };
 export const bodyMultipart: Omit<RefAttribute, 'checker'> = {
   name: INPUT_BODY_MULTIPART,
@@ -437,6 +479,7 @@ export const bodyMultipart: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_EMAIL_MIME_PART_TYPE],
 };
 export const values: Omit<RefAttribute, 'checker'> = {
   name: INPUT_VALUES,
@@ -450,6 +493,7 @@ export const values: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_WINDOWS_REGISTRY_VALUE_TYPE],
 };
 export const xOpenctiLinkedTo: RefAttribute = {
   name: INPUT_LINKED,
@@ -464,6 +508,7 @@ export const xOpenctiLinkedTo: RefAttribute = {
   checker: () => true,
   datable: true,
   isFilterable: true,
+  entityTypes: ['Stix-Core-Object'],
 };
 export const serviceDlls: Omit<RefAttribute, 'checker'> = {
   name: INPUT_SERVICE_DLL,
@@ -477,6 +522,7 @@ export const serviceDlls: Omit<RefAttribute, 'checker'> = {
   upsert: true,
   datable: true,
   isFilterable: true,
+  entityTypes: [ENTITY_HASHED_OBSERVABLE_STIX_FILE],
 };
 
 export const STIX_REF_RELATIONSHIPS: Omit<RefAttribute, 'checker'>[] = [

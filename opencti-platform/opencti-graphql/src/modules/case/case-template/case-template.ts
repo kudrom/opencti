@@ -22,6 +22,7 @@ const CaseTemplateToTaskTemplateRelation: RefAttribute = {
   datable: false,
   upsert: true,
   isFilterable: true,
+  entityTypes: [ENTITY_TYPE_TASK_TEMPLATE],
 };
 
 const CASE_TEMPLATE_DEFINITION: ModuleDefinition<StoreEntityCaseTemplate, StixCaseTemplate> = {

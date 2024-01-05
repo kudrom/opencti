@@ -62,6 +62,7 @@ const DATA_COMPONENT_DEFINITION: ModuleDefinition<StoreEntityDataComponent, Stix
       upsert: true,
       checker: (fromType, toType) => toType === ENTITY_TYPE_DATA_SOURCE,
       isFilterable: true,
+      entityTypes: [ENTITY_TYPE_DATA_SOURCE],
     },
     objectOrganization
   ],
