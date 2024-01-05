@@ -7,7 +7,7 @@ import { delEditContext, getClusterInstances, getRedisVersion, notify, setEditCo
 import { isRuntimeSortEnable, searchEngineVersion } from '../database/engine';
 import { getRabbitMQVersion } from '../database/rabbitmq';
 import { ENTITY_TYPE_SETTINGS } from '../schema/internalObject';
-import { isUserHasCapability, SETTINGS_SET_ACCESSES, SYSTEM_USER } from '../utils/access';
+import { isUserHasCapability, SETTINGS, SETTINGS_SET_ACCESSES, SYSTEM_USER } from '../utils/access';
 import { storeLoadById } from '../database/middleware-loader';
 import { INTERNAL_SECURITY_PROVIDER, PROVIDERS } from '../config/providers';
 import { publishUserAction } from '../listener/UserActionListener';
@@ -114,11 +114,13 @@ export const settingsEditField = async (context, user, settingsId, input) => {
   return notify(BUS_TOPICS.Settings.EDIT_TOPIC, updatedSettings, user);
 };
 
-export const getMessages = (user, settings) => {
+export const getMessages = (user, settings, forAdministration = false) => {
   const messages = JSON.parse(settings.messages ?? '[]');
   return messages.filter(({ recipients }) => {
     // eslint-disable-next-line max-len
-    return isEmptyField(recipients) || recipients.some((recipientId) => [user.id, ...user.groups.map(({ id }) => id), ...user.organizations.map(({ id }) => id)].includes(recipientId));
+    return isEmptyField(recipients)
+      || (forAdministration && isUserHasCapability(user, SETTINGS))
+      || recipients.some((recipientId) => [user.id, ...user.groups.map(({ id }) => id), ...user.organizations.map(({ id }) => id)].includes(recipientId));
   });
 };
 
