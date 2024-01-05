@@ -5161,8 +5161,8 @@ export enum DataSourcesOrdering {
 
 export type DecayHistory = {
   __typename?: 'DecayHistory';
-  date: Scalars['DateTime']['output'];
   score: Scalars['Int']['output'];
+  updated_at: Scalars['DateTime']['output'];
 };
 
 export type DecayRule = {
@@ -30289,8 +30289,8 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type DecayHistoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['DecayHistory'] = ResolversParentTypes['DecayHistory']> = ResolversObject<{
-  date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   score?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updated_at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

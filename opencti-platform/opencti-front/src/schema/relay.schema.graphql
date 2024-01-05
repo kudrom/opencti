@@ -10499,7 +10499,7 @@ type IndicatorEdge {
 }
 
 type DecayHistory {
-  date: DateTime!
+  updated_at: DateTime!
   score: Int!
 }
 

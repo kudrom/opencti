@@ -112,7 +112,7 @@ export const addIndicator = async (context: AuthContext, user: AuthUser, indicat
   const nextScoreReactionDate = computeNextScoreReactionDate(indicatorBaseScore, indicatorBaseScore, decayRule, validFrom);
   const decayHistory: DecayHistory[] = [];
   decayHistory.push({
-    date: validFrom.toDate(),
+    updated_at: validFrom.toDate(),
     score: indicatorBaseScore,
   });
   const indicatorToCreate = R.pipe(

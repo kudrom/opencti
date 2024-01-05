@@ -2,7 +2,7 @@ import moment from 'moment';
 import type { Moment } from 'moment';
 
 export interface DecayHistory {
-  date: Date
+  updated_at: Date
   score: number
 }
 export interface DecayRule {
