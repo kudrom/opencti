@@ -478,7 +478,7 @@ const useSearchEntities = ({
       if (category) buildOptionsFromVocabularySearchQuery(filterKey, [category]);
     } else if (filterDefinition?.type === 'boolean') { // boolean
       buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
-    } else if (filterDefinition?.type === 'string' && filterDefinition?.format === 'id') {
+    } else if (filterDefinition?.type === 'id') {
       const idTypes = filterDefinition?.entityTypesOfId;
       console.log('ilterDefinition?.entityTypesOfId', filterDefinition?.entityTypesOfId);
       if (idTypes.length === 1 && idTypes.includes('Stix-Core-Object')) {

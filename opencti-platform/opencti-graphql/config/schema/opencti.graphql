@@ -137,7 +137,6 @@ type FilterDefinition {
   type: String!
   multiple: Boolean!
   subEntityTypes: [String!]!
-  format: String
   entityTypesOfId: [String!]
 }
 

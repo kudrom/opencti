@@ -28,7 +28,6 @@ export type FilterDefinition = {
   type: string;
   multiple: boolean;
   subEntityTypes: readonly string[];
-  format?: string;
   entityTypesOfId: string[];
 };
 
@@ -44,9 +43,6 @@ export const FiltersVariant = {
   list: 'list',
   dialog: 'dialog',
 };
-
-export const onlyGroupOrganization = ['workflow_id'];
-
 export const directFilters = [
   'is_read',
   'channel_types',
@@ -207,9 +203,15 @@ export const isTextFilter = (
   filterDefinition: FilterDefinition | undefined,
   isVocabularyField: (entityType: string | undefined, filterKey: string) => boolean,
 ) => {
-  return (
-    (filterDefinition?.type === 'string' && filterDefinition?.format !== 'id') || textFilters.includes(filterKey))
+  return (filterDefinition?.type === 'string' || filterDefinition?.type === 'text' || textFilters.includes(filterKey))
     && !isVocabularyField(undefined, filterKey);
+};
+
+export const isNumericFilter = (
+  filterKey: string,
+  filterType?: string,
+) => {
+  return filterType === 'integer' || filterType === 'float' || integerFilters.includes(filterKey);
 };
 
 export const findFilterFromKey = (
@@ -742,7 +744,7 @@ export const getDefaultOperatorFilter = (
   if (filterType === 'date' || dateFilters.includes(filterKey)) {
     return 'gte';
   }
-  if (filterType === 'numeric' || integerFilters.includes(filterKey)) {
+  if (isNumericFilter(filterKey, filterType)) {
     return 'gt';
   }
   if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {
@@ -779,7 +781,7 @@ export const getAvailableOperatorForFilter = (
   if (filterType === 'date' || dateFilters.includes(filterKey)) {
     return ['gt', 'gte', 'lt', 'lte'];
   }
-  if (filterType === 'numeric' || integerFilters.includes(filterKey)) {
+  if (isNumericFilter(filterKey, filterType)) {
     return ['gt', 'gte', 'lt', 'lte'];
   }
   if (filterType === 'boolean' || booleanFilters.includes(filterKey)) {

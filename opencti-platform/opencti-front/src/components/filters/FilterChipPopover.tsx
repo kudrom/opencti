@@ -9,7 +9,16 @@ import FilterDate from '@components/common/lists/FilterDate';
 import { MenuItem, Select } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import SearchScopeElement from '@components/common/lists/SearchScopeElement';
-import { dateFilters, Filter, FilterDefinition, getAvailableOperatorForFilter, integerFilters, isStixObjectTypes, isTextFilter } from '../../utils/filters/filtersUtils';
+import {
+  dateFilters,
+  Filter,
+  FilterDefinition,
+  getAvailableOperatorForFilter,
+  integerFilters,
+  isNumericFilter,
+  isStixObjectTypes,
+  isTextFilter
+} from '../../utils/filters/filtersUtils';
 import { useFormatter } from '../i18n';
 import ItemIcon from '../ItemIcon';
 import { getOptionsFromEntities, getUseSearch } from '../../utils/filters/SearchEntitiesUtil';
@@ -203,7 +212,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
     const filterType = filterDefinition?.type;
     return (
       filterType === 'date' || dateFilters.includes(fKey)
-      || filterType === 'numeric' || integerFilters.includes(fKey)
+      || isNumericFilter(fKey, filterType)
       || isTextFilter(fKey, filterDefinition, isVocabularyField)
     );
   };
@@ -221,7 +230,7 @@ export const FilterChipPopover: FunctionComponent<FilterChipMenuProps> = ({
     if (filterDefinition?.type === 'date' || dateFilters.includes(fKey)) {
       return <BasicFilterDate />;
     }
-    if (filterDefinition?.type === 'numeric' || integerFilters.includes(fKey)) {
+    if (isNumericFilter(filterKey, filterDefinition?.type)) {
       return (
         <BasicNumberInput
           filter={filter}
