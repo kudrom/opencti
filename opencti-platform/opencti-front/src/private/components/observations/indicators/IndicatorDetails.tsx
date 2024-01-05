@@ -138,7 +138,7 @@ const IndicatorDetailsComponent: FunctionComponent<IndicatorDetailsComponentProp
               fullWidth
               maxWidth="xl"
             >
-              <DecayDialogContent /* decayHistory={ indicator.x_opencti_decay_history ?? [] } */ />
+              <DecayDialogContent indicator={ indicator } />
               <DialogActions>
                 <Button onClick={onDecayLifecycleClose}>
                   {t('Close')}
@@ -200,9 +200,21 @@ const IndicatorDetails = createFragmentContainer(IndicatorDetailsComponent, {
       valid_from
       valid_until
       x_opencti_score
+      x_opencti_base_score
       x_opencti_detection
       x_mitre_platforms
       indicator_types
+      x_opencti_decay_history {
+        score
+        updated_at
+      }
+      x_opencti_decay_rule {
+        decay_lifetime
+        decay_pound
+        decay_points
+        decay_revoke_score
+        indicator_types
+      }
       objectLabel {
         edges {
           node {

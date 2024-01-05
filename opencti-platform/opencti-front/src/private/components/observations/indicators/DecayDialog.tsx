@@ -1,6 +1,6 @@
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Chart from 'react-apexcharts';
@@ -12,9 +12,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { IndicatorDetails_indicator$data } from '@components/observations/indicators/__generated__/IndicatorDetails_indicator.graphql';
 import { useFormatter } from '../../../../components/i18n';
 
-const DecayDialogContent = () => {
+interface DecayDialogContentProps {
+  indicator: IndicatorDetails_indicator$data,
+}
+
+const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indicator }) => {
   const { t, fldt } = useFormatter();
   const series = [{ name: 'Live score', data: [100, 80, 60, 40, 20, 0], type: 'line' }];
   const chartOptions: ApexOptions = {
@@ -23,10 +28,15 @@ const DecayDialogContent = () => {
     yaxis: { min: 0, max: 100 },
   };
 
-  const decayHistory2 = [
+  console.log('indicator:', indicator);
+
+  const decayHistory = indicator.x_opencti_decay_history ?? [];
+  const decayReactionPoints = indicator.x_opencti_decay_rule?.decay_points ?? [];
+
+  /* const decayHistory2 = [
     { updated_at: new Date(), score: 100 },
     { updated_at: new Date(), score: 80 },
-  ];
+  ]; */
   return (
     <DialogContent>
       <Typography variant="h2">
@@ -49,8 +59,25 @@ const DecayDialogContent = () => {
           />
         </Grid>
         <Grid item={true} xs={6}>
+          <Typography variant="h2">
+            {t('Applied decay rule:')}
+          </Typography>
           <DialogContentText>
-            {t('Soon... a nice table here.')}
+            {t('Base score:')} { indicator.x_opencti_base_score }
+          </DialogContentText>
+          <DialogContentText>
+            {t('Lifetime (days):')} { indicator.x_opencti_decay_rule?.decay_lifetime ?? 'Not set'}
+          </DialogContentText>
+          <DialogContentText>
+            {t('Pound factor:')} { indicator.x_opencti_decay_rule?.decay_pound ?? 'Not set'}
+          </DialogContentText>
+          <DialogContentText>
+            {t('Revoke score:')} { indicator.x_opencti_decay_rule?.decay_revoke_score ?? 'Not set'}
+          </DialogContentText>
+          <DialogContentText>
+            {t('Reaction points:')} { decayReactionPoints.map((point) => (
+              ` ${point}`
+            ))}
           </DialogContentText>
           <TableContainer component={Paper}>
             <Table aria-label="simple table">
@@ -61,7 +88,12 @@ const DecayDialogContent = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-
+                {decayHistory.map((history) => (
+                  <TableRow key={ decayHistory.indexOf(history)}>
+                    <TableCell>{fldt(history.updated_at)}</TableCell>
+                    <TableCell>{history.score}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
@@ -72,9 +104,8 @@ const DecayDialogContent = () => {
 };
 
 /*
-
-                {decayHistory2.map((history) => (
-                  <TableRow key={history.updated_at.getTime()}>
+                {decayHistory.map((history) => (
+                  <TableRow key={ history.updated_at.getTime() }>
                     <TableCell>{fldt(history.updated_at)}</TableCell>
                     <TableCell>{history.score}</TableCell>
                   </TableRow>
