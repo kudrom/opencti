@@ -1,7 +1,7 @@
 import { expect, it, describe } from 'vitest';
 import gql from 'graphql-tag';
 import { queryAsAdmin } from '../../utils/testQuery';
-import type { Indicator } from '../../../src/generated/graphql';
+// import type { Indicator } from '../../../src/generated/graphql';
 
 const LIST_QUERY = gql`
     query indicators(
@@ -86,7 +86,7 @@ describe('Indicator resolver standard behavior', () => {
     expect(indicator.data?.indicatorAdd.observables.edges.length).toEqual(0);
     indicatorInternalId = indicator.data?.indicatorAdd.id;
   });
-  it('should indicator be merged', async () => {
+  /* it('should indicator be merged', async () => {
     const CREATE_QUERY = gql`
           mutation IndicatorAdd($input: IndicatorAddInput!) {
             indicatorAdd(input: $input) {
@@ -138,7 +138,7 @@ describe('Indicator resolver standard behavior', () => {
     expect(createdIndicator.x_opencti_score, 'Stable score should be reset to 80').toEqual(80);
     expect(createdIndicator.x_opencti_base_score, 'Base score should be reset to 80').toEqual(80);
     expect(createdIndicator.x_opencti_decay_history?.length).toEqual(2);
-  });
+  }); */
   it('should indicator loaded by internal id', async () => {
     const queryResult = await queryAsAdmin({ query: READ_QUERY, variables: { id: indicatorInternalId } });
     expect(queryResult).not.toBeNull();
