@@ -464,44 +464,23 @@ const useSearchEntities = ({
       unionSetEntities(key, entitiesToAdd);
     };
 
-    const { filterKeysSchema } = schema;
+    const stixCoreObjectTypes = [...(schema.sdos ?? []), ...(schema.scos ?? [])].map((o) => o.id).concat(['Stix-Core-Object', 'Stix-Cyber-Observable']);
     let filterDefinition = undefined as FilterDefinition | undefined;
     (searchContext.entityTypes).forEach((entity_type) => {
-      const currentMap = filterKeysSchema.get(entity_type);
+      const currentMap = schema.filterKeysSchema.get(entity_type);
       filterDefinition = currentMap?.get(filterKey) ?? undefined;
     });
 
-    console.log('filterDef', filterDefinition);
     // depending on the filter type, fetch the right data and build the options list // TODO to complete
-    if (isVocabularyField(undefined, filterKey)) { // vocabulary
+    if (isVocabularyField(undefined, filterKey)) { // 1. vocabulary
       const category = fieldToCategory(entityType ?? undefined, filterKey) as string;
       if (category) buildOptionsFromVocabularySearchQuery(filterKey, [category]);
-    } else if (filterDefinition?.type === 'boolean') { // boolean
+    } else if (filterDefinition?.type === 'boolean') { // 2. boolean
       buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
-    } else if (filterDefinition?.type === 'id') {
-      const idTypes = filterDefinition?.entityTypesOfId;
-      console.log('ilterDefinition?.entityTypesOfId', filterDefinition?.entityTypesOfId);
-      if (idTypes.length === 1 && idTypes.includes('Stix-Core-Object')) {
+    } else if (filterDefinition?.type === 'id' && filterDefinition?.entityTypesOfId) { // 3. id
+      if (filterDefinition.entityTypesOfId.every((typeOfId) => stixCoreObjectTypes.includes(typeOfId))) { // 3.1 Stix Core Objects
         fetchQuery(filtersStixCoreObjectsSearchQuery, {
-          types: (searchScope && searchScope[filterKey]) || filterDefinition?.entityTypesOfId || ['Stix-Core-Object'],
-          search: event.target.value !== 0 ? event.target.value : '',
-          count: 100,
-        })
-          .toPromise()
-          .then((data) => {
-            const elementIdEntities = (
-              (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
-            ).map((n) => ({
-              label: defaultValue(n?.node),
-              value: n?.node.id,
-              type: n?.node.entity_type,
-              parentTypes: n?.node.parent_types,
-            }));
-            unionSetEntities(filterKey, elementIdEntities);
-          });
-      } else if (idTypes.length > 0) {
-        fetchQuery(filtersStixCoreObjectsSearchQuery, {
-          types: (searchScope && searchScope[filterKey]) || filterDefinition?.entityTypesOfId || ['Stix-Core-Object'],
+          types: (searchScope && searchScope[filterKey]) || filterDefinition.entityTypesOfId,
           search: event.target.value !== 0 ? event.target.value : '',
           count: 100,
         })
@@ -643,6 +622,71 @@ const useSearchEntities = ({
       case 'source_reliability':
         buildOptionsFromVocabularySearchQuery(filterKey, ['reliability_ov']);
         break;
+      // Stix Meta Objects
+      case 'objectLabel':
+      case 'contextObjectLabel':
+        fetchQuery(labelsSearchQuery, {
+          search: event.target.value !== 0 ? event.target.value : '',
+          first: 10,
+        })
+          .toPromise()
+          .then((data) => {
+            const objectLabelEntities = (
+              (data as LabelsQuerySearchQuery$data)?.labels?.edges ?? []
+            ).map((n) => ({
+              label: n?.node.value,
+              value: n?.node.id,
+              type: 'Label',
+              color: n?.node.color,
+            }));
+            unionSetEntities(filterKey, [
+              {
+                label: t('No label'),
+                value: null,
+                type: 'Label',
+                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
+              },
+              ...objectLabelEntities,
+            ]);
+          });
+        break;
+      case 'objectMarking':
+      case 'contextObjectMarking':
+        fetchQuery(markingDefinitionsLinesSearchQuery, {
+          search: event.target.value !== 0 ? event.target.value : '',
+        })
+          .toPromise()
+          .then((data) => {
+            const markedByEntities = (
+              (data as MarkingDefinitionsLinesSearchQuery$data)?.markingDefinitions?.edges ?? []
+            ).map((n) => ({
+              label: n?.node.definition,
+              value: n?.node.id,
+              type: 'Marking-Definition',
+              color: n?.node.x_opencti_color,
+            }));
+            unionSetEntities(filterKey, markedByEntities);
+          });
+        break;
+      case 'killChainPhases':
+        fetchQuery(killChainPhasesLinesSearchQuery, {
+          search: event.target.value !== 0 ? event.target.value : '',
+          first: 10,
+        })
+          .toPromise()
+          .then((data) => {
+            const killChainPhaseEntities = (
+              (data as KillChainPhasesLinesSearchQuery$data)?.killChainPhases?.edges ?? []
+            ).map((n) => ({
+              label: n
+                ? `[${n.node.kill_chain_name}] ${n.node.phase_name}`
+                : '',
+              value: n?.node.id,
+              type: 'Kill-Chain-Phase',
+            }));
+            unionSetEntities(filterKey, killChainPhaseEntities);
+          });
+        break;
       default:
         break;
     }
@@ -707,70 +751,70 @@ const useSearchEntities = ({
           });
         break;
       }
-      case 'objectMarking':
-      case 'contextObjectMarking': // to keep
-        fetchQuery(markingDefinitionsLinesSearchQuery, {
-          search: event.target.value !== 0 ? event.target.value : '',
-        })
-          .toPromise()
-          .then((data) => {
-            const markedByEntities = (
-              (data as MarkingDefinitionsLinesSearchQuery$data)?.markingDefinitions?.edges ?? []
-            ).map((n) => ({
-              label: n?.node.definition,
-              value: n?.node.id,
-              type: 'Marking-Definition',
-              color: n?.node.x_opencti_color,
-            }));
-            unionSetEntities(filterKey, markedByEntities);
-          });
-        break;
-      case 'killChainPhases':
-        fetchQuery(killChainPhasesLinesSearchQuery, {
-          search: event.target.value !== 0 ? event.target.value : '',
-          first: 10,
-        })
-          .toPromise()
-          .then((data) => {
-            const killChainPhaseEntities = (
-              (data as KillChainPhasesLinesSearchQuery$data)?.killChainPhases?.edges ?? []
-            ).map((n) => ({
-              label: n
-                ? `[${n.node.kill_chain_name}] ${n.node.phase_name}`
-                : '',
-              value: n?.node.id,
-              type: 'Kill-Chain-Phase',
-            }));
-            unionSetEntities(filterKey, killChainPhaseEntities);
-          });
-        break;
-      case 'objectLabel':
-      case 'contextObjectLabel': // to keep
-        fetchQuery(labelsSearchQuery, {
-          search: event.target.value !== 0 ? event.target.value : '',
-          first: 10,
-        })
-          .toPromise()
-          .then((data) => {
-            const objectLabelEntities = (
-              (data as LabelsQuerySearchQuery$data)?.labels?.edges ?? []
-            ).map((n) => ({
-              label: n?.node.value,
-              value: n?.node.id,
-              type: 'Label',
-              color: n?.node.color,
-            }));
-            unionSetEntities(filterKey, [
-              {
-                label: t('No label'),
-                value: null,
-                type: 'Label',
-                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
-              },
-              ...objectLabelEntities,
-            ]);
-          });
-        break;
+      // case 'objectMarking':
+      // case 'contextObjectMarking': // to keep
+      //   fetchQuery(markingDefinitionsLinesSearchQuery, {
+      //     search: event.target.value !== 0 ? event.target.value : '',
+      //   })
+      //     .toPromise()
+      //     .then((data) => {
+      //       const markedByEntities = (
+      //         (data as MarkingDefinitionsLinesSearchQuery$data)?.markingDefinitions?.edges ?? []
+      //       ).map((n) => ({
+      //         label: n?.node.definition,
+      //         value: n?.node.id,
+      //         type: 'Marking-Definition',
+      //         color: n?.node.x_opencti_color,
+      //       }));
+      //       unionSetEntities(filterKey, markedByEntities);
+      //     });
+      //   break;
+      // case 'killChainPhases':
+      //   fetchQuery(killChainPhasesLinesSearchQuery, {
+      //     search: event.target.value !== 0 ? event.target.value : '',
+      //     first: 10,
+      //   })
+      //     .toPromise()
+      //     .then((data) => {
+      //       const killChainPhaseEntities = (
+      //         (data as KillChainPhasesLinesSearchQuery$data)?.killChainPhases?.edges ?? []
+      //       ).map((n) => ({
+      //         label: n
+      //           ? `[${n.node.kill_chain_name}] ${n.node.phase_name}`
+      //           : '',
+      //         value: n?.node.id,
+      //         type: 'Kill-Chain-Phase',
+      //       }));
+      //       unionSetEntities(filterKey, killChainPhaseEntities);
+      //     });
+      //   break;
+      // case 'objectLabel':
+      // case 'contextObjectLabel': // to keep
+      //   fetchQuery(labelsSearchQuery, {
+      //     search: event.target.value !== 0 ? event.target.value : '',
+      //     first: 10,
+      //   })
+      //     .toPromise()
+      //     .then((data) => {
+      //       const objectLabelEntities = (
+      //         (data as LabelsQuerySearchQuery$data)?.labels?.edges ?? []
+      //       ).map((n) => ({
+      //         label: n?.node.value,
+      //         value: n?.node.id,
+      //         type: 'Label',
+      //         color: n?.node.color,
+      //       }));
+      //       unionSetEntities(filterKey, [
+      //         {
+      //           label: t('No label'),
+      //           value: null,
+      //           type: 'Label',
+      //           color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
+      //         },
+      //         ...objectLabelEntities,
+      //       ]);
+      //     });
+      //   break;
       case 'x_opencti_base_score': {
         buildOptionsFromStaticList(filterKey, baseScores, ['lte', 'gt']);
         break;
@@ -1099,15 +1143,15 @@ const useSearchEntities = ({
         unionSetEntities(filterKey, containersTypes);
         break;
       }
-      case 'x_opencti_negative': {
-        const negativeValue = [true, false].map((n) => ({
-          label: t(n ? 'False positive' : 'True positive'),
-          value: n.toString(),
-          type: 'Vocabulary',
-        }));
-        unionSetEntities(filterKey, negativeValue);
-        break;
-      }
+      // case 'x_opencti_negative': {
+      //   const negativeValue = [true, false].map((n) => ({
+      //     label: t(n ? 'False positive' : 'True positive'),
+      //     value: n.toString(),
+      //     type: 'Vocabulary',
+      //   }));
+      //   unionSetEntities(filterKey, negativeValue);
+      //   break;
+      // }
       // case 'note_types':
       //   buildOptionsFromVocabularySearchQuery(filterKey, ['note_types_ov']);
       //   break;

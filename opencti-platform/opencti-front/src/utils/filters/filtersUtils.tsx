@@ -25,10 +25,10 @@ export type Filter = {
 export type FilterDefinition = {
   filterKey: string;
   label: string;
-  type: string;
+  type: string; // boolean, date, integer, float, id, string, text, or object
   multiple: boolean;
   subEntityTypes: readonly string[];
-  entityTypesOfId: string[];
+  entityTypesOfId?: string[]; // not undefined if type = 'id'
 };
 
 export const emptyFilterGroup = {
