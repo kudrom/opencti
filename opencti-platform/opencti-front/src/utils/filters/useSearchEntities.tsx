@@ -352,6 +352,108 @@ const useSearchEntities = ({
         });
     };
 
+    // fetches labels and add them to the set
+    const buildOptionsFromLabelSearchQuery = (key: string) => {
+      fetchQuery(labelsSearchQuery, {
+        search: event.target.value !== 0 ? event.target.value : '',
+        first: 10,
+      })
+        .toPromise()
+        .then((data) => {
+          const objectLabelEntities = (
+            (data as LabelsQuerySearchQuery$data)?.labels?.edges ?? []
+          ).map((n) => ({
+            label: n?.node.value,
+            value: n?.node.id,
+            type: 'Label',
+            color: n?.node.color,
+          }));
+          unionSetEntities(key, [
+            {
+              label: t('No label'),
+              value: null,
+              type: 'Label',
+              color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
+            },
+            ...objectLabelEntities,
+          ]);
+        });
+    };
+
+    // fetches markings and add them to the set
+    const buildOptionsFromMarkingsSearchQuery = (key: string) => {
+      fetchQuery(markingDefinitionsLinesSearchQuery, {
+        search: event.target.value !== 0 ? event.target.value : '',
+      })
+        .toPromise()
+        .then((data) => {
+          const markedByEntities = (
+            (data as MarkingDefinitionsLinesSearchQuery$data)?.markingDefinitions?.edges ?? []
+          ).map((n) => ({
+            label: n?.node.definition,
+            value: n?.node.id,
+            type: 'Marking-Definition',
+            color: n?.node.x_opencti_color,
+          }));
+          unionSetEntities(key, markedByEntities);
+        });
+    };
+
+    // fetches kill chain phases and add them to the set
+    const buildOptionsFromKillChainPhasesSearchQuery = (key: string) => {
+      fetchQuery(killChainPhasesLinesSearchQuery, {
+        search: event.target.value !== 0 ? event.target.value : '',
+        first: 10,
+      })
+        .toPromise()
+        .then((data) => {
+          const killChainPhaseEntities = (
+            (data as KillChainPhasesLinesSearchQuery$data)?.killChainPhases?.edges ?? []
+          ).map((n) => ({
+            label: n
+              ? `[${n.node.kill_chain_name}] ${n.node.phase_name}`
+              : '',
+            value: n?.node.id,
+            type: 'Kill-Chain-Phase',
+          }));
+          unionSetEntities(key, killChainPhaseEntities);
+        });
+    };
+
+    // fetches stix meta objects by entity type and add them to the set
+    const buildOptionsFromStixMetaObjectTypes = (key: string, metaTypes: string[]) => {
+      if (metaTypes.includes('Label')) {
+        buildOptionsFromLabelSearchQuery(key);
+      }
+      if (metaTypes.includes('Marking-Definition')) {
+        buildOptionsFromMarkingsSearchQuery(key);
+      }
+      if (metaTypes.includes('Kill-Chain-Phase')) {
+        buildOptionsFromKillChainPhasesSearchQuery(key);
+      }
+    };
+
+    // fetches stix core objects by entity type and add them to the set
+    const buildOptionsFromStixCoreObjectTypes = (key: string, entityTypes: string[]) => {
+      fetchQuery(filtersStixCoreObjectsSearchQuery, {
+        types: (searchScope && searchScope[key]) || entityTypes,
+        search: event.target.value !== 0 ? event.target.value : '',
+        count: 100,
+      })
+        .toPromise()
+        .then((data) => {
+          const elementIdEntities = (
+            (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
+          ).map((n) => ({
+            label: defaultValue(n?.node),
+            value: n?.node.id,
+            type: n?.node.entity_type,
+            parentTypes: n?.node.parent_types,
+          }));
+          unionSetEntities(key, elementIdEntities);
+        });
+    };
+
     // fetches runtime attributes by name and add them to the set
     // this query returns only the attributes used somewhere
     const buildOptionsFromAttributesSearchQuery = (attributeName: string) => {
@@ -479,23 +581,9 @@ const useSearchEntities = ({
       buildOptionsFromStaticList(filterKey, ['true', 'false'], [], true);
     } else if (filterDefinition?.type === 'id' && filterDefinition?.entityTypesOfId) { // 3. id
       if (filterDefinition.entityTypesOfId.every((typeOfId) => stixCoreObjectTypes.includes(typeOfId))) { // 3.1 Stix Core Objects
-        fetchQuery(filtersStixCoreObjectsSearchQuery, {
-          types: (searchScope && searchScope[filterKey]) || filterDefinition.entityTypesOfId,
-          search: event.target.value !== 0 ? event.target.value : '',
-          count: 100,
-        })
-          .toPromise()
-          .then((data) => {
-            const elementIdEntities = (
-              (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
-            ).map((n) => ({
-              label: defaultValue(n?.node),
-              value: n?.node.id,
-              type: n?.node.entity_type,
-              parentTypes: n?.node.parent_types,
-            }));
-            unionSetEntities(filterKey, elementIdEntities);
-          });
+        buildOptionsFromStixCoreObjectTypes(filterKey, filterDefinition.entityTypesOfId);
+      } else if (filterDefinition.entityTypesOfId.every((typeOfId) => schema.smos.map((n) => n.id).includes(typeOfId))) { // 3.2. Stix Meta Objects
+        buildOptionsFromStixMetaObjectTypes(filterKey, filterDefinition.entityTypesOfId);
       }
     }
 
@@ -583,23 +671,7 @@ const useSearchEntities = ({
       case 'connectedToId':
       case 'fromId':
       case 'toId':
-        fetchQuery(filtersStixCoreObjectsSearchQuery, {
-          types: (searchScope && searchScope[filterKey]) || ['Stix-Core-Object'],
-          search: event.target.value !== 0 ? event.target.value : '',
-          count: 100,
-        })
-          .toPromise()
-          .then((data) => {
-            const elementIdEntities = (
-              (data as useSearchEntitiesStixCoreObjectsSearchQuery$data)?.stixCoreObjects?.edges ?? []
-            ).map((n) => ({
-              label: defaultValue(n?.node),
-              value: n?.node.id,
-              type: n?.node.entity_type,
-              parentTypes: n?.node.parent_types,
-            }));
-            unionSetEntities(filterKey, elementIdEntities);
-          });
+        buildOptionsFromStixCoreObjectTypes(filterKey, ['Stix-Core-Object']);
         break;
       case 'sightedBy':
         fetchQuery(stixDomainObjectsLinesSearchQuery, {
@@ -622,70 +694,11 @@ const useSearchEntities = ({
       case 'source_reliability':
         buildOptionsFromVocabularySearchQuery(filterKey, ['reliability_ov']);
         break;
-      // Stix Meta Objects
-      case 'objectLabel':
       case 'contextObjectLabel':
-        fetchQuery(labelsSearchQuery, {
-          search: event.target.value !== 0 ? event.target.value : '',
-          first: 10,
-        })
-          .toPromise()
-          .then((data) => {
-            const objectLabelEntities = (
-              (data as LabelsQuerySearchQuery$data)?.labels?.edges ?? []
-            ).map((n) => ({
-              label: n?.node.value,
-              value: n?.node.id,
-              type: 'Label',
-              color: n?.node.color,
-            }));
-            unionSetEntities(filterKey, [
-              {
-                label: t('No label'),
-                value: null,
-                type: 'Label',
-                color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000',
-              },
-              ...objectLabelEntities,
-            ]);
-          });
+        buildOptionsFromLabelSearchQuery(filterKey);
         break;
-      case 'objectMarking':
       case 'contextObjectMarking':
-        fetchQuery(markingDefinitionsLinesSearchQuery, {
-          search: event.target.value !== 0 ? event.target.value : '',
-        })
-          .toPromise()
-          .then((data) => {
-            const markedByEntities = (
-              (data as MarkingDefinitionsLinesSearchQuery$data)?.markingDefinitions?.edges ?? []
-            ).map((n) => ({
-              label: n?.node.definition,
-              value: n?.node.id,
-              type: 'Marking-Definition',
-              color: n?.node.x_opencti_color,
-            }));
-            unionSetEntities(filterKey, markedByEntities);
-          });
-        break;
-      case 'killChainPhases':
-        fetchQuery(killChainPhasesLinesSearchQuery, {
-          search: event.target.value !== 0 ? event.target.value : '',
-          first: 10,
-        })
-          .toPromise()
-          .then((data) => {
-            const killChainPhaseEntities = (
-              (data as KillChainPhasesLinesSearchQuery$data)?.killChainPhases?.edges ?? []
-            ).map((n) => ({
-              label: n
-                ? `[${n.node.kill_chain_name}] ${n.node.phase_name}`
-                : '',
-              value: n?.node.id,
-              type: 'Kill-Chain-Phase',
-            }));
-            unionSetEntities(filterKey, killChainPhaseEntities);
-          });
+        buildOptionsFromMarkingsSearchQuery(filterKey);
         break;
       default:
         break;
