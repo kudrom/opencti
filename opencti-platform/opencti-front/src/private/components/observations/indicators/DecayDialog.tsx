@@ -61,12 +61,7 @@ const DecayDialogContent = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {decayHistory2.map((history) => (
-                  <TableRow key={history.updated_at.getTime()}>
-                    <TableCell>{fldt(history.updated_at)}</TableCell>
-                    <TableCell>{history.score}</TableCell>
-                  </TableRow>
-                ))}
+
               </TableBody>
             </Table>
           </TableContainer>
@@ -75,5 +70,15 @@ const DecayDialogContent = () => {
     </DialogContent>
   );
 };
+
+/*
+
+                {decayHistory2.map((history) => (
+                  <TableRow key={history.updated_at.getTime()}>
+                    <TableCell>{fldt(history.updated_at)}</TableCell>
+                    <TableCell>{history.score}</TableCell>
+                  </TableRow>
+                ))}
+ */
 
 export default DecayDialogContent;
