@@ -10877,21 +10877,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-calls-python@npm:1.7.7":
-  version: 1.7.7
-  resolution: "node-calls-python@npm:1.7.7"
+"node-calls-python@npm:1.8.2":
+  version: 1.8.2
+  resolution: "node-calls-python@npm:1.8.2"
   dependencies:
     node-gyp: latest
-  checksum: 900714f26fc4a7e29e080d2d702c61e2b617c2460c059f9b90168bc74d33a9392ea376bd058d6324a69d0c0635e0bf26d9f2fae7488544e34a1fbd4242657828
+  checksum: 87ed7a91b697e0c46fc8f05a6f555c0c9cfd7d059027949c106d5e675a5ffcec5cc421bda41a81314af7e913ffc99c829a4ac814cd07e1d7ae331b059eb970f4
   languageName: node
   linkType: hard
 
-"node-calls-python@patch:node-calls-python@1.7.7#./patch/node-calls-python-1.7.7.patch::locator=opencti-graphql%40workspace%3A.":
-  version: 1.7.7
-  resolution: "node-calls-python@patch:node-calls-python@npm%3A1.7.7#./patch/node-calls-python-1.7.7.patch::version=1.7.7&hash=5402a7&locator=opencti-graphql%40workspace%3A."
+"node-calls-python@patch:node-calls-python@1.8.2#./patch/node-calls-python-1.7.7.patch::locator=opencti-graphql%40workspace%3A.":
+  version: 1.8.2
+  resolution: "node-calls-python@patch:node-calls-python@npm%3A1.8.2#./patch/node-calls-python-1.7.7.patch::version=1.8.2&hash=5402a7&locator=opencti-graphql%40workspace%3A."
   dependencies:
     node-gyp: latest
-  checksum: 06d08479705982c795f281b15517c9ec9d4d7bf77892f66571170f526c39b8c700c8e1d24f9ed78d86ca8a2e096f815ea11276e142abf656ba4927e6e6e98a06
+  checksum: 1962ead482ed7d3667577e28f6ae0adcc582bd8e01dffc9e6b04b65a8d64558722e7a56f4780d66e566f150155bcd16f11642eeaec77f4a43f1347c6ebe4eb5c
   languageName: node
   linkType: hard
 
@@ -11299,7 +11299,7 @@ __metadata:
     moment: 2.29.4
     moment-range: 4.0.2
     nconf: 0.12.1
-    node-calls-python: 1.7.7
+    node-calls-python: 1.8.2
     node-fetch: 3.3.2
     nodemailer: 6.9.8
     openid-client: 5.6.2
