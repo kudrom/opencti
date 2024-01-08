@@ -119,6 +119,12 @@
     "works_day_range": 7,
     "interval": 60000
   },
+  "indicator_decay_manager": {
+    "enabled": true,
+    "lock_key": "connector_manager_lock",
+    "interval": 60000,
+    "batch_size": 10000
+  },
   "import_csv_built_in_connector": {
     "enabled": true,
     "interval": 10000,

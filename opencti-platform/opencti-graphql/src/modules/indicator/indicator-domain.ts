@@ -1,6 +1,7 @@
 import * as R from 'ramda';
-import { batchListThroughGetTo, createEntity, createRelation, distributionEntities, storeLoadByIdWithRefs, timeSeriesEntities } from '../../database/middleware';
-import { listEntitiesPaginated, storeLoadById } from '../../database/middleware-loader';
+import moment from 'moment/moment';
+import { batchListThroughGetTo, createEntity, createRelation, distributionEntities, patchAttribute, storeLoadByIdWithRefs, timeSeriesEntities } from '../../database/middleware';
+import { listAllEntities, listEntitiesPaginated, storeLoadById } from '../../database/middleware-loader';
 import { BUS_TOPICS, logApp } from '../../config/conf';
 import { notify } from '../../database/redis';
 import { checkIndicatorSyntax } from '../../python/pythonBridge';
@@ -26,6 +27,8 @@ import { type BasicStoreEntityIndicator, ENTITY_TYPE_INDICATOR, type StoreEntity
 import type { IndicatorAddInput, QueryIndicatorsArgs, QueryIndicatorsNumberArgs } from '../../generated/graphql';
 import type { NumberResult } from '../../types/store';
 import { BUILT_IN_DECAY_RULES, computeNextScoreReactionDate, type DecayHistory, findDecayRuleForIndicator } from './decay-domain';
+import { prepareDate } from '../../utils/format';
+import { FilterMode, FilterOperator, OrderingMode } from '../../generated/graphql';
 
 export const findById = (context: AuthContext, user: AuthUser, indicatorId: string) => {
   return storeLoadById<BasicStoreEntityIndicator>(context, user, indicatorId, ENTITY_TYPE_INDICATOR);
@@ -33,6 +36,24 @@ export const findById = (context: AuthContext, user: AuthUser, indicatorId: stri
 
 export const findAll = (context: AuthContext, user: AuthUser, args: QueryIndicatorsArgs) => {
   return listEntitiesPaginated<BasicStoreEntityIndicator>(context, user, [ENTITY_TYPE_INDICATOR], args);
+};
+
+export const findIndicatorsForDecay = (context: AuthContext, user: AuthUser, maxSize: number) => {
+  const filters = {
+    orderBy: 'next_score_reaction_date',
+    orderMode: OrderingMode.Asc,
+    mode: FilterMode.And,
+    filters: [
+      { key: ['next_score_reaction_date'], values: [prepareDate()], operator: FilterOperator.Lt },
+      { key: ['revoked'], values: ['false'] },
+    ],
+    filterGroups: [],
+  };
+  const args = {
+    filters,
+    maxSize,
+  };
+  return listAllEntities<BasicStoreEntityIndicator>(context, user, [ENTITY_TYPE_INDICATOR], args);
 };
 
 export const createObservablesFromIndicator = async (
@@ -151,6 +172,36 @@ export const addIndicator = async (context: AuthContext, user: AuthUser, indicat
     await createObservablesFromIndicator(context, user, indicator, created);
   }
   return notify(BUS_TOPICS[ABSTRACT_STIX_DOMAIN_OBJECT].ADDED_TOPIC, created, user);
+};
+
+export const computeIndicatorDecayPatch = (indicator: BasicStoreEntityIndicator) => {
+  // update x_opencti_score
+  let patch = {};
+  const model = indicator.x_opencti_decay_rule;
+  const newStableScore = model.decay_points.find((p) => p < indicator.x_opencti_score) || model.decay_revoke_score;
+  const decayHistory: DecayHistory[] = [...(indicator.x_opencti_decay_history ?? [])];
+  decayHistory.push({
+    updated_at: new Date(),
+    score: newStableScore,
+  });
+  patch = {
+    x_opencti_score: newStableScore,
+    x_opencti_decay_history: decayHistory,
+  };
+  if (newStableScore === model.decay_revoke_score) {
+    // revoke
+    patch = { ...patch, revoked: true };
+  } else {
+    // compute next_score_reaction_date
+    const nextScoreReactionDate = computeNextScoreReactionDate(indicator.x_opencti_base_score, newStableScore, model, moment(indicator.valid_from));
+    patch = { ...patch, next_score_reaction_date: nextScoreReactionDate };
+  }
+  return patch;
+};
+export const updateIndicatorDecayScore = async (context: AuthContext, user: AuthUser, indicator: BasicStoreEntityIndicator) => {
+  // update x_opencti_score
+  const patch = computeIndicatorDecayPatch(indicator);
+  return patchAttribute(context, user, indicator.id, ENTITY_TYPE_INDICATOR, patch);
 };
 
 // region series

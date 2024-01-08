@@ -1,9 +1,11 @@
 import { clearIntervalAsync, setIntervalAsync, type SetIntervalAsyncTimer } from 'set-interval-async/fixed';
+import moment from 'moment/moment';
 import { createStreamProcessor, lockResource, type StreamProcessor } from '../database/redis';
 import type { BasicStoreSettings } from '../types/settings';
 import { logApp } from '../config/conf';
 import { TYPE_LOCK_ERROR } from '../config/errors';
 import { SYSTEM_USER } from '../utils/access';
+import { utcDate } from '../utils/format';
 
 export interface ManagerCronScheduler {
   handler: () => void;
@@ -48,7 +50,9 @@ const initManager = (manager: ManagerDefinition) => {
   const cronHandler = async () => {
     if (manager.cronSchedulerHandler) {
       let lock;
+      const startDate = utcDate();
       try {
+        // date
         // Lock the manager
         lock = await lockResource([manager.cronSchedulerHandler.lockKey], { retryCount: 0 });
         running = true;
@@ -61,8 +65,9 @@ const initManager = (manager: ManagerDefinition) => {
         }
       } finally {
         running = false;
-        logApp.debug(`[OPENCTI-MODULE] ${manager.label} done`);
         if (lock) await lock.unlock();
+        const duration = moment.duration(startDate.diff(utcDate())).asMilliseconds();
+        logApp.debug(`[OPENCTI-MODULE] ${manager.label} done in ${duration}ms`);
       }
     }
   };
