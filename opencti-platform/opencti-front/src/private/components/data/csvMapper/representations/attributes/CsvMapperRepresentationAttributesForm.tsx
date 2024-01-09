@@ -1,33 +1,37 @@
 import React, { FunctionComponent } from 'react';
-import { graphql, usePreloadedQuery } from 'react-relay';
-import { PreloadedQuery } from 'react-relay/relay-hooks/EntryPointTypes';
+import { graphql, useFragment } from 'react-relay';
 import CsvMapperRepresentationAttributeForm from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeForm';
 import { getAttributeLabel } from '@components/data/csvMapper/representations/attributes/AttributeUtils';
-import { CsvMapperRepresentationAttributesFormQuery } from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesFormQuery.graphql';
 import { Field } from 'formik';
 import CsvMapperRepresentationAttributeRefForm from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeRefForm';
 import { CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
+import { useCsvMappersData } from '@components/data/csvMapper/csvMappers.data';
+import {
+  CsvMapperRepresentationAttributesForm_allSchemaAttributes$key,
+} from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesForm_allSchemaAttributes.graphql';
 import { useFormatter } from '../../../../../../components/i18n';
 
-export const schemaAttributesQuery = graphql`
-  query CsvMapperRepresentationAttributesFormQuery($entityType: String!) {
-    schemaAttributes(entityType: $entityType) {
+export const CsvMapperRepresentationAttributesFormFragment = graphql`
+  fragment CsvMapperRepresentationAttributesForm_allSchemaAttributes on Query {
+    csvMapperSchemaAttributes {
       name
-      mandatory
-      multiple
-      label
-      type
-      editDefault
-      defaultValues {
-        id
+      attributes {
         name
+        label
+        editDefault
+        mandatory
+        multiple
+        type
+        defaultValues {
+          name
+          id
+        }
       }
     }
   }
 `;
 
 interface CsvMapperRepresentationAttributesFormProps {
-  queryRef: PreloadedQuery<CsvMapperRepresentationAttributesFormQuery>;
   handleErrors: (key: string, value: string | null) => void;
   representation: CsvMapperRepresentationFormData
   representationName: string
@@ -35,14 +39,12 @@ interface CsvMapperRepresentationAttributesFormProps {
 
 const CsvMapperRepresentationAttributesForm: FunctionComponent<
 CsvMapperRepresentationAttributesFormProps
-> = ({ queryRef, handleErrors, representation, representationName }) => {
+> = ({ handleErrors, representation, representationName }) => {
   const { t } = useFormatter();
-
-  // some fields are not present in the csv mapper but in the schema
-  // we enhance these attributes with the schema data, to use in our form
-  const { schemaAttributes } = usePreloadedQuery<CsvMapperRepresentationAttributesFormQuery>(
-    schemaAttributesQuery,
-    queryRef,
+  const { schemaAttributes } = useCsvMappersData();
+  const data = useFragment<CsvMapperRepresentationAttributesForm_allSchemaAttributes$key>(
+    CsvMapperRepresentationAttributesFormFragment,
+    schemaAttributes,
   );
 
   if (representation.target_type === null) {
@@ -51,9 +53,13 @@ CsvMapperRepresentationAttributesFormProps
     return null;
   }
 
+  const entitySchemaAttributes = data?.csvMapperSchemaAttributes?.find(
+    (schema) => schema.name === representation.target_type,
+  )?.attributes ?? [];
+
   return (
     <>
-      {[...schemaAttributes]
+      {[...entitySchemaAttributes]
         .sort((a1, a2) => Number(a2.mandatory) - Number(a1.mandatory))
         .map((schemaAttribute) => {
           if (schemaAttribute.type === 'ref') {

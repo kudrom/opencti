@@ -12,7 +12,6 @@ export interface CsvMapperRepresentationAttributeFormData {
   column_name?: string
   separator?: string
   pattern_date?: string
-  raw_default_values?: readonly { id: string, name: string }[]
   default_values?: DefaultValues
   based_on?: (string | null)[]
 }

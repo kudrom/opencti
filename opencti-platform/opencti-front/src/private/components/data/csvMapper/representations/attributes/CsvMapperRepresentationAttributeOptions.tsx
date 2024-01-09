@@ -1,18 +1,16 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent } from 'react';
 import CsvMapperRepresentationAttributeOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOption';
 import DialogContentText from '@mui/material/DialogContentText';
-import {
-  CsvMapperRepresentationAttributesFormQuery$data,
-} from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesFormQuery.graphql';
 import { Field, FormikProps } from 'formik';
 import DefaultValueField from '@components/common/form/DefaultValueField';
 import { CsvMapperFormData } from '@components/data/csvMapper/CsvMapper';
-import { CsvMapperRepresentationAttributeFormData } from '@components/data/csvMapper/representations/attributes/Attribute';
+import {
+  CsvMapperRepresentationAttributesForm_allSchemaAttributes$data,
+} from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesForm_allSchemaAttributes.graphql';
 import { useFormatter } from '../../../../../../components/i18n';
-import { useComputeDefaultValues } from '../../../../../../utils/hooks/useDefaultValues';
 
 interface CsvMapperRepresentationAttributeOptionsProps {
-  schemaAttribute: CsvMapperRepresentationAttributesFormQuery$data['schemaAttributes'][number];
+  schemaAttribute: CsvMapperRepresentationAttributesForm_allSchemaAttributes$data['csvMapperSchemaAttributes'][number]['attributes'][number];
   attributeName: string;
   form: FormikProps<CsvMapperFormData>
 }
@@ -22,32 +20,12 @@ CsvMapperRepresentationAttributeOptionsProps
 > = ({ schemaAttribute, attributeName, form }) => {
   const { t } = useFormatter();
   const { setFieldValue, getFieldProps } = form;
-  const computeDefaultValues = useComputeDefaultValues();
 
   const settingsDefaultValues = schemaAttribute.defaultValues?.map((v) => v.name).join(',') ?? t('none');
 
   // Retrieve the entity type of the current representation for open vocab fields.
   const representationName = attributeName.split('.')[0];
   const entityType: string = getFieldProps(representationName).value.target_type;
-
-  const defaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['default_values']>(
-    `${attributeName}.default_values`,
-  );
-
-  useEffect(() => {
-    if (defaultValue.value === null) {
-      const rawDefaultValue = getFieldProps<CsvMapperRepresentationAttributeFormData['raw_default_values']>(
-        `${attributeName}.raw_default_values`,
-      );
-      setFieldValue(`${attributeName}.default_values`, computeDefaultValues(
-        entityType,
-        schemaAttribute.name,
-        !!schemaAttribute.multiple,
-        schemaAttribute.type,
-        rawDefaultValue.value ?? [],
-      ));
-    }
-  }, []);
 
   return (
     <>
@@ -73,34 +51,33 @@ CsvMapperRepresentationAttributeOptionsProps
       )}
       {schemaAttribute.editDefault && (
       <>
-        {defaultValue.value !== null && (
-          <DefaultValueField
-            attribute={schemaAttribute}
-            setFieldValue={setFieldValue}
-            name={`${attributeName}.default_values`}
-            entityType={entityType}
-          />
-        )}
-          {settingsDefaultValues
-            ? (
-              <>
-                <DialogContentText sx={{ width: 450, mt: '8px' }}>
-                  {t('', {
-                    id: 'Settings default values',
-                    values: { value: settingsDefaultValues },
-                  })}
-                </DialogContentText>
-                <DialogContentText>
-                  {t('Settings default values usage...')}
-                </DialogContentText>
-              </>
-            )
-            : (
+        <DefaultValueField
+          attribute={schemaAttribute}
+          setFieldValue={setFieldValue}
+          name={`${attributeName}.default_values`}
+          entityType={entityType}
+        />
+
+        {settingsDefaultValues
+          ? (
+            <>
               <DialogContentText sx={{ width: 450, mt: '8px' }}>
-                {t('No default value set in Settings...')}
+                {t('', {
+                  id: 'Settings default values',
+                  values: { value: settingsDefaultValues },
+                })}
               </DialogContentText>
-            )
-          }
+              <DialogContentText>
+                {t('Settings default values usage...')}
+              </DialogContentText>
+            </>
+          )
+          : (
+            <DialogContentText sx={{ width: 450, mt: '8px' }}>
+              {t('No default value set in Settings...')}
+            </DialogContentText>
+          )
+        }
       </>
       )}
     </>

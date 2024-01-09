@@ -10,11 +10,11 @@ import { FieldProps } from 'formik';
 import { CsvMapperFormData } from '@components/data/csvMapper/CsvMapper';
 import CsvMapperRepresentationDialogOption from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationDialogOption';
 import CsvMapperRepresentationAttributeOptions from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributeOptions';
-import {
-  CsvMapperRepresentationAttributesFormQuery$data,
-} from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesFormQuery.graphql';
 import { CsvMapperRepresentationAttributeFormData } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
+import {
+  CsvMapperRepresentationAttributesForm_allSchemaAttributes$data,
+} from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesForm_allSchemaAttributes.graphql';
 import { isEmptyField } from '../../../../../../utils/utils';
 import useAuth from '../../../../../../utils/hooks/useAuth';
 import { resolveTypesForRelationship, resolveTypesForRelationshipRef } from '../../../../../../utils/Relation';
@@ -45,7 +45,7 @@ export type RepresentationAttributeForm = CsvMapperRepresentationAttributeFormDa
 interface CsvMapperRepresentationAttributeRefFormProps
   extends FieldProps<RepresentationAttributeForm, CsvMapperFormData> {
   representation: CsvMapperRepresentationFormData
-  schemaAttribute: CsvMapperRepresentationAttributesFormQuery$data['schemaAttributes'][number];
+  schemaAttribute: CsvMapperRepresentationAttributesForm_allSchemaAttributes$data['csvMapperSchemaAttributes'][number]['attributes'][number];
   label: string;
   handleErrors: (key: string, value: string | null) => void;
 }

@@ -1,7 +1,6 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { FieldProps } from 'formik';
-import { useQueryLoader } from 'react-relay';
-import CsvMapperRepresentationAttributesForm, { schemaAttributesQuery } from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributesForm';
+import CsvMapperRepresentationAttributesForm from '@components/data/csvMapper/representations/attributes/CsvMapperRepresentationAttributesForm';
 import MUIAutocomplete from '@mui/material/Autocomplete';
 import { SelectChangeEvent } from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
@@ -16,10 +15,8 @@ import classNames from 'classnames';
 import { representationLabel } from '@components/data/csvMapper/representations/RepresentationUtils';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
-import { CsvMapperRepresentationAttributesFormQuery } from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesFormQuery.graphql';
 import { CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
 import { useFormatter } from '../../../../../components/i18n';
-import Loader, { LoaderVariant } from '../../../../../components/Loader';
 import ItemIcon from '../../../../../components/ItemIcon';
 import type { Theme } from '../../../../../components/Theme';
 import useDeletion from '../../../../../utils/hooks/useDeletion';
@@ -106,22 +103,6 @@ CsvMapperRepresentationFormProps
     handleCloseDelete();
   };
 
-  // -- ATTRIBUTES --
-
-  const [queryRef, fetchLoadQuery] = useQueryLoader<CsvMapperRepresentationAttributesFormQuery>(
-    schemaAttributesQuery,
-  );
-
-  // reload the attributes when the entity type changes
-  useEffect(() => {
-    if (value.target_type) {
-      fetchLoadQuery(
-        { entityType: value.target_type },
-        { fetchPolicy: 'store-and-network' },
-      );
-    }
-  }, [value.target_type]);
-
   // -- ACCORDION --
 
   const [open, setOpen] = useState<boolean>(false);
@@ -196,20 +177,13 @@ CsvMapperRepresentationFormProps
                 </li>
               )}
             />
-            {queryRef && (
-              <React.Suspense
-                fallback={<Loader variant={LoaderVariant.inElement} />}
-              >
-                <div style={{ marginTop: 20 }}>
-                  <CsvMapperRepresentationAttributesForm
-                    queryRef={queryRef}
-                    handleErrors={handleErrors}
-                    representation={value}
-                    representationName={name}
-                  />
-                </div>
-              </React.Suspense>
-            )}
+            <div style={{ marginTop: 20 }}>
+              <CsvMapperRepresentationAttributesForm
+                handleErrors={handleErrors}
+                representation={value}
+                representationName={name}
+              />
+            </div>
             <div style={{ textAlign: 'right', marginTop: '20px' }}>
               <Button
                 variant="contained"

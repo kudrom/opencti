@@ -2,7 +2,11 @@ import { v4 as uuid } from 'uuid';
 import { CsvMapperRepresentationType } from '@components/data/csvMapper/__generated__/CsvMapperEditionContainerFragment_csvMapper.graphql';
 import { CsvMapperRepresentation, CsvMapperRepresentationEdit, CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
 import { csvMapperAttributeToFormData, formDataToCsvMapperAttribute } from '@components/data/csvMapper/representations/attributes/AttributeUtils';
+import {
+  CsvMapperRepresentationAttributesForm_allSchemaAttributes$data,
+} from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesForm_allSchemaAttributes.graphql';
 import { isEmptyField } from '../../../../../utils/utils';
+import { useComputeDefaultValues } from '../../../../../utils/hooks/useDefaultValues';
 
 // -- INIT --
 
@@ -38,20 +42,34 @@ export const representationLabel = (
 /**
  * Transform raw csv mapper representation data into formik format.
  * @param representation The raw data from backend.
+ * @param schemaAttributes All schemas attributes (used to compute default values).
+ * @param computeDefaultValues Function to compute default values.
  *
  * @returns Data in formik format.
  */
 export const csvMapperRepresentationToFormData = (
   representation: CsvMapperRepresentation,
+  schemaAttributes: CsvMapperRepresentationAttributesForm_allSchemaAttributes$data['csvMapperSchemaAttributes'],
+  computeDefaultValues: ReturnType<typeof useComputeDefaultValues>,
 ): CsvMapperRepresentationFormData => {
+  const entitySchemaAttributes = schemaAttributes.find(
+    (schema) => schema.name === representation.target.entity_type,
+  )?.attributes ?? [];
+
   return {
     id: representation.id,
     type: representation.type,
     target_type: representation.target.entity_type,
     attributes: representation.attributes.reduce((acc, attribute) => {
+      const schemaAttribute = entitySchemaAttributes.find((attr) => attr.name === attribute.key);
       return {
         ...acc,
-        [attribute.key]: csvMapperAttributeToFormData(attribute),
+        [attribute.key]: csvMapperAttributeToFormData(
+          attribute,
+          representation.target.entity_type,
+          computeDefaultValues,
+          schemaAttribute,
+        ),
       };
     }, {}),
   };

@@ -7,8 +7,12 @@ import {
   CsvMapperRepresentationAttributeFormData,
 } from '@components/data/csvMapper/representations/attributes/Attribute';
 import { CsvMapperRepresentationFormData } from '@components/data/csvMapper/representations/Representation';
+import {
+  CsvMapperRepresentationAttributesForm_allSchemaAttributes$data,
+} from '@components/data/csvMapper/representations/attributes/__generated__/CsvMapperRepresentationAttributesForm_allSchemaAttributes.graphql';
 import { isNotEmptyField } from '../../../../../../utils/utils';
 import { defaultValuesToStringArray } from '../../../../../../utils/defaultValues';
+import { useComputeDefaultValues } from '../../../../../../utils/hooks/useDefaultValues';
 
 export const alphabet = (size = 0) => {
   const fn = () => Array.from(Array(26))
@@ -68,23 +72,30 @@ export const getInfoForRef = (
 /**
  * Transform raw csv mapper attribute data into formik format.
  * @param attribute The raw data from backend.
+ * @param entityType Entity type of the current representation.
+ * @param schemaAttribute Schemas attribute (used to compute default values).
+ * @param computeDefaultValues Function to compute default values.
  *
  * @returns Data in formik format.
  */
 export const csvMapperAttributeToFormData = (
   attribute: CsvMapperRepresentationAttribute,
+  entityType: string,
+  computeDefaultValues: ReturnType<typeof useComputeDefaultValues>,
+  schemaAttribute?: CsvMapperRepresentationAttributesForm_allSchemaAttributes$data['csvMapperSchemaAttributes'][number]['attributes'][number],
 ): CsvMapperRepresentationAttributeFormData => {
   return {
     key: attribute.key,
     column_name: attribute.column?.column_name ?? undefined,
     separator: attribute.column?.configuration?.separator ?? undefined,
     pattern_date: attribute.column?.configuration?.pattern_date ?? undefined,
-    // Why 2 properties for default values ? The default value need to be parsed
-    // before injected inside the form, but for this we need the schemaAttribute,
-    // a data we do not have at form init. So the value used in the form is initialized
-    // with undefined, and keep the raw default value to be able to parse it later on.
-    raw_default_values: attribute.default_values ?? undefined,
-    default_values: null,
+    default_values: schemaAttribute ? computeDefaultValues(
+      entityType,
+      attribute.key,
+      schemaAttribute.multiple,
+      schemaAttribute.type,
+      attribute.default_values ?? [],
+    ) : null,
     based_on: attribute.based_on?.representations
       ? [...(attribute.based_on?.representations ?? [])]
       : undefined,
