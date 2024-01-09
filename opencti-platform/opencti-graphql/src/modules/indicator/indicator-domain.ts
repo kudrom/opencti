@@ -174,9 +174,16 @@ export const addIndicator = async (context: AuthContext, user: AuthUser, indicat
   return notify(BUS_TOPICS[ABSTRACT_STIX_DOMAIN_OBJECT].ADDED_TOPIC, created, user);
 };
 
+export interface IndicatorPatch {
+  revoked?: boolean,
+  x_opencti_score?: number,
+  x_opencti_decay_history?: DecayHistory[],
+  next_score_reaction_date?: Date,
+}
+
 export const computeIndicatorDecayPatch = (indicator: BasicStoreEntityIndicator) => {
   // update x_opencti_score
-  let patch = {};
+  let patch: IndicatorPatch = {};
   const model = indicator.x_opencti_decay_rule;
   const newStableScore = model.decay_points.find((p) => p < indicator.x_opencti_score) || model.decay_revoke_score;
   const decayHistory: DecayHistory[] = [...(indicator.x_opencti_decay_history ?? [])];
@@ -198,6 +205,17 @@ export const computeIndicatorDecayPatch = (indicator: BasicStoreEntityIndicator)
   }
   return patch;
 };
+
+/**
+ * Triggered by the decay manager when next_score_reaction_date is reached.
+ * Compute the next step for Indicator as patch to applied to the database:
+ * - change the current stable score to next
+ * - update the next_score_reaction_date to next one
+ * - revoke if the revoke score is reached
+ * @param context
+ * @param user
+ * @param indicator
+ */
 export const updateIndicatorDecayScore = async (context: AuthContext, user: AuthUser, indicator: BasicStoreEntityIndicator) => {
   // update x_opencti_score
   const patch = computeIndicatorDecayPatch(indicator);

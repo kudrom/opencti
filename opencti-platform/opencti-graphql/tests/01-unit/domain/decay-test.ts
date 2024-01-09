@@ -9,6 +9,8 @@ import {
   FALLBACK_DECAY_RULE,
   findDecayRuleForIndicator
 } from '../../../src/modules/indicator/decay-domain';
+import { computeIndicatorDecayPatch, type IndicatorPatch } from '../../../src/modules/indicator/indicator-domain';
+import type { BasicStoreEntityIndicator } from '../../../src/modules/indicator/indicator-types';
 
 describe('Decay formula testing', () => {
   it('should compute score', () => {
@@ -85,5 +87,104 @@ describe('Decay formula testing', () => {
     // THEN the next reaction date should be the one for score 80
     const expected80ScoreDays = computeTimeFromExpectedScore(100, 80, FALLBACK_DECAY_RULE);
     expect((moment(nextReactionDate)).format('YYYY-MM-DD'), 'Next reaction date should be the score 80 date.').toBe((moment(startDate).add(expected80ScoreDays, 'days')).format('YYYY-MM-DD'));
+  });
+});
+
+describe('Decay update testing', () => {
+  const getDefaultIndicatorEntity = () => {
+    const indicatorInput: Partial<BasicStoreEntityIndicator> = {
+      x_opencti_score: 50,
+      x_opencti_base_score: 100,
+      x_opencti_decay_history: [],
+      valid_from: moment().subtract('5', 'days').toDate(),
+      valid_until: moment().add('5', 'days').toDate()
+    };
+    return indicatorInput as BasicStoreEntityIndicator;
+  };
+
+  const defaultDecayRule: DecayRule = {
+    decay_lifetime: 30,
+    decay_points: [80, 60, 20],
+    decay_pound: 0.5,
+    decay_revoke_score: 10,
+    enabled: true,
+    id: 'decay-test-next-score',
+    indicator_types: [],
+    order: 0
+  };
+
+  it('should move to next score and update next reaction date', () => {
+    // GIVEN an Indicator with decay that is on the first decay point and has next reaction point
+    const indicatorInput = getDefaultIndicatorEntity();
+    indicatorInput.x_opencti_decay_rule = defaultDecayRule;
+    indicatorInput.x_opencti_decay_rule.decay_points = [100, 80, 50, 20];
+    indicatorInput.x_opencti_decay_rule.decay_revoke_score = 10;
+    indicatorInput.x_opencti_score = 100;
+    indicatorInput.x_opencti_decay_history = [];
+
+    // WHEN next reaction point is computed
+    const patchResult = computeIndicatorDecayPatch(indicatorInput) as IndicatorPatch;
+
+    // THEN
+    expect(patchResult.revoked, 'This indicator should not be revoked.').toBeUndefined();
+    expect(patchResult.x_opencti_score, 'This indicator should be updated to next score (100 -> 80).').toBe(80);
+    expect(patchResult.next_score_reaction_date, 'This indicator should have a new reaction date.').toBeDefined();
+    expect(patchResult.x_opencti_decay_history?.length, 'This indicator should have one more history data.').toBe(1);
+  });
+
+  it('should be revoked when revoke score is reached', () => {
+    // GIVEN an Indicator with decay that is on the last decay point and has next a revoke score
+    const indicatorInput = getDefaultIndicatorEntity();
+    indicatorInput.x_opencti_decay_rule = defaultDecayRule;
+    indicatorInput.x_opencti_decay_rule.decay_points = [100, 80, 50, 20];
+    indicatorInput.x_opencti_decay_rule.decay_revoke_score = 10;
+    indicatorInput.x_opencti_score = 20;
+    indicatorInput.x_opencti_decay_history = [];
+    indicatorInput.x_opencti_decay_history.push({ updated_at: new Date(2023, 1), score: 100 });
+
+    // WHEN next reaction point is computed
+    const patchResult = computeIndicatorDecayPatch(indicatorInput) as IndicatorPatch;
+
+    // THEN
+    expect(patchResult.revoked, 'This indicator should be revoked.').toBeTruthy();
+    expect(patchResult.x_opencti_score, 'This indicator should be updated to revoke score.').toBe(10);
+    expect(patchResult.next_score_reaction_date, 'This indicator should not have a next reaction date.').toBeUndefined();
+    expect(patchResult.x_opencti_decay_history?.length, 'This indicator should have one more history data.').toBe(2);
+  });
+
+  it('should ??? when numbers are stupid', () => {
+    // FIXME do we manage thing "that should not happened but who knows ??"
+    // GIVEN an Indicator with decay number that are upside down
+    const indicatorInput = getDefaultIndicatorEntity();
+    indicatorInput.x_opencti_decay_rule = defaultDecayRule;
+    indicatorInput.x_opencti_decay_rule.decay_points = [100, 80, 50, 20];
+    indicatorInput.x_opencti_decay_rule.decay_revoke_score = 50;
+    indicatorInput.x_opencti_score = 30;
+
+    // WHEN next reaction point is computed
+    // const patchResult = computeIndicatorDecayPatch(indicatorInput) as IndicatorPatch;
+
+    // THEN
+    // expect(patchResult.revoked, 'This indicator should be revoked.').toBeTruthy();
+    // expect(patchResult.x_opencti_score, 'This indicator should be updated to revoke score.').toBe(10);
+    // expect(patchResult.next_score_reaction_date, 'This indicator should not have a next reaction date.').toBeUndefined();
+  });
+
+  it('should ??? when numbers are stupid v2', () => {
+    // FIXME do we manage thing "that should not happened but who knows ??"
+    // GIVEN an Indicator with decay number that are upside down
+    const indicatorInput = getDefaultIndicatorEntity();
+    indicatorInput.x_opencti_decay_rule = defaultDecayRule;
+    indicatorInput.x_opencti_decay_rule.decay_points = [80, 50, 20];
+    indicatorInput.x_opencti_decay_rule.decay_revoke_score = 100;
+    indicatorInput.x_opencti_score = 50;
+
+    // WHEN next reaction point is computed
+    // const patchResult = computeIndicatorDecayPatch(indicatorInput) as IndicatorPatch;
+
+    // THEN
+    // expect(patchResult.revoked, 'This indicator should be revoked.').toBeTruthy();
+    // expect(patchResult.x_opencti_score, 'This indicator should be updated to revoke score.').toBe(10);
+    // expect(patchResult.next_score_reaction_date, 'This indicator should not have a next reaction date.').toBeUndefined();
   });
 });
