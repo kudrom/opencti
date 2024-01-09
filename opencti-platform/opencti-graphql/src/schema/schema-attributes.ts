@@ -36,6 +36,7 @@ export const schemaAttributesDefinition = {
   registerAttributes(entityType: string, attributes: AttributeDefinition[]) {
     // Check if imported before any business code
     if (usageProtection) {
+      console.log('ccsv', entityType, attributes);
       throw UnsupportedError('Register attributes use after usage, please check your imports');
     }
     const directAttributes = this.attributes[entityType] ?? new Map<string, AttributeDefinition>();

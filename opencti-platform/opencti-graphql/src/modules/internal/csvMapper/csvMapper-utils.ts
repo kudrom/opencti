@@ -55,12 +55,12 @@ export const parseCsvMapperWithDefaultValues = async (context: AuthContext, user
   const refDefaultValues = parsedRepresentations.flatMap((representation, i) => {
     const refsDefinition = schemaRelationsRefDefinition
       .getRelationsRef(representation.target.entity_type)
-      .filter((ref) => !INTERNAL_REFS.includes(ref.inputName));
+      .filter((ref) => !INTERNAL_REFS.includes(ref.name));
     return representation.attributes.flatMap((attribute, j) => {
       if (
         attribute.default_values
         && attribute.key !== 'objectMarking'
-        && refsDefinition.map((ref) => ref.inputName).includes(attribute.key)
+        && refsDefinition.map((ref) => ref.name).includes(attribute.key)
       ) {
         refAttributesIndexes.push(`${i}-${j}`);
         return attribute.default_values;
@@ -127,7 +127,7 @@ export const validate = async (context: AuthContext, user: AuthUser, mapper: Bas
     const refsDefs = [
       ...schemaRelationsRefDefinition.getRelationsRef(representation.target.entity_type),
     ].map((def) => ({
-      name: def.inputName,
+      name: def.name,
       mandatory: def.mandatoryType === 'external',
       multiple: def.multiple
     }));

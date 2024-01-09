@@ -18,8 +18,8 @@ import { isEmptyField, isNotEmptyField } from '../../database/utils';
 import type { AttributeDefinition, MandatoryType, RefAttribute } from '../../schema/attribute-definition';
 import { telemetry } from '../../config/tracing';
 import { schemaRelationsRefDefinition } from '../../schema/schema-relationsRef';
-import { internalFindByIdsMapped } from '../../database/middleware-loader';
 import { extractRepresentative } from '../../database/entity-representative';
+import { internalFindByIdsMapped } from '../../database/middleware-loader';
 
 export type typeAvailableSetting = boolean | string;
 
@@ -253,12 +253,12 @@ export const getEntitySettingSchemaAttributes = async (
 
     // Resolve default values ref ids
     const idsToResolve = Object.values(attributesDefaultValuesToResolve).flat();
-    const entities = await internalFindByIdsMapped(context, user, idsToResolve);
+    // const entities = await internalFindByIdsMapped(context, user, idsToResolve);
     Object.keys(attributesDefaultValuesToResolve).forEach((index) => {
       const defaultValues = schemaAttributes[Number(index)]?.defaultValues;
       if (defaultValues) {
         schemaAttributes[Number(index)].defaultValues = defaultValues.map((val) => {
-          const entity = entities[val.id];
+          const entity = null;
           return {
             id: val.id,
             name: entity ? (extractRepresentative(entity).main ?? val.id) : val.id
