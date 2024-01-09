@@ -185,6 +185,9 @@ export const computeIndicatorDecayPatch = (indicator: BasicStoreEntityIndicator)
   // update x_opencti_score
   let patch: IndicatorPatch = {};
   const model = indicator.x_opencti_decay_rule;
+  if (!model) {
+    return null;
+  }
   const newStableScore = model.decay_points.find((p) => p < indicator.x_opencti_score) || model.decay_revoke_score;
   const decayHistory: DecayHistory[] = [...(indicator.x_opencti_decay_history ?? [])];
   decayHistory.push({
@@ -195,7 +198,7 @@ export const computeIndicatorDecayPatch = (indicator: BasicStoreEntityIndicator)
     x_opencti_score: newStableScore,
     x_opencti_decay_history: decayHistory,
   };
-  if (newStableScore === model.decay_revoke_score) {
+  if (newStableScore <= model.decay_revoke_score) {
     // revoke
     patch = { ...patch, revoked: true };
   } else {
@@ -219,6 +222,9 @@ export const computeIndicatorDecayPatch = (indicator: BasicStoreEntityIndicator)
 export const updateIndicatorDecayScore = async (context: AuthContext, user: AuthUser, indicator: BasicStoreEntityIndicator) => {
   // update x_opencti_score
   const patch = computeIndicatorDecayPatch(indicator);
+  if (!patch) {
+    return null;
+  }
   return patchAttribute(context, user, indicator.id, ENTITY_TYPE_INDICATOR, patch);
 };
 
