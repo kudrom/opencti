@@ -152,9 +152,8 @@ describe('Decay update testing', () => {
     expect(patchResult.x_opencti_decay_history?.length, 'This indicator should have one more history data.').toBe(2);
   });
 
-  it('should ??? when numbers are stupid', () => {
-    // FIXME do we manage thing "that should not happened but who knows ??"
-    // GIVEN an Indicator with decay number that are upside down
+  it('should resolve conflict when current score is already lower than revoke score', () => {
+    // GIVEN an Indicator with a stable score that is already lower than revoke score
     const indicatorInput = getDefaultIndicatorEntity();
     indicatorInput.x_opencti_decay_rule = defaultDecayRule;
     indicatorInput.x_opencti_decay_rule.decay_points = [100, 80, 50, 20];
@@ -162,10 +161,10 @@ describe('Decay update testing', () => {
     indicatorInput.x_opencti_score = 30;
 
     // WHEN next reaction point is computed
-    // const patchResult = computeIndicatorDecayPatch(indicatorInput) as IndicatorPatch;
+    const patchResult = computeIndicatorDecayPatch(indicatorInput) as IndicatorPatch;
 
     // THEN
-    // expect(patchResult.revoked, 'This indicator should be revoked.').toBeTruthy();
+    expect(patchResult.revoked, 'This indicator should be revoked.').toBeTruthy();
     // expect(patchResult.x_opencti_score, 'This indicator should be updated to revoke score.').toBe(10);
     // expect(patchResult.next_score_reaction_date, 'This indicator should not have a next reaction date.').toBeUndefined();
   });
