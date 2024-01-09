@@ -17034,6 +17034,7 @@ export type Query = {
   playbooks?: Maybe<PlaybookConnection>;
   position?: Maybe<Position>;
   positions?: Maybe<PositionConnection>;
+  publicStixCoreObjectsMultiTimeSeries?: Maybe<Array<Maybe<MultiTimeSeries>>>;
   rabbitMQMetrics?: Maybe<RabbitMqMetrics>;
   region?: Maybe<Region>;
   regions?: Maybe<RegionConnection>;
@@ -18326,6 +18327,16 @@ export type QueryPositionsArgs = {
   orderMode?: InputMaybe<OrderingMode>;
   search?: InputMaybe<Scalars['String']['input']>;
   toStix?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type QueryPublicStixCoreObjectsMultiTimeSeriesArgs = {
+  dashboardId: Scalars['String']['input'];
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  interval: Scalars['String']['input'];
+  onlyInferred?: InputMaybe<Scalars['Boolean']['input']>;
+  startDate: Scalars['DateTime']['input'];
+  widgetId: Scalars['String']['input'];
 };
 
 
@@ -33884,6 +33895,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   playbooks?: Resolver<Maybe<ResolversTypes['PlaybookConnection']>, ParentType, ContextType, Partial<QueryPlaybooksArgs>>;
   position?: Resolver<Maybe<ResolversTypes['Position']>, ParentType, ContextType, RequireFields<QueryPositionArgs, 'id'>>;
   positions?: Resolver<Maybe<ResolversTypes['PositionConnection']>, ParentType, ContextType, Partial<QueryPositionsArgs>>;
+  publicStixCoreObjectsMultiTimeSeries?: Resolver<Maybe<Array<Maybe<ResolversTypes['MultiTimeSeries']>>>, ParentType, ContextType, RequireFields<QueryPublicStixCoreObjectsMultiTimeSeriesArgs, 'dashboardId' | 'interval' | 'startDate' | 'widgetId'>>;
   rabbitMQMetrics?: Resolver<Maybe<ResolversTypes['RabbitMQMetrics']>, ParentType, ContextType, Partial<QueryRabbitMqMetricsArgs>>;
   region?: Resolver<Maybe<ResolversTypes['Region']>, ParentType, ContextType, RequireFields<QueryRegionArgs, 'id'>>;
   regions?: Resolver<Maybe<ResolversTypes['RegionConnection']>, ParentType, ContextType, Partial<QueryRegionsArgs>>;

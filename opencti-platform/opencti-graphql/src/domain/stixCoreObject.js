@@ -13,7 +13,7 @@ import {
 import { internalLoadById, listEntities, storeLoadById, storeLoadByIds } from '../database/middleware-loader';
 import { findAll as relationFindAll } from './stixCoreRelationship';
 import { delEditContext, lockResource, notify, setEditContext, storeUpdateEvent } from '../database/redis';
-import { BUS_TOPICS } from '../config/conf';
+import { BUS_TOPICS, logApp } from '../config/conf';
 import { FunctionalError, LockTimeoutError, TYPE_LOCK_ERROR, UnsupportedError } from '../config/errors';
 import { isStixCoreObject, stixCoreObjectOptions } from '../schema/stixCoreObject';
 import { findById as findStatusById } from './status';
@@ -56,7 +56,7 @@ import { findById as documentFindById } from '../modules/internal/document/docum
 import { elCount, elUpdateElement } from '../database/engine';
 import { generateStandardId, getInstanceIds } from '../schema/identifier';
 import { askEntityExport, askListExport, exportTransformFilters } from './stix';
-import { isEmptyField, isNotEmptyField, READ_ENTITIES_INDICES, READ_INDEX_INFERRED_ENTITIES } from '../database/utils';
+import { fromBase64, isEmptyField, isNotEmptyField, READ_ENTITIES_INDICES, READ_INDEX_INFERRED_ENTITIES } from '../database/utils';
 import { RELATION_RELATED_TO, STIX_CORE_RELATIONSHIPS } from '../schema/stixCoreRelationship';
 import { ENTITY_TYPE_CONTAINER_CASE } from '../modules/case/case-types';
 import { getEntitySettingFromCache } from '../modules/entitySetting/entitySetting-utils';
@@ -66,6 +66,8 @@ import { extractEntityRepresentativeName } from '../database/entity-representati
 import { addFilter, extractFilterGroupValues } from '../utils/filtering/filtering-utils';
 import { specialFilterKeysWhoseValueToResolve } from '../utils/filtering/filtering-constants';
 import { schemaRelationsRefDefinition } from '../schema/schema-relationsRef';
+import { ENTITY_TYPE_WORKSPACE } from '../modules/workspace/workspace-types';
+import { findById as findUserById } from './user';
 
 export const findAll = async (context, user, args) => {
   let types = [];
@@ -258,6 +260,43 @@ export const stixCoreObjectsMultiTimeSeries = (context, user, args) => {
     }
     return { data: timeSeriesEntities(context, user, types, { ...args, ...timeSeriesParameter }) };
   }));
+};
+
+export const publicStixCoreObjectsMultiTimeSeries = async (context, user, args) => {
+  // TODO : get User and Dashboard from cache
+  // TODO Get User from manifest => user should be added to manifest
+
+  // Get dashboard manifest
+  const dashboard = await storeLoadById(
+    context,
+    user,
+    args.dashboardId,
+    ENTITY_TYPE_WORKSPACE,
+  );
+
+  // Get widget query configuration
+  const parsedManifest = JSON.parse(fromBase64(dashboard.manifest) ?? '{}');
+  const { widgets } = parsedManifest;
+  const widgetConfigs = widgets[args.widgetId].dataSelection;
+  const timeSeriesParameters = [];
+  widgetConfigs.map((widgetConfig) => timeSeriesParameters.push({
+    field: widgetConfig.date_attribute,
+    filters: widgetConfig.filters,
+    types: [
+      'Stix-Core-Object' // ?? should be in the manifest
+    ]
+  }));
+
+  const standardArgs = {
+    operation: 'count', // TODO 'count' is harcoded for now but should come from manifest
+    startDate: args.startDate,
+    endDate: args.endDate,
+    interval: args.interval,
+    timeSeriesParameters
+  };
+
+  // Use standard API
+  return stixCoreObjectsMultiTimeSeries(context, user, standardArgs);
 };
 
 export const stixCoreObjectsNumber = (context, user, args) => {

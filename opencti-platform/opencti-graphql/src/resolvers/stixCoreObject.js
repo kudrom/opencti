@@ -14,6 +14,7 @@ import {
   findAll,
   findById,
   findFiltersRepresentatives,
+  publicStixCoreObjectsMultiTimeSeries,
   stixCoreObjectAddRelation,
   stixCoreObjectAddRelations,
   stixCoreObjectCleanContext,
@@ -34,7 +35,7 @@ import {
   stixCoreObjectsNumber,
   stixCoreObjectsTimeSeries,
   stixCoreObjectsTimeSeriesByAuthor,
-  stixCoreRelationships,
+  stixCoreRelationships
 } from '../domain/stixCoreObject';
 import { fetchEditContext, pubSubAsyncIterator } from '../database/redis';
 import { batchLoader, distributionRelations, stixLoadByIdStringify } from '../database/middleware';
@@ -74,6 +75,7 @@ const stixCoreObjectResolvers = {
       return stixCoreObjectsTimeSeries(context, context.user, args);
     },
     stixCoreObjectsMultiTimeSeries: (_, args, context) => stixCoreObjectsMultiTimeSeries(context, context.user, args),
+    publicStixCoreObjectsMultiTimeSeries: (_, args, context) => publicStixCoreObjectsMultiTimeSeries(context, context.user, args),
     stixCoreObjectsNumber: (_, args, context) => stixCoreObjectsNumber(context, context.user, args),
     stixCoreObjectsMultiNumber: (_, args, context) => stixCoreObjectsMultiNumber(context, context.user, args),
     stixCoreObjectsDistribution: (_, args, context) => {

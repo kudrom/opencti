@@ -10937,6 +10937,14 @@ type Query {
     onlyInferred: Boolean
     timeSeriesParameters: [StixCoreObjectsTimeSeriesParameters]
   ): [MultiTimeSeries] @auth(for: [KNOWLEDGE, EXPLORE])
+  publicStixCoreObjectsMultiTimeSeries(
+    startDate: DateTime!
+    endDate: DateTime
+    interval: String!
+    onlyInferred: Boolean
+    dashboardId: String!
+    widgetId: String!
+  ): [MultiTimeSeries]
   stixCoreObjectsNumber(
     types: [String]
     startDate: DateTime
