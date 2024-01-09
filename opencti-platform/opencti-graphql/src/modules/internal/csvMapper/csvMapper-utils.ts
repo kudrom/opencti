@@ -1,6 +1,5 @@
 import type { AuthContext, AuthUser } from '../../../types/user';
 import type { BasicStoreEntityCsvMapper, CsvMapperRepresentation } from './csvMapper-types';
-import { getSchemaAttributes } from '../../../domain/attribute';
 import { isEmptyField, isNotEmptyField } from '../../../database/utils';
 import { isStixRelationshipExceptRef } from '../../../schema/stixRelationship';
 import { isStixObject } from '../../../schema/stixCoreObject';
@@ -12,6 +11,24 @@ import { INTERNAL_REFS } from '../../../domain/attribute-utils';
 import { internalFindByIds } from '../../../database/middleware-loader';
 import type { BasicStoreEntity } from '../../../types/store';
 import { extractRepresentative } from '../../../database/entity-representative';
+import type { MandatoryType } from '../../../schema/attribute-definition';
+import { schemaAttributesDefinition } from '../../../schema/schema-attributes';
+
+export interface CsvMapperSchemaAttribute {
+  name: string
+  type: string
+  mandatory: boolean
+  mandatoryType: MandatoryType
+  editDefault: boolean
+  multiple: boolean
+  defaultValues?: { id: string, name:string }[]
+  label?: string
+}
+
+export interface CsvMapperSchemaAttributes {
+  name: string,
+  attributes: CsvMapperSchemaAttribute[]
+}
 
 const representationLabel = (idx: number, representation: CsvMapperRepresentation) => {
   const number = `#${idx + 1}`;
@@ -100,8 +117,21 @@ export const validate = async (context: AuthContext, user: AuthUser, mapper: Bas
     // Validate required attributes
     const entitySetting = await getEntitySettingFromCache(context, representation.target.entity_type);
     const defaultValues = fillDefaultValues(context.user, {}, entitySetting);
-    const schemaAttributes = await getSchemaAttributes(context, user, representation.target.entity_type);
-    schemaAttributes.filter((schemaAttribute) => schemaAttribute.mandatory)
+    const attributesDefs = [
+      ...schemaAttributesDefinition.getAttributes(representation.target.entity_type).values(),
+    ].map((def) => ({
+      name: def.name,
+      mandatory: def.mandatoryType === 'external',
+      multiple: def.multiple
+    }));
+    const refsDefs = [
+      ...schemaRelationsRefDefinition.getRelationsRef(representation.target.entity_type),
+    ].map((def) => ({
+      name: def.inputName,
+      mandatory: def.mandatoryType === 'external',
+      multiple: def.multiple
+    }));
+    [...attributesDefs, ...refsDefs].filter((schemaAttribute) => schemaAttribute.mandatory)
       .forEach((schemaAttribute) => {
         const attribute = representation.attributes.find((a) => schemaAttribute.name === a.key);
         const isColumnEmpty = isEmptyField(attribute?.column?.column_name) && isEmptyField(attribute?.based_on?.representations);
@@ -116,7 +146,7 @@ export const validate = async (context: AuthContext, user: AuthUser, mapper: Bas
     representation.attributes.forEach((attribute) => {
       // Validate based on configuration
       if (isNotEmptyField(attribute.based_on?.representations)) {
-        const schemaAttribute = schemaAttributes.find((attr) => attr.name === attribute.key);
+        const schemaAttribute = [...attributesDefs, ...refsDefs].find((attr) => attr.name === attribute.key);
         // Multiple
         if (!schemaAttribute?.multiple && (attribute.based_on?.representations?.length ?? 0) > 1) {
           throw FunctionalError('Attribute can\'t be multiple', { representation: representationLabel(idx, representation), attribute: attribute.key });

@@ -4690,6 +4690,24 @@ export enum CsvMapperRepresentationType {
   Relationship = 'relationship'
 }
 
+export type CsvMapperSchemaAttribute = {
+  __typename?: 'CsvMapperSchemaAttribute';
+  defaultValues?: Maybe<Array<DefaultValue>>;
+  editDefault: Scalars['Boolean']['output'];
+  label?: Maybe<Scalars['String']['output']>;
+  mandatory: Scalars['Boolean']['output'];
+  mandatoryType: Scalars['String']['output'];
+  multiple: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type CsvMapperSchemaAttributes = {
+  __typename?: 'CsvMapperSchemaAttributes';
+  attributes: Array<CsvMapperSchemaAttribute>;
+  name: Scalars['String']['output'];
+};
+
 export type CsvMapperTestResult = {
   __typename?: 'CsvMapperTestResult';
   nbEntities: Scalars['Int']['output'];
@@ -16961,6 +16979,7 @@ export type Query = {
   coursesOfAction?: Maybe<CourseOfActionConnection>;
   creators?: Maybe<CreatorConnection>;
   csvMapper?: Maybe<CsvMapper>;
+  csvMapperSchemaAttributes: Array<CsvMapperSchemaAttributes>;
   csvMapperTest?: Maybe<CsvMapperTestResult>;
   csvMappers?: Maybe<CsvMapperConnection>;
   dataComponent?: Maybe<DataComponent>;
@@ -17095,7 +17114,6 @@ export type Query = {
   rules?: Maybe<Array<Maybe<Rule>>>;
   runtimeAttributes?: Maybe<AttributeConnection>;
   schemaAttributeNames?: Maybe<AttributeConnection>;
-  schemaAttributes: Array<TypeAttribute>;
   schemaRelationsRefTypesMapping: Array<StixRelationshipSchema>;
   schemaRelationsTypesMapping: Array<StixRelationshipSchema>;
   sector?: Maybe<Sector>;
@@ -18495,11 +18513,6 @@ export type QueryRuntimeAttributesArgs = {
 
 export type QuerySchemaAttributeNamesArgs = {
   elementType: Array<InputMaybe<Scalars['String']['input']>>;
-};
-
-
-export type QuerySchemaAttributesArgs = {
-  entityType: Scalars['String']['input'];
 };
 
 
@@ -27359,6 +27372,8 @@ export type ResolversTypes = ResolversObject<{
   CsvMapperRepresentationTargetColumnInput: CsvMapperRepresentationTargetColumnInput;
   CsvMapperRepresentationTargetInput: CsvMapperRepresentationTargetInput;
   CsvMapperRepresentationType: CsvMapperRepresentationType;
+  CsvMapperSchemaAttribute: ResolverTypeWrapper<CsvMapperSchemaAttribute>;
+  CsvMapperSchemaAttributes: ResolverTypeWrapper<CsvMapperSchemaAttributes>;
   CsvMapperTestResult: ResolverTypeWrapper<CsvMapperTestResult>;
   DataComponent: ResolverTypeWrapper<BasicStoreEntityDataComponent>;
   DataComponentAddInput: DataComponentAddInput;
@@ -28075,6 +28090,8 @@ export type ResolversParentTypes = ResolversObject<{
   CsvMapperRepresentationTargetColumn: CsvMapperRepresentationTargetColumn;
   CsvMapperRepresentationTargetColumnInput: CsvMapperRepresentationTargetColumnInput;
   CsvMapperRepresentationTargetInput: CsvMapperRepresentationTargetInput;
+  CsvMapperSchemaAttribute: CsvMapperSchemaAttribute;
+  CsvMapperSchemaAttributes: CsvMapperSchemaAttributes;
   CsvMapperTestResult: CsvMapperTestResult;
   DataComponent: BasicStoreEntityDataComponent;
   DataComponentAddInput: DataComponentAddInput;
@@ -30117,6 +30134,24 @@ export type CsvMapperRepresentationTargetColumnResolvers<ContextType = any, Pare
   column_reference?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   operator?: Resolver<Maybe<ResolversTypes['Operator']>, ParentType, ContextType>;
   value?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CsvMapperSchemaAttributeResolvers<ContextType = any, ParentType extends ResolversParentTypes['CsvMapperSchemaAttribute'] = ResolversParentTypes['CsvMapperSchemaAttribute']> = ResolversObject<{
+  defaultValues?: Resolver<Maybe<Array<ResolversTypes['DefaultValue']>>, ParentType, ContextType>;
+  editDefault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  mandatory?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  mandatoryType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  multiple?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CsvMapperSchemaAttributesResolvers<ContextType = any, ParentType extends ResolversParentTypes['CsvMapperSchemaAttributes'] = ResolversParentTypes['CsvMapperSchemaAttributes']> = ResolversObject<{
+  attributes?: Resolver<Array<ResolversTypes['CsvMapperSchemaAttribute']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -33848,6 +33883,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   coursesOfAction?: Resolver<Maybe<ResolversTypes['CourseOfActionConnection']>, ParentType, ContextType, Partial<QueryCoursesOfActionArgs>>;
   creators?: Resolver<Maybe<ResolversTypes['CreatorConnection']>, ParentType, ContextType, Partial<QueryCreatorsArgs>>;
   csvMapper?: Resolver<Maybe<ResolversTypes['CsvMapper']>, ParentType, ContextType, RequireFields<QueryCsvMapperArgs, 'id'>>;
+  csvMapperSchemaAttributes?: Resolver<Array<ResolversTypes['CsvMapperSchemaAttributes']>, ParentType, ContextType>;
   csvMapperTest?: Resolver<Maybe<ResolversTypes['CsvMapperTestResult']>, ParentType, ContextType, RequireFields<QueryCsvMapperTestArgs, 'configuration' | 'content'>>;
   csvMappers?: Resolver<Maybe<ResolversTypes['CsvMapperConnection']>, ParentType, ContextType, Partial<QueryCsvMappersArgs>>;
   dataComponent?: Resolver<Maybe<ResolversTypes['DataComponent']>, ParentType, ContextType, RequireFields<QueryDataComponentArgs, 'id'>>;
@@ -33982,7 +34018,6 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   rules?: Resolver<Maybe<Array<Maybe<ResolversTypes['Rule']>>>, ParentType, ContextType>;
   runtimeAttributes?: Resolver<Maybe<ResolversTypes['AttributeConnection']>, ParentType, ContextType, RequireFields<QueryRuntimeAttributesArgs, 'attributeName'>>;
   schemaAttributeNames?: Resolver<Maybe<ResolversTypes['AttributeConnection']>, ParentType, ContextType, RequireFields<QuerySchemaAttributeNamesArgs, 'elementType'>>;
-  schemaAttributes?: Resolver<Array<ResolversTypes['TypeAttribute']>, ParentType, ContextType, RequireFields<QuerySchemaAttributesArgs, 'entityType'>>;
   schemaRelationsRefTypesMapping?: Resolver<Array<ResolversTypes['StixRelationshipSchema']>, ParentType, ContextType>;
   schemaRelationsTypesMapping?: Resolver<Array<ResolversTypes['StixRelationshipSchema']>, ParentType, ContextType>;
   sector?: Resolver<Maybe<ResolversTypes['Sector']>, ParentType, ContextType, Partial<QuerySectorArgs>>;
@@ -36834,6 +36869,8 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   CsvMapperRepresentationAttribute?: CsvMapperRepresentationAttributeResolvers<ContextType>;
   CsvMapperRepresentationTarget?: CsvMapperRepresentationTargetResolvers<ContextType>;
   CsvMapperRepresentationTargetColumn?: CsvMapperRepresentationTargetColumnResolvers<ContextType>;
+  CsvMapperSchemaAttribute?: CsvMapperSchemaAttributeResolvers<ContextType>;
+  CsvMapperSchemaAttributes?: CsvMapperSchemaAttributesResolvers<ContextType>;
   CsvMapperTestResult?: CsvMapperTestResultResolvers<ContextType>;
   DataComponent?: DataComponentResolvers<ContextType>;
   DataComponentConnection?: DataComponentConnectionResolvers<ContextType>;
