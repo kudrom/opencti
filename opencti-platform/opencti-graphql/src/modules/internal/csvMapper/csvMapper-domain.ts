@@ -115,9 +115,9 @@ export const csvMapperSchemaAttributes = async (context: AuthContext, user: Auth
       attributes: []
     };
     schemaAttribute.attributes.push(...Array.from(refs.values()).flatMap((ref) => {
-      if (INTERNAL_REFS.includes(ref.inputName)) return [];
+      if (INTERNAL_REFS.includes(ref.name)) return [];
       return [{
-        name: ref.inputName,
+        name: ref.name,
         label: ref.label,
         type: 'ref',
         mandatoryType: ref.mandatoryType,

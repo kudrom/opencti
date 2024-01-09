@@ -15,10 +15,9 @@ import { ENTITY_TYPE_CONTAINER_CASE } from '../case/case-types';
 import { ENTITY_TYPE_CONTAINER_TASK } from '../task/task-types';
 import { isNumericAttribute, schemaAttributesDefinition } from '../../schema/schema-attributes';
 import { isEmptyField, isNotEmptyField } from '../../database/utils';
-import type { AttributeDefinition, MandatoryType } from '../../schema/attribute-definition';
+import type { AttributeDefinition, MandatoryType, RefAttribute } from '../../schema/attribute-definition';
 import { telemetry } from '../../config/tracing';
 import { schemaRelationsRefDefinition } from '../../schema/schema-relationsRef';
-import type { RelationRefDefinition } from '../../schema/relationRef-definition';
 import { internalFindByIdsMapped } from '../../database/middleware-loader';
 import { extractRepresentative } from '../../database/entity-representative';
 
@@ -206,16 +205,16 @@ export const getEntitySettingSchemaAttributes = async (
           editDefault: attr.editDefault,
           multiple: attr.multiple,
           mandatory: attr.mandatoryType === 'external',
-          scale: attr.scalable ? defaultScale : undefined
+          scale: (attr.type === 'numeric' && attr.scalable) ? defaultScale : undefined
         })),
       // Configs for refs definition
       ...Array.from(refsDefinition.values())
-        .filter((ref: RelationRefDefinition) => (
+        .filter((ref: RefAttribute) => (
           ref.mandatoryType === 'external'
           || ref.mandatoryType === 'customizable'
         ))
         .map((ref) => ({
-          name: ref.inputName,
+          name: ref.name,
           label: ref.label,
           editDefault: ref.editDefault,
           type: 'ref',
