@@ -14,7 +14,7 @@ import { CsvMapperRepresentationType, Operator } from '../modules/internal/csvMa
 import type { AttributeColumn } from '../generated/graphql';
 import { isValidTargetType } from '../modules/internal/csvMapper/csvMapper-utils';
 import { fillDefaultValues, getEntitySettingFromCache } from '../modules/entitySetting/entitySetting-utils';
-import type { AuthContext } from '../types/user';
+import type { AuthContext, AuthUser } from '../types/user';
 import { UnsupportedError } from '../config/errors';
 
 export type InputType = string | string[] | boolean | number | Record<string, any>;
@@ -199,7 +199,13 @@ const handleAttributes = (record: string[], representation: CsvMapperRepresentat
   });
 };
 
-const mapRecord = async (context: AuthContext, record: string[], representation: CsvMapperRepresentation, map: Map<string, Record<string, InputType>>) => {
+const mapRecord = async (
+  context: AuthContext,
+  user: AuthUser,
+  record: string[],
+  representation: CsvMapperRepresentation,
+  map: Map<string, Record<string, InputType>>
+) => {
   if (!isValidTarget(record, representation)) {
     return null;
   }
@@ -212,7 +218,7 @@ const mapRecord = async (context: AuthContext, record: string[], representation:
   handleAttributes(record, representation, input, map);
 
   const entitySetting = await getEntitySettingFromCache(context, entity_type);
-  const filledInput = fillDefaultValues(context.user, input, entitySetting);
+  const filledInput = fillDefaultValues(user, input, entitySetting);
 
   if (!isValidInput(filledInput)) {
     return null;
@@ -224,6 +230,7 @@ const mapRecord = async (context: AuthContext, record: string[], representation:
 
 export const mappingProcess = async (
   context: AuthContext,
+  user: AuthUser,
   mapper: BasicStoreEntityCsvMapper,
   record: string[]
 ): Promise<Record<string, InputType>[]> => {
@@ -238,7 +245,7 @@ export const mappingProcess = async (
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < representationEntities.length; i++) {
     const representation = representationEntities[i];
-    const input = await mapRecord(context, record, representation, results);
+    const input = await mapRecord(context, user, record, representation, results);
     if (input) {
       results.set(representation.id, input);
     }
@@ -248,7 +255,7 @@ export const mappingProcess = async (
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < representationRelationships.length; i++) {
     const representation = representationRelationships[i];
-    const input = await mapRecord(context, record, representation, results);
+    const input = await mapRecord(context, user, record, representation, results);
     if (input) {
       results.set(representation.id, input);
     }

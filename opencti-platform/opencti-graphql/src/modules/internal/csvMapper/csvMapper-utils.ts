@@ -116,7 +116,7 @@ export const validate = async (context: AuthContext, user: AuthUser, mapper: Bas
 
     // Validate required attributes
     const entitySetting = await getEntitySettingFromCache(context, representation.target.entity_type);
-    const defaultValues = fillDefaultValues(context.user, {}, entitySetting);
+    const defaultValues = fillDefaultValues(user, {}, entitySetting);
     const attributesDefs = [
       ...schemaAttributesDefinition.getAttributes(representation.target.entity_type).values(),
     ].map((def) => ({
