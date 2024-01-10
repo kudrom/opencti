@@ -58,7 +58,18 @@ const INDICATOR_DEFINITION: ModuleDefinition<StoreEntityIndicator, StixIndicator
       multiple: true,
       upsert: true,
       label: 'Decay history',
-      isFilterable: true,
+      isFilterable: false,
+      format: 'flat'
+    },
+    {
+      name: 'x_opencti_decay_rule',
+      type: 'object',
+      mandatoryType: 'no',
+      editDefault: false,
+      multiple: false,
+      upsert: true,
+      label: 'Decay rule',
+      isFilterable: false,
       format: 'flat'
     },
   ],
