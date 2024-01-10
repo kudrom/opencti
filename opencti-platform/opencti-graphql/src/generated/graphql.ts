@@ -1691,6 +1691,7 @@ export enum Capabilities {
   Explore = 'EXPLORE',
   ExploreExupdate = 'EXPLORE_EXUPDATE',
   ExploreExupdateExdelete = 'EXPLORE_EXUPDATE_EXDELETE',
+  ExploreExupdatePublish = 'EXPLORE_EXUPDATE_PUBLISH',
   Knowledge = 'KNOWLEDGE',
   KnowledgeKnaskimport = 'KNOWLEDGE_KNASKIMPORT',
   KnowledgeKnenrichment = 'KNOWLEDGE_KNENRICHMENT',
