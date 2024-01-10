@@ -66,8 +66,10 @@ const initManager = (manager: ManagerDefinition) => {
       } finally {
         running = false;
         if (lock) await lock.unlock();
-        const duration = moment.duration(startDate.diff(utcDate())).asMilliseconds();
-        logApp.debug(`[OPENCTI-MODULE] ${manager.label} done in ${duration}ms`);
+        if (startDate) {
+          const duration = moment.duration(utcDate().diff(startDate)).asMilliseconds();
+          logApp.info(`[OPENCTI-MODULE] ${manager.label} done in ${duration}ms`);
+        }
       }
     }
   };
