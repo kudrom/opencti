@@ -37,7 +37,6 @@ const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indic
     color: theme.palette.success.main,
     fontWeight: 'bold',
   };
-  console.log('currentScoreLineStyle', currentScoreLineStyle);
   return (
     <DialogContent>
       <Grid
