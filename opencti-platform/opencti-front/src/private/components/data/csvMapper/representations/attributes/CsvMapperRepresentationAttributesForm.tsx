@@ -46,6 +46,7 @@ CsvMapperRepresentationAttributesFormProps
     CsvMapperRepresentationAttributesFormFragment,
     schemaAttributes,
   );
+  console.log('data', data);
 
   if (representation.target_type === null) {
     // if the entity type gets unset, we display nothing
@@ -53,10 +54,60 @@ CsvMapperRepresentationAttributesFormProps
     return null;
   }
 
-  const entitySchemaAttributes = data?.csvMapperSchemaAttributes?.find(
+  let entitySchemaAttributes = data?.csvMapperSchemaAttributes?.find(
     (schema) => schema.name === representation.target_type,
   )?.attributes ?? [];
+  console.log('entitySchemaAttributes', entitySchemaAttributes);
+  const hashesAttributes = entitySchemaAttributes.find((a) => a.name === 'hashes');
 
+  if (hashesAttributes) {
+    const mutableSchemaAttributes = entitySchemaAttributes.slice();
+    const indexToReplace = mutableSchemaAttributes.findIndex((a) => a.name === 'hashes');
+
+    if (indexToReplace !== -1) {
+      mutableSchemaAttributes.splice(
+        indexToReplace,
+        1,
+        {
+          defaultValues: null,
+          editDefault: false,
+          label: null,
+          mandatory: false,
+          multiple: false,
+          name: 'MD5',
+          type: 'string',
+        },
+        {
+          defaultValues: null,
+          editDefault: false,
+          label: null,
+          mandatory: false,
+          multiple: false,
+          name: 'SHA_256',
+          type: 'string',
+        },
+        {
+          defaultValues: null,
+          editDefault: false,
+          label: null,
+          mandatory: false,
+          multiple: false,
+          name: 'SHA-1',
+          type: 'string',
+        },
+        {
+          defaultValues: null,
+          editDefault: false,
+          label: null,
+          mandatory: false,
+          multiple: false,
+          name: 'SHA-512',
+          type: 'string',
+        },
+      );
+      entitySchemaAttributes = mutableSchemaAttributes;
+    }
+  }
   return (
     <>
       {[...entitySchemaAttributes]
