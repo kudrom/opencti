@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import { SettingsApplications } from '@mui/icons-material';
+import { SettingsApplications, TroubleshootOutlined } from '@mui/icons-material';
 import ListItemText from '@mui/material/ListItemText';
 import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
@@ -18,6 +18,7 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DecayDialogContent from '@components/observations/indicators/DecayDialog';
 import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
 import ItemScore from '../../../../components/ItemScore';
 import IndicatorObservables from './IndicatorObservables';
 import ExpandableMarkdown from '../../../../components/ExpandableMarkdown';
@@ -87,21 +88,49 @@ const IndicatorDetailsComponent: FunctionComponent<IndicatorDetailsComponentProp
             <Chip classes={{ root: classes.chip }}
               label={fldt(indicator.valid_from)}
             />
-            <Typography
-              variant="h3"
-              gutterBottom={true}
-              style={{ marginTop: 20 }}
-            >
-              {t('Score')}
-              <Tooltip
-                title={t(
-                  'This score is calculated with the decay rule applied to this indicator.',
-                )}
-              >
-                <InformationOutline fontSize="small" color="primary" />
-              </Tooltip>
-            </Typography>
-            <ItemScore score={indicator.x_opencti_score} />
+            <Grid container columnSpacing={1} style={{ marginTop: 20 }}>
+              <Grid item xs={4}>
+                <Typography variant="h3" gutterBottom={true}>
+                  {t('Score')}
+                  <Tooltip
+                    title={t(
+                      'This score is updated with the decay rule applied to this indicator.',
+                    )}
+                  >
+                    <InformationOutline fontSize="small" color="primary" />
+                  </Tooltip>
+                </Typography>
+                <ItemScore score={indicator.x_opencti_score} />
+              </Grid>
+              <Grid item xs={8}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={openLifecycleDialog}
+                  startIcon={<TroubleshootOutlined />}
+                  style={{ marginTop: 22 }}
+                >
+                  {t('Lifecycle')}
+                </Button>
+                <Dialog
+                  PaperProps={{ elevation: 1 }}
+                  open={isLifecycleOpen}
+                  keepMounted={true}
+                  TransitionComponent={Transition}
+                  onClose={onDecayLifecycleClose}
+                  fullWidth
+                  maxWidth="md"
+                >
+                  <DialogTitle>{t('Lifecycle details')}</DialogTitle>
+                  <DecayDialogContent indicator={ indicator } />
+                  <DialogActions>
+                    <Button onClick={onDecayLifecycleClose}>
+                      {t('Close')}
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </Grid>
+            </Grid>
             <Typography
               variant="h3"
               gutterBottom={true}
@@ -126,25 +155,6 @@ const IndicatorDetailsComponent: FunctionComponent<IndicatorDetailsComponentProp
             ))}
           </Grid>
           <Grid item={true} xs={6}>
-            <Button onClick={openLifecycleDialog} >
-              {t('Lifecycle')}
-            </Button>
-            <Dialog
-              PaperProps={{ elevation: 1 }}
-              open={isLifecycleOpen}
-              keepMounted={true}
-              TransitionComponent={Transition}
-              onClose={onDecayLifecycleClose}
-              fullWidth
-              maxWidth="xl"
-            >
-              <DecayDialogContent indicator={ indicator } />
-              <DialogActions>
-                <Button onClick={onDecayLifecycleClose}>
-                  {t('Close')}
-                </Button>
-              </DialogActions>
-            </Dialog>
             <Typography variant="h3" gutterBottom={true}>
               {t('Valid until')}
             </Typography>
