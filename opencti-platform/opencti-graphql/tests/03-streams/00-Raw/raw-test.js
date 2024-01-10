@@ -38,6 +38,7 @@ describe('Raw streams tests', () => {
       // 02 - CHECK UPDATE EVENTS.
       const updateEvents = events.filter((e) => e.type === EVENT_TYPE_UPDATE);
       const updateEventsByTypes = R.groupBy((e) => e.data.data.type, updateEvents);
+      console.log('updateEventsByTypes indicator', JSON.stringify(updateEventsByTypes['indicator']));
       expect(updateEventsByTypes['marking-definition'].length).toBe(2);
       expect(updateEventsByTypes['campaign'].length).toBe(7);
       expect(updateEventsByTypes['relationship'].length).toBe(7);
