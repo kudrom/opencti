@@ -1,0 +1,28 @@
+type PublicDashboard implements InternalObject & BasicObject {
+  id: ID!
+  entity_type: String!
+  standard_id: String!
+  parent_types: [String!]!
+  # PublicDashboard
+  name: String!
+  description: String
+  dashboard_id: String
+  user_id: String!
+  public_manifest: String
+  uri_keys: [String]
+  max_marking: [MarkingDefinition!]
+  created_at: DateTime
+  updated_at: DateTime
+  editContext: [EditUserContext!]
+}
+
+# Queries
+type Query {
+  publicDashboard(id: String!): PublicDashboard @auth
+}
+
+# Mutation
+type Mutation {
+  publicDashboardAdd(dashboard_id: String!): PublicDashboard @auth(for: [KNOWLEDGE, EXPLORE])
+}
+
