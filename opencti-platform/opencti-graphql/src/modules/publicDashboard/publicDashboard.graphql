@@ -24,5 +24,6 @@ type Query {
 # Mutation
 type Mutation {
   publicDashboardAdd(dashboard_id: String!): PublicDashboard @auth(for: [KNOWLEDGE, EXPLORE])
+  publishPublicDashboard(dashboard_id: ID!, uri_keys)
 }
 
