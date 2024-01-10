@@ -240,11 +240,4 @@ const IndicatorDetails = createFragmentContainer(IndicatorDetailsComponent, {
   `,
 });
 
-/*
-      x_opencti_decay_history {
-        updated_at
-        score
-      }
- */
-
 export default IndicatorDetails;

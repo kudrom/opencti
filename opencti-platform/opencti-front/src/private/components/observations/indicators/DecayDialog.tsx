@@ -28,15 +28,9 @@ const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indic
     yaxis: { min: 0, max: 100 },
   };
 
-  console.log('indicator:', indicator);
-
   const decayHistory = indicator.x_opencti_decay_history ?? [];
   const decayReactionPoints = indicator.x_opencti_decay_rule?.decay_points ?? [];
 
-  /* const decayHistory2 = [
-    { updated_at: new Date(), score: 100 },
-    { updated_at: new Date(), score: 80 },
-  ]; */
   return (
     <DialogContent>
       <Typography variant="h2">
@@ -102,14 +96,5 @@ const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indic
     </DialogContent>
   );
 };
-
-/*
-                {decayHistory.map((history) => (
-                  <TableRow key={ history.updated_at.getTime() }>
-                    <TableCell>{fldt(history.updated_at)}</TableCell>
-                    <TableCell>{history.score}</TableCell>
-                  </TableRow>
-                ))}
- */
 
 export default DecayDialogContent;
