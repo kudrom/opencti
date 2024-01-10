@@ -13,7 +13,7 @@ import {
 import { internalLoadById, listEntities, storeLoadById, storeLoadByIds } from '../database/middleware-loader';
 import { findAll as relationFindAll } from './stixCoreRelationship';
 import { delEditContext, lockResource, notify, setEditContext, storeUpdateEvent } from '../database/redis';
-import { BUS_TOPICS, logApp } from '../config/conf';
+import { BUS_TOPICS } from '../config/conf';
 import { FunctionalError, LockTimeoutError, TYPE_LOCK_ERROR, UnsupportedError } from '../config/errors';
 import { isStixCoreObject, stixCoreObjectOptions } from '../schema/stixCoreObject';
 import { findById as findStatusById } from './status';
@@ -67,7 +67,6 @@ import { addFilter, extractFilterGroupValues } from '../utils/filtering/filterin
 import { specialFilterKeysWhoseValueToResolve } from '../utils/filtering/filtering-constants';
 import { schemaRelationsRefDefinition } from '../schema/schema-relationsRef';
 import { ENTITY_TYPE_WORKSPACE } from '../modules/workspace/workspace-types';
-import { findById as findUserById } from './user';
 
 export const findAll = async (context, user, args) => {
   let types = [];
