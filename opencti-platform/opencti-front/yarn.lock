@@ -1763,6 +1763,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.23.7":
+  version: 7.23.8
+  resolution: "@babel/runtime@npm:7.23.8"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 0bd5543c26811153822a9f382fd39886f66825ff2a397a19008011376533747cd05c33a91f6248c0b8b0edf0448d7c167ebfba34786088f1b7eb11c65be7dfc3
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.22.15, @babel/template@npm:^7.3.3":
   version: 7.22.15
   resolution: "@babel/template@npm:7.22.15"
@@ -3862,6 +3871,42 @@ __metadata:
     "@types/react":
       optional: true
   checksum: f53f746eb33bc5d700b9f2b454e211ca17f5aa320cd30f54a82a347e4da0c61b872f323f01ff4b5247d3f992ac4f72a69ac79974300a6dedf01ff6b8f6d75b49
+  languageName: node
+  linkType: hard
+
+"@mui/utils@npm:^5.14.16":
+  version: 5.15.4
+  resolution: "@mui/utils@npm:5.15.4"
+  dependencies:
+    "@babel/runtime": ^7.23.7
+    "@types/prop-types": ^15.7.11
+    prop-types: ^15.8.1
+    react-is: ^18.2.0
+  peerDependencies:
+    "@types/react": ^17.0.0 || ^18.0.0
+    react: ^17.0.0 || ^18.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: b23f57a08c04ba600a50906778c7bb809652b6cc9806bce2423decfd6154a5af25812ebf4b5bb6bf61218bcf399c2aea53948bc58e42f7868e90ea3d2e7005b3
+  languageName: node
+  linkType: hard
+
+"@mui/x-data-grid@npm:^6.18.7":
+  version: 6.18.7
+  resolution: "@mui/x-data-grid@npm:6.18.7"
+  dependencies:
+    "@babel/runtime": ^7.23.2
+    "@mui/utils": ^5.14.16
+    clsx: ^2.0.0
+    prop-types: ^15.8.1
+    reselect: ^4.1.8
+  peerDependencies:
+    "@mui/material": ^5.4.1
+    "@mui/system": ^5.4.1
+    react: ^17.0.0 || ^18.0.0
+    react-dom: ^17.0.0 || ^18.0.0
+  checksum: ac3e1e196a576ce3ebe5cb204dd8fc286604265107a3c3e0f6ec3ad333b7c115500017e2328c6c61dac3bd0620c3bc54ab8d7490a629e38cb93e71f91a5be60c
   languageName: node
   linkType: hard
 
@@ -14986,6 +15031,7 @@ __metadata:
     "@mui/material": 5.15.3
     "@mui/styles": 5.15.3
     "@mui/utils": 5.15.3
+    "@mui/x-data-grid": ^6.18.7
     "@mui/x-date-pickers": 5.0.20
     "@rjsf/core": 5.15.1
     "@rjsf/mui": 5.15.1
@@ -15058,6 +15104,7 @@ __metadata:
     react-color: 2.19.3
     react-cookie: 7.0.1
     react-csv: 2.2.2
+    react-data-grid: ^7.0.0-beta.41
     react-dom: 18.2.0
     react-force-graph-2d: 1.25.3
     react-force-graph-3d: 1.24.1
@@ -16388,6 +16435,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-data-grid@npm:^7.0.0-beta.41":
+  version: 7.0.0-canary.49
+  resolution: "react-data-grid@npm:7.0.0-canary.49"
+  dependencies:
+    clsx: ^1.1.1
+  peerDependencies:
+    react: ^16.14 || ^17.0
+    react-dom: ^16.14 || ^17.0
+  checksum: fe57d441a5e56dac39a0f7e06979a27d5606515653ead31fc06f9c2fe08ebaf88ff4ab70f1565dd356b343cf4612137dea2d188a40a7e246b85dd5aa2589da04
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
@@ -17353,6 +17412,13 @@ __metadata:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: eee0e303adffb69be55d1a214e415cf42b7441ae858c76dfc5353148644f6fd6e698926fc4643f510d5c126d12a705e7c8ed7e38061113bdf37547ab356797ff
+  languageName: node
+  linkType: hard
+
+"reselect@npm:^4.1.8":
+  version: 4.1.8
+  resolution: "reselect@npm:4.1.8"
+  checksum: a4ac87cedab198769a29be92bc221c32da76cfdad6911eda67b4d3e7136dca86208c3b210e31632eae31ebd2cded18596f0dd230d3ccc9e978df22f233b5583e
   languageName: node
   linkType: hard
 
