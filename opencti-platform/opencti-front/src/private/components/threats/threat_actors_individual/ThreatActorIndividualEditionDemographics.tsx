@@ -7,7 +7,6 @@ import { Option } from '@components/common/form/ReferenceField';
 import { useFormatter } from '../../../../components/i18n';
 import { fieldSpacingContainerStyle } from '../../../../utils/field';
 import { commitMutation, defaultCommitMutation } from '../../../../relay/environment';
-import DatePickerField from '../../../../components/DatePickerField';
 import { SubscriptionFocus } from '../../../../components/Subscription';
 import MarkdownField from '../../../../components/MarkdownField';
 import CommitMessage from '../../common/form/CommitMessage';
@@ -16,6 +15,7 @@ import { ThreatActorIndividualEditionDemographics_ThreatActorIndividual$key } fr
 import { EditOperation } from './__generated__/ThreatActorIndividualEditionDetailsFieldPatchMutation.graphql';
 import OpenVocabField from '../../common/form/OpenVocabField';
 import { isEmptyField } from '../../../../utils/utils';
+import DateTimePickerField from '../../../../components/DateTimePickerField';
 
 const threatActorIndividualEditionDemographicsFocus = graphql`
   mutation ThreatActorIndividualEditionDemographicsFocusMutation(
@@ -177,7 +177,7 @@ const ThreatActorIndividualEditionDemographicsComponent = ({
                 }}
               />
               <Field
-                component={DatePickerField}
+                component={DateTimePickerField}
                 name="date_of_birth"
                 id="DateOfBirth"
                 onFocus={handleChangeFocus}
