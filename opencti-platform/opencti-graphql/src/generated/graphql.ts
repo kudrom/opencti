@@ -12049,6 +12049,8 @@ export type Mutation = {
   positionAdd?: Maybe<Position>;
   positionEdit?: Maybe<PositionEditMutations>;
   publicDashboardAdd?: Maybe<PublicDashboard>;
+  publicDashboardDelete?: Maybe<Scalars['ID']['output']>;
+  publicDashboardFieldPatch?: Maybe<PublicDashboard>;
   queryTaskAdd: BackgroundTask;
   regionAdd?: Maybe<Region>;
   regionEdit?: Maybe<RegionEditMutations>;
@@ -13224,7 +13226,18 @@ export type MutationPositionEditArgs = {
 
 
 export type MutationPublicDashboardAddArgs = {
-  dashboard_id: Scalars['String']['input'];
+  input: PublicDashboardAddInput;
+};
+
+
+export type MutationPublicDashboardDeleteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationPublicDashboardFieldPatchArgs = {
+  id: Scalars['ID']['input'];
+  input: Array<EditInput>;
 };
 
 
@@ -16885,11 +16898,19 @@ export type PublicDashboard = BasicObject & InternalObject & {
   max_marking?: Maybe<Array<MarkingDefinition>>;
   name: Scalars['String']['output'];
   parent_types: Array<Scalars['String']['output']>;
+  private_manifest?: Maybe<Scalars['String']['output']>;
   public_manifest?: Maybe<Scalars['String']['output']>;
+  published_until?: Maybe<Scalars['DateTime']['output']>;
   standard_id: Scalars['String']['output'];
   updated_at?: Maybe<Scalars['DateTime']['output']>;
-  uri_keys?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  uri_key?: Maybe<Scalars['String']['output']>;
   user_id: Scalars['String']['output'];
+};
+
+export type PublicDashboardAddInput = {
+  dashboard_id: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
 };
 
 export type Query = {
@@ -17061,6 +17082,7 @@ export type Query = {
   position?: Maybe<Position>;
   positions?: Maybe<PositionConnection>;
   publicDashboard?: Maybe<PublicDashboard>;
+  publicDashboardPublic?: Maybe<PublicDashboard>;
   publicStixCoreObjectsMultiTimeSeries?: Maybe<Array<Maybe<MultiTimeSeries>>>;
   rabbitMQMetrics?: Maybe<RabbitMqMetrics>;
   region?: Maybe<Region>;
@@ -18359,6 +18381,11 @@ export type QueryPositionsArgs = {
 
 export type QueryPublicDashboardArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type QueryPublicDashboardPublicArgs = {
+  uri_key: Scalars['String']['input'];
 };
 
 
@@ -27640,6 +27667,7 @@ export type ResolversTypes = ResolversObject<{
   ProcessAddInput: ProcessAddInput;
   Provider: ResolverTypeWrapper<Provider>;
   PublicDashboard: ResolverTypeWrapper<BasicStoreEntityPublicDashboard>;
+  PublicDashboardAddInput: PublicDashboardAddInput;
   Query: ResolverTypeWrapper<{}>;
   QueryTask: ResolverTypeWrapper<QueryTask>;
   QueryTaskAddInput: QueryTaskAddInput;
@@ -28316,6 +28344,7 @@ export type ResolversParentTypes = ResolversObject<{
   ProcessAddInput: ProcessAddInput;
   Provider: Provider;
   PublicDashboard: BasicStoreEntityPublicDashboard;
+  PublicDashboardAddInput: PublicDashboardAddInput;
   Query: {};
   QueryTask: QueryTask;
   QueryTaskAddInput: QueryTaskAddInput;
@@ -32690,7 +32719,9 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   playbookUpdatePositions?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationPlaybookUpdatePositionsArgs, 'id' | 'positions'>>;
   positionAdd?: Resolver<Maybe<ResolversTypes['Position']>, ParentType, ContextType, RequireFields<MutationPositionAddArgs, 'input'>>;
   positionEdit?: Resolver<Maybe<ResolversTypes['PositionEditMutations']>, ParentType, ContextType, RequireFields<MutationPositionEditArgs, 'id'>>;
-  publicDashboardAdd?: Resolver<Maybe<ResolversTypes['PublicDashboard']>, ParentType, ContextType, RequireFields<MutationPublicDashboardAddArgs, 'dashboard_id'>>;
+  publicDashboardAdd?: Resolver<Maybe<ResolversTypes['PublicDashboard']>, ParentType, ContextType, RequireFields<MutationPublicDashboardAddArgs, 'input'>>;
+  publicDashboardDelete?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationPublicDashboardDeleteArgs, 'id'>>;
+  publicDashboardFieldPatch?: Resolver<Maybe<ResolversTypes['PublicDashboard']>, ParentType, ContextType, RequireFields<MutationPublicDashboardFieldPatchArgs, 'id' | 'input'>>;
   queryTaskAdd?: Resolver<ResolversTypes['BackgroundTask'], ParentType, ContextType, RequireFields<MutationQueryTaskAddArgs, 'input'>>;
   regionAdd?: Resolver<Maybe<ResolversTypes['Region']>, ParentType, ContextType, RequireFields<MutationRegionAddArgs, 'input'>>;
   regionEdit?: Resolver<Maybe<ResolversTypes['RegionEditMutations']>, ParentType, ContextType, RequireFields<MutationRegionEditArgs, 'id'>>;
@@ -33773,10 +33804,12 @@ export type PublicDashboardResolvers<ContextType = any, ParentType extends Resol
   max_marking?: Resolver<Maybe<Array<ResolversTypes['MarkingDefinition']>>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   parent_types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  private_manifest?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   public_manifest?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  published_until?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   standard_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updated_at?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
-  uri_keys?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  uri_key?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   user_id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -33949,6 +33982,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   position?: Resolver<Maybe<ResolversTypes['Position']>, ParentType, ContextType, RequireFields<QueryPositionArgs, 'id'>>;
   positions?: Resolver<Maybe<ResolversTypes['PositionConnection']>, ParentType, ContextType, Partial<QueryPositionsArgs>>;
   publicDashboard?: Resolver<Maybe<ResolversTypes['PublicDashboard']>, ParentType, ContextType, RequireFields<QueryPublicDashboardArgs, 'id'>>;
+  publicDashboardPublic?: Resolver<Maybe<ResolversTypes['PublicDashboard']>, ParentType, ContextType, RequireFields<QueryPublicDashboardPublicArgs, 'uri_key'>>;
   publicStixCoreObjectsMultiTimeSeries?: Resolver<Maybe<Array<Maybe<ResolversTypes['MultiTimeSeries']>>>, ParentType, ContextType, RequireFields<QueryPublicStixCoreObjectsMultiTimeSeriesArgs, 'dashboardId' | 'interval' | 'startDate' | 'widgetId'>>;
   rabbitMQMetrics?: Resolver<Maybe<ResolversTypes['RabbitMQMetrics']>, ParentType, ContextType, Partial<QueryRabbitMqMetricsArgs>>;
   region?: Resolver<Maybe<ResolversTypes['Region']>, ParentType, ContextType, RequireFields<QueryRegionArgs, 'id'>>;

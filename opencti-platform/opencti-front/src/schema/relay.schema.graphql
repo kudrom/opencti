@@ -7279,6 +7279,7 @@ type Query {
   csvMappers(first: Int, after: ID, orderBy: CsvMapperOrdering, orderMode: OrderingMode, filters: FilterGroup, search: String): CsvMapperConnection
   csvMapperTest(configuration: String!, content: String!): CsvMapperTestResult
   publicDashboard(id: String!): PublicDashboard
+  publicDashboardPublic(uri_key: String!): PublicDashboard
 }
 
 type Subscription {
@@ -8022,7 +8023,9 @@ type Mutation {
   csvMapperAdd(input: CsvMapperAddInput!): CsvMapper
   csvMapperDelete(id: ID!): ID
   csvMapperFieldPatch(id: ID!, input: [EditInput!]!): CsvMapper
-  publicDashboardAdd(dashboard_id: String!): PublicDashboard
+  publicDashboardAdd(input: PublicDashboardAddInput!): PublicDashboard
+  publicDashboardDelete(id: ID!): ID
+  publicDashboardFieldPatch(id: ID!, input: [EditInput!]!): PublicDashboard
 }
 
 type Channel implements BasicObject & StixObject & StixCoreObject & StixDomainObject {
@@ -10884,9 +10887,17 @@ type PublicDashboard implements InternalObject & BasicObject {
   dashboard_id: String
   user_id: String!
   public_manifest: String
-  uri_keys: [String]
+  private_manifest: String
+  published_until: DateTime
+  uri_key: String
   max_marking: [MarkingDefinition!]
   created_at: DateTime
   updated_at: DateTime
   editContext: [EditUserContext!]
+}
+
+input PublicDashboardAddInput {
+  name: String!
+  description: String
+  dashboard_id: String!
 }

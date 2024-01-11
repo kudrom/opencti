@@ -11,7 +11,8 @@ export interface BasicStoreEntityPublicDashboard extends BasicStoreEntity {
   dashboard_id: string;
   user_id: string;
   public_manifest: string;
-  uri_keys: Array<string>;
+  private_manifest: string;
+  uri_key: string;
 }
 
 export interface StoreEntityPublicDashboard extends StoreEntity {
@@ -20,7 +21,8 @@ export interface StoreEntityPublicDashboard extends StoreEntity {
   dashboard_id: string;
   user_id: string;
   public_manifest: string;
-  uri_keys: Array<string>;
+  private_manifest: string;
+  uri_key: string;
 }
 // endregion
 
@@ -31,7 +33,8 @@ export interface StixPublicDashboard extends StixDomainObject {
   dashboard_id: string;
   user_id: string;
   public_manifest: string;
-  uri_keys: Array<string>;
+  private_manifest: string;
+  uri_key: string;
   aliases: Array<string>;
   extensions: {
     [STIX_EXT_OCTI] : StixOpenctiExtensionSDO

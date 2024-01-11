@@ -11,7 +11,8 @@ const convertPublicDashboardToStix = (instance: StoreEntityPublicDashboard): Sti
     dashboard_id: instance.dashboard_id,
     user_id: instance.user_id,
     public_manifest: instance.public_manifest,
-    uri_keys: instance.uri_keys,
+    private_manifest: instance.private_manifest,
+    uri_key: instance.uri_key,
     aliases: instance.x_opencti_aliases ?? [],
     extensions: {
       [STIX_EXT_OCTI]: cleanObject({
