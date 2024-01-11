@@ -84,9 +84,10 @@ describe('Decay formula testing', () => {
 
     // GIVEN a decay based on fallback, WHEN stable score is the first stable score
     nextReactionDate = computeNextScoreReactionDate(100, 100, FALLBACK_DECAY_RULE, startDate);
-    // THEN the next reaction date should be the one for score 80
+    // THEN the next reaction date should be the one for score 80 => after 2.9 days
+    expect((moment(nextReactionDate)).format('YYYY-MM-DD'), 'Next reaction date should be after two days').toBe('2023-01-03');
     const expected80ScoreDays = computeTimeFromExpectedScore(100, 80, FALLBACK_DECAY_RULE);
-    expect((moment(nextReactionDate)).format('YYYY-MM-DD'), 'Next reaction date should be the score 80 date.').toBe((moment(startDate).add(expected80ScoreDays, 'days')).format('YYYY-MM-DD'));
+    expect(expected80ScoreDays).toBeCloseTo(2.9, 1);
   });
 });
 
