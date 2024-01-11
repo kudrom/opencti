@@ -10,10 +10,10 @@ import {
 import { MeasureInput } from '@components/threats/threat_actors_individual/__generated__/ThreatActorIndividualCreationMutation.graphql';
 import { useFormatter } from '../../../../components/i18n';
 import { SubscriptionFocus } from '../../../../components/Subscription';
-import DatePickerField from '../../../../components/DatePickerField';
 import TextField from '../../../../components/TextField';
 import { commitMutation, defaultCommitMutation } from '../../../../relay/environment';
 import useUserMetric from '../../../../utils/hooks/useUserMetric';
+import DateTimePickerField from '../../../../components/DateTimePickerField';
 
 export const individualHeightMutation = graphql`
   mutation HeightFieldIndividualMutation($id: ID!, $input: [EditInput]!) {
@@ -93,7 +93,7 @@ export const HeightFieldEdit: FunctionComponent<HeightFieldEditProps> = ({
                       }}
                     />
                     <Field
-                      component={DatePickerField}
+                      component={DateTimePickerField}
                       id={`height_date_${index}`}
                       name={`${name}.${index}.date_seen`}
                       onSubmit={(_: string, date_seen: string) => {
@@ -225,7 +225,7 @@ export const HeightFieldAdd: FunctionComponent<HeightFieldAddProps> = ({
                       InputProps={{ inputProps: { min: 0 } }}
                     />
                     <Field
-                      component={DatePickerField}
+                      component={DateTimePickerField}
                       name={`${name}.${index}.date_seen`}
                       TextFieldProps={{
                         label: t('Date Seen'),
