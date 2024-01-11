@@ -189,7 +189,11 @@ export const sanitized = (mapper: BasicStoreEntityCsvMapper) => {
       return {
         ...r,
         attributes: r.attributes.filter((attr) => {
-          return isNotEmptyField(attr.based_on?.representations) || isNotEmptyField(attr.column?.column_name);
+          return (
+            isNotEmptyField(attr.based_on?.representations)
+            || isNotEmptyField(attr.column?.column_name)
+            || isNotEmptyField(attr.default_values)
+          );
         })
       };
     })

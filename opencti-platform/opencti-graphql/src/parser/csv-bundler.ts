@@ -47,6 +47,7 @@ export const bundleProcess = async (context: AuthContext, user: AuthUser, conten
         const inputs = await mappingProcess(context, user, sanitizedMapper, record);
         // Remove inline elements
         const withoutInlineInputs = inputs.filter((input) => !inlineEntityTypes.includes(input.entity_type as string));
+        console.log(withoutInlineInputs);
         // Validate elements
         await validateInput(context, user, withoutInlineInputs);
         // Transform entity to stix
