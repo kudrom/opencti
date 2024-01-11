@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   EntitiesStixDomainObjectsLinesPaginationQuery,
   EntitiesStixDomainObjectsLinesPaginationQuery$variables,
 } from '@components/data/entities/__generated__/EntitiesStixDomainObjectsLinesPaginationQuery.graphql';
-import { EntitiesStixDomainObjectLineDummy } from '@components/data/entities/EntitiesStixDomainObjectLine';
+import { entitiesFragment, EntitiesStixDomainObjectLineDummy } from '@components/data/entities/EntitiesStixDomainObjectLine';
 import { EntitiesStixDomainObjectLine_node$data } from '@components/data/entities/__generated__/EntitiesStixDomainObjectLine_node.graphql';
 import ListLines from '../../../components/list_lines/ListLines';
 import ToolBar from './ToolBar';
@@ -14,13 +14,28 @@ import { usePaginationLocalStorage } from '../../../utils/hooks/useLocalStorage'
 import useEntityToggle from '../../../utils/hooks/useEntityToggle';
 import useQueryLoading from '../../../utils/hooks/useQueryLoading';
 import { emptyFilterGroup, injectEntityTypeFilterInFilterGroup } from '../../../utils/filters/filtersUtils';
-import { DataGrid } from '@mui/x-data-grid';
 import { loadQuery, useFragment, usePreloadedQuery } from 'react-relay';
 import { environment } from '../../../relay/environment';
+import {
+  ColumnDef,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel, IdentifiedColumnDef,
+  useReactTable,
+} from '@tanstack/react-table';
+import DataTable from '../../../components/dataGrid/DataTable';
+import DataTableFilters from '../../../components/dataGrid/DataTableFilters';
+import SearchInput from '../../../components/SearchInput';
+import { AccessorColumnDef, AccessorKeyColumnDef, AccessorKeyColumnDefBase } from '@tanstack/table-core/src/types';
+import Button from '@mui/material/Button';
+import ItemMarkings from '../../../components/ItemMarkings';
+import StixCoreObjectLabels from '@components/common/stix_core_objects/StixCoreObjectLabels';
 
 const LOCAL_STORAGE_KEY = 'entities';
 
-const queryRef = loadQuery(environment, entitiesStixDomainObjectsLinesQuery, { count: 200 });
+interface Tutu extends ColumnDef<any> {
+  render: (data: any) => any,
+}
 
 const Entities = () => {
   const {
@@ -56,61 +71,114 @@ const Entities = () => {
     onToggleEntity,
     numberOfSelectedElements,
   } = useEntityToggle<EntitiesStixDomainObjectLine_node$data>(LOCAL_STORAGE_KEY);
-  // const queryRef = useQueryLoading<EntitiesStixDomainObjectsLinesPaginationQuery>(
-  //   entitiesStixDomainObjectsLinesQuery,
-  //   paginationOptions,
-  // );
+
   const toolBarFilters = injectEntityTypeFilterInFilterGroup(filters, 'Stix-Domain-Object');
   const renderLines = () => {
     const isRuntimeSort = isRuntimeFieldEnable() ?? false;
+
     const dataColumns = {
       entity_type: {
-        name: 'Type',
-        width: '12%',
-        isSortable: true,
+        header: 'Type',
+        flexSize: '12',
+        enableSorting: false,
+        render: (data) => (
+          <Button variant="contained" size="small" onClick={() => storageHelpers.handleAddFilter('entity_type', data.entity_type)}>
+            {data.entity_type}
+          </Button>
+        ),
       },
       name: {
-        name: 'Name',
-        width: '25%',
-        isSortable: true,
+        header: 'Name',
+        flexSize: '25',
+        enableSorting: true,
+        render: (data) => data.name,
       },
       createdBy: {
-        name: 'Author',
-        width: '12%',
-        isSortable: isRuntimeSort,
+        header: 'Author',
+        flexSize: '12',
+        enableSorting: isRuntimeSort,
       },
       creator: {
-        name: 'Creators',
-        width: '12%',
-        isSortable: isRuntimeSort,
+        header: 'Creators',
+        flexSize: '12',
+        enableSorting: isRuntimeSort,
       },
       objectLabel: {
-        name: 'Labels',
-        width: '15%',
-        isSortable: false,
+        header: 'Labels',
+        flexSize: '15',
+        enableSorting: false,
+        render: ({ objectLabel }) => (
+          <StixCoreObjectLabels
+            variant="inList"
+            labels={objectLabel}
+            onClick={storageHelpers.handleAddFilter}
+          />
+        ),
       },
       created_at: {
-        name: 'Creation date',
-        width: '15%',
-        isSortable: true,
+        header: 'Creation date',
+        flexSize: '15',
+        enableSorting: false,
+        render: ({ created_at }, { fd }) => fd(created_at),
       },
       objectMarking: {
-        name: 'Marking',
-        isSortable: isRuntimeSort,
-        width: '8%',
+        header: 'Marking',
+        flexSize: '8',
+        enableSorting: isRuntimeSort,
+        render: ({ objectMarking }) => (
+          <ItemMarkings
+            variant="inList"
+            markingDefinitionsEdges={objectMarking.edges ?? []}
+            limit={1}
+            handleAddFilter={storageHelpers.handleAddFilter}
+          />
+        ),
       },
     };
 
-    const f = usePreloadedQuery(entitiesStixDomainObjectsLinesQuery, queryRef);
-    const data = useFragment(entitiesStixDomainObjectsLinesFragment, f);
-    // const columns = Object.entries(dataColumns).map(([key, v]) => ({ ...v, key }));
-    const columns = [{ field: 'id', headerName: 'ID', flex: 0.9 }, { field: 'entity_type', headerName: 'Entity Type', flex: 1 }];
-    const rows = data.stixDomainObjects.edges.map(({ node }) => node);
-    console.log(rows);
+    const queryRef = useQueryLoading<EntitiesStixDomainObjectsLinesPaginationQuery>(
+      entitiesStixDomainObjectsLinesQuery,
+      { ...paginationOptions, count: 1000 },
+    );
+
     return (
       <>
-        <div>Coucou</div>
-        <DataGrid  columns={columns} rows={rows} autoPageSize/>
+        {queryRef && (
+          <DataTable
+            queryRef={queryRef}
+            resolvePath={(data) => data.stixDomainObjects.edges.map(({ node }) => node)}
+            dataColumns={dataColumns}
+            sortBy={sortBy}
+            orderAsc={orderAsc}
+            handleSort={storageHelpers.handleSort}
+            searchComponent={storageHelpers.handleSearch && (
+              <SearchInput
+                variant={'small'}
+                onSubmit={storageHelpers.handleSearch}
+                keyword={searchTerm}
+              />
+            )}
+            filterComponent={(
+              <DataTableFilters
+                helpers={storageHelpers}
+                filters={filters}
+                searchContextFinal={filters}
+                availableEntityTypes={['Stix-Domain-Object']}
+                availableFilterKeys={[
+                  'entity_type',
+                  'objectLabel',
+                  'objectMarking',
+                  'createdBy',
+                  'source_reliability',
+                  'confidence',
+                  'creator_id',
+                  'created',
+                  'created_at',
+                ]}
+              />
+            )}
+          />
+        )}
       </>
       // <>
       //   <ListLines

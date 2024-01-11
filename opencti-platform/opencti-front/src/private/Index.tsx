@@ -57,6 +57,7 @@ const Index = ({ settings }: IndexProps) => {
       duration: theme.transitions.duration.enteringScreen,
     }),
     overflowX: 'hidden',
+    height: '100vh',
   };
   const settingsMessagesBannerHeight = useSettingsMessagesBannerHeight();
   // Change the theme body attribute when the mode changes in

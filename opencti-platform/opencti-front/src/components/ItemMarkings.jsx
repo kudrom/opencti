@@ -95,7 +95,7 @@ const StyledBadge = styled(Badge)(() => ({
   },
 }));
 
-const ItemMarkings = ({ variant, markingDefinitionsEdges, limit }) => {
+const ItemMarkings = ({ variant, markingDefinitionsEdges, limit, handleAddFilter }) => {
   const classes = useStyles();
   const theme = useTheme();
   const { t } = useFormatter();
@@ -139,6 +139,7 @@ const ItemMarkings = ({ variant, markingDefinitionsEdges, limit }) => {
             border,
           }}
           label={markingDefinition.definition}
+          onClick={() => handleAddFilter('objectMarking', markingDefinition.id)}
         />
       );
     }

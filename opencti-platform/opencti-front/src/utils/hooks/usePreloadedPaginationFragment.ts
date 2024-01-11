@@ -46,6 +46,7 @@ const usePreloadedPaginationFragment = <
     data,
     hasMore: () => hasNext,
     isLoadingMore: () => isLoadingNext,
+    isLoading: isLoadingNext,
     loadMore: loadNext,
   };
 };
