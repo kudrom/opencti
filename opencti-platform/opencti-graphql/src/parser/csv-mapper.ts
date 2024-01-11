@@ -134,9 +134,9 @@ const handleId = (representation: CsvMapperRepresentation, input: Record<string,
 const handleDirectAttribute = (attributeKey: string, column: AttributeColumn, input: Record<string, InputType>, value: string) => {
   const entity_type = input[entityType.name] as string;
 
-  // let attributeKeyOldOne;
-  if (attributeKey === 'MD5' || attributeKey === 'SHA-1') {
-    // attributeKeyOldOne = attributeKey; -> MD5 || SHA-1
+  const attributeKeyOldOne = attributeKey;
+
+  if (attributeKey === 'MD5' || attributeKey === 'SHA-1' || attributeKey === 'SHA-256' || attributeKey === 'SHA-512') {
     attributeKey = 'hashes';
   }
   const attributeDef = schemaAttributesDefinition.getAttribute(entity_type, attributeKey);
@@ -144,6 +144,7 @@ const handleDirectAttribute = (attributeKey: string, column: AttributeColumn, in
   logApp.info(`[ATTRIBUTEDEF] ${attributeDef}`);
   logApp.info(`[ATTRIBUTEKEY] ${attributeKey}`);
   console.log('entity_type', entity_type);
+  console.log('attributeKeyOldOne', attributeKeyOldOne);
 
   if (!attributeDef) {
     throw UnsupportedError('Invalid attribute', { key: attributeKey, type: entity_type });
@@ -154,13 +155,15 @@ const handleDirectAttribute = (attributeKey: string, column: AttributeColumn, in
   // Si la valeur n'est pas null
   // Alors on affecte la valeur a la propriété de l'object Stix que l'on est entrain de construire
   // Exemple report[name] = 'report name'
-  if (computedValue !== null && computedValue !== undefined) {
-    // Si attributeDef = 'hashes'
-    // input[attributeKey] =  {...input[attributeKey], [attributeKeyOldOne]: computedValue } -> verification si input[attributeKey] = null alors qu'est ce qui se passe ?
 
-    // Sinon
+  if (computedValue !== null && computedValue !== undefined) {
+    if (attributeKey === 'hashes') {
+      // input[attributeKey] =  {...input[attributeKey], [attributeKeyOldOne]: computedValue } -> verification si input[attributeKey] = null alors qu'est ce qui se passe ?
+      input[attributeKey] = { [attributeKeyOldOne]: computedValue };
+    }
     input[attributeKey] = computedValue;
   }
+  console.log('input', input);
 };
 const handleBasedOnAttribute = (attributeKey: string, input: Record<string, InputType>, entities: Record<string, InputType>[]) => {
   const entity_type = input[entityType.name] as string;
