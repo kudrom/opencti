@@ -9536,6 +9536,7 @@ const i18n = {
       toSightingId: 'Sighted in/at',
       fromId: 'Source entity',
       operatingSystem: 'Operating System',
+      regardingOf: 'In regards of',
       toId: 'Target entity',
       fromTypes: 'Source type',
       toTypes: 'Target type',
