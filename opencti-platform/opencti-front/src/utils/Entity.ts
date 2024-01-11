@@ -1,4 +1,4 @@
-export const resolveLink = (type: string): string | null => {
+export const resolveLink = (type = 'unknown'): string | null => {
   const upperCasedType = `${type[0].toUpperCase()}${type.slice(1)}`;
   switch (upperCasedType) {
     case 'Dashboard':
