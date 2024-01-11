@@ -30,7 +30,8 @@ const INDICATOR_DEFINITION: ModuleDefinition<StoreEntityIndicator, StixIndicator
     { name: 'x_opencti_detection', label: 'Detection', type: 'boolean', mandatoryType: 'no', editDefault: false, multiple: false, upsert: true, isFilterable: true },
     { name: 'x_opencti_main_observable_type', label: 'Main observable type', type: 'string', format: 'short', mandatoryType: 'external', editDefault: true, multiple: false, upsert: true, isFilterable: true },
     { name: 'x_mitre_platforms', label: 'Platforms', type: 'string', format: 'short', mandatoryType: 'customizable', editDefault: true, multiple: true, upsert: true, isFilterable: true },
-    { name: 'next_score_reaction_date',
+    {
+      name: 'next_score_reaction_date',
       type: 'date',
       mandatoryType: 'no',
       editDefault: false,
@@ -56,7 +57,7 @@ const INDICATOR_DEFINITION: ModuleDefinition<StoreEntityIndicator, StixIndicator
       mandatoryType: 'no',
       editDefault: false,
       multiple: true,
-      upsert: true,
+      upsert: false,
       label: 'Decay history',
       isFilterable: false,
       format: 'flat'
@@ -67,7 +68,7 @@ const INDICATOR_DEFINITION: ModuleDefinition<StoreEntityIndicator, StixIndicator
       mandatoryType: 'no',
       editDefault: false,
       multiple: false,
-      upsert: true,
+      upsert: false,
       label: 'Decay rule',
       isFilterable: false,
       format: 'flat'
