@@ -2436,5 +2436,11 @@
   "Do you want to unlink this task ?": "Möchten Sie die Verknüpfung dieser Aufgabe aufheben?",
   "CREATE": "CREATE",
   "entity_Analyses": "entity_Analyses",
-  "workflow_id": "Status"
+  "workflow_id": "Status",
+  "Do you want to delete this CSV ingester?": "Möchten Sie diesen CSV-Importer löschen?",
+  "Do you want to start this CSV ingester?": "Möchten Sie diesen CSV-Importer starten?",
+  "Do you want to stop this CSV ingester?": "Möchten Sie diesen CSV-Importer stoppen?",
+  "Create a CSV Ingester": "Einen CSV-Importer erstellen",
+  "Update a CSV Ingester": "Einen CSV-Importer aktualisieren",
+  "Please, note that the test will be run on the 50 first lines": "Bitte beachten Sie, dass der Test auf den ersten 50 Zeilen durchgeführt wird"
 }
