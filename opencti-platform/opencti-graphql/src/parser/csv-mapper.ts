@@ -16,6 +16,7 @@ import { isValidTargetType } from '../modules/internal/csvMapper/csvMapper-utils
 import { fillDefaultValues, getEntitySettingFromCache } from '../modules/entitySetting/entitySetting-utils';
 import type { AuthContext, AuthUser } from '../types/user';
 import { UnsupportedError } from '../config/errors';
+import { logApp } from '../config/conf';
 
 export type InputType = string | string[] | boolean | number | Record<string, any>;
 
@@ -132,12 +133,32 @@ const handleId = (representation: CsvMapperRepresentation, input: Record<string,
 
 const handleDirectAttribute = (attributeKey: string, column: AttributeColumn, input: Record<string, InputType>, value: string) => {
   const entity_type = input[entityType.name] as string;
+
+  // let attributeKeyOldOne;
+  if (attributeKey === 'MD5' || attributeKey === 'SHA-1') {
+    // attributeKeyOldOne = attributeKey; -> MD5 || SHA-1
+    attributeKey = 'hashes';
+  }
   const attributeDef = schemaAttributesDefinition.getAttribute(entity_type, attributeKey);
+  console.log('attributeDef', attributeDef);
+  logApp.info(`[ATTRIBUTEDEF] ${attributeDef}`);
+  logApp.info(`[ATTRIBUTEKEY] ${attributeKey}`);
+  console.log('entity_type', entity_type);
+
   if (!attributeDef) {
     throw UnsupportedError('Invalid attribute', { key: attributeKey, type: entity_type });
   }
   const computedValue = computeValue(value, column, attributeDef);
+  console.log('computedValue', computedValue);
+
+  // Si la valeur n'est pas null
+  // Alors on affecte la valeur a la propriété de l'object Stix que l'on est entrain de construire
+  // Exemple report[name] = 'report name'
   if (computedValue !== null && computedValue !== undefined) {
+    // Si attributeDef = 'hashes'
+    // input[attributeKey] =  {...input[attributeKey], [attributeKeyOldOne]: computedValue } -> verification si input[attributeKey] = null alors qu'est ce qui se passe ?
+
+    // Sinon
     input[attributeKey] = computedValue;
   }
 };

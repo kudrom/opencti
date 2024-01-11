@@ -83,7 +83,7 @@ CsvMapperRepresentationAttributesFormProps
           label: null,
           mandatory: false,
           multiple: false,
-          name: 'SHA_256',
+          name: 'SHA-1',
           type: 'string',
         },
         {
@@ -92,7 +92,7 @@ CsvMapperRepresentationAttributesFormProps
           label: null,
           mandatory: false,
           multiple: false,
-          name: 'SHA-1',
+          name: 'SHA-256',
           type: 'string',
         },
         {
