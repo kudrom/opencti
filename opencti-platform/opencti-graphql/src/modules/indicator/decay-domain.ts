@@ -80,7 +80,8 @@ export const computeTimeFromExpectedScore = (initialScore: number, score: number
 export const computeNextScoreReactionDate = (initialScore: number, stableScore: number, model: DecayRule, startDate: Moment) => {
   const nextKeyPoint = model.decay_points.find((p) => p < stableScore) || model.decay_revoke_score;
   const daysDelay = computeTimeFromExpectedScore(initialScore, nextKeyPoint, model);
-  return moment(startDate).add(daysDelay, 'days').toDate();
+  const duration = moment.duration(daysDelay, 'days');
+  return moment(startDate).add(duration.asMilliseconds(), 'ms').toDate();
 };
 
 export const findDecayRuleForIndicator = (indicatorObservableType: string, enabledRules: DecayRule[]) => {
