@@ -16,6 +16,7 @@ import { fillDefaultValues, getEntitySettingFromCache } from '../modules/entityS
 import type { AuthContext, AuthUser } from '../types/user';
 import { UnsupportedError } from '../config/errors';
 import { internalFindByIdsMapped } from '../database/middleware-loader';
+import type { BasicStoreObject } from '../types/store';
 
 export type InputType = string | string[] | boolean | number | Record<string, any>;
 
@@ -164,30 +165,24 @@ const handleDirectAttribute = (
   }
 };
 
-const handleBasedOnAttribute = async (
-  context: AuthContext,
-  user: AuthUser,
+const handleBasedOnAttribute = (
   attribute: CsvMapperRepresentationAttribute,
   input: Record<string, InputType>,
   definition: AttributeDefinition,
-  otherEntities: Map<string, Record<string, InputType>>
+  otherEntities: Map<string, Record<string, InputType>>,
+  refEntities: Record<string, BasicStoreObject>
 ) => {
   if (attribute.default_values && attribute.default_values.length > 0) {
-    const entities = await internalFindByIdsMapped(context, user, attribute.default_values);
     if (definition.multiple) {
       input[attribute.key] = attribute.default_values.flatMap((id) => {
-        const entity = entities[id];
+        const entity = refEntities[id];
         if (!entity) return [];
-        return {
-          standard_id: entity.standard_id
-        };
+        return [entity];
       });
     } else {
-      const entity = entities[attribute.default_values[0]];
+      const entity = refEntities[attribute.default_values[0]];
       if (entity) {
-        input[attribute.key] = {
-          standard_id: entity.standard_id
-        };
+        input[attribute.key] = entity;
       }
     }
   }
@@ -226,19 +221,15 @@ const handleBasedOnAttribute = async (
   }
 };
 
-const handleAttributes = async (
-  context: AuthContext,
-  user: AuthUser,
+const handleAttributes = (
   record: string[],
   representation: CsvMapperRepresentation,
   input: Record<string, InputType>,
-  otherEntities: Map<string, Record<string, InputType>>
+  otherEntities: Map<string, Record<string, InputType>>,
+  refEntities: Record<string, BasicStoreObject>
 ) => {
   const { entity_type } = representation.target;
-  const attributes = representation.attributes ?? [];
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < attributes.length; i++) {
-    const attribute = attributes[i];
+  (representation.attributes ?? []).forEach((attribute) => {
     const attributeDef = schemaAttributesDefinition.getAttribute(entity_type, attribute.key);
     const refDef = schemaRelationsRefDefinition.getRelationRef(entity_type, attribute.key);
     if (attributeDef) {
@@ -246,11 +237,11 @@ const handleAttributes = async (
       handleDirectAttribute(attribute, input, record, attributeDef);
     } else if (refDef) {
       // Handle based_on attribute
-      await handleBasedOnAttribute(context, user, attribute, input, refDef, otherEntities);
+      handleBasedOnAttribute(attribute, input, refDef, otherEntities, refEntities);
     } else {
       throw UnsupportedError('Unknown attribute schema for attribute:', { key: attribute.key });
     }
-  }
+  });
 };
 
 const mapRecord = async (
@@ -258,7 +249,8 @@ const mapRecord = async (
   user: AuthUser,
   record: string[],
   representation: CsvMapperRepresentation,
-  map: Map<string, Record<string, InputType>>
+  otherEntities: Map<string, Record<string, InputType>>,
+  refEntities: Record<string, BasicStoreObject>
 ) => {
   if (!isValidTarget(record, representation)) {
     return null;
@@ -269,7 +261,7 @@ const mapRecord = async (
   handleType(representation, input);
   input = handleInnerType(input, entity_type);
 
-  await handleAttributes(context, user, record, representation, input, map);
+  handleAttributes(record, representation, input, otherEntities, refEntities);
 
   const entitySetting = await getEntitySettingFromCache(context, entity_type);
   const filledInput = fillDefaultValues(user, input, entitySetting);
@@ -289,6 +281,21 @@ export const mappingProcess = async (
   record: string[]
 ): Promise<Record<string, InputType>[]> => {
   const { representations } = mapper;
+  // IDs of entity refs retrieved from default values of based_on attributes in csv mapper.
+  const refIdsToResolve = new Set(representations.flatMap((representation) => {
+    const { target } = representation;
+    return representation.attributes.flatMap((attribute) => {
+      if (attribute.default_values && attribute.default_values.length > 0) {
+        const refDef = schemaRelationsRefDefinition.getRelationRef(target.entity_type, attribute.key);
+        if (refDef) {
+          return attribute.default_values;
+        }
+      }
+      return [];
+    });
+  }));
+  const refEntities = await internalFindByIdsMapped(context, user, [...refIdsToResolve]);
+
   const representationEntities = representations
     .filter((r) => r.type === CsvMapperRepresentationType.entity)
     .sort((r1, r2) => r1.attributes.filter((attr) => attr.based_on).length - r2.attributes.filter((attr) => attr.based_on).length);
@@ -296,20 +303,18 @@ export const mappingProcess = async (
   const results = new Map<string, Record<string, InputType>>();
 
   // 1. entities sort by no based on at first
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < representationEntities.length; i++) {
+  for (let i = 0; i < representationEntities.length; i += 1) {
     const representation = representationEntities[i];
-    const input = await mapRecord(context, user, record, representation, results);
+    const input = await mapRecord(context, user, record, representation, results, refEntities);
     if (input) {
       results.set(representation.id, input);
     }
   }
 
   // 2. relationships
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0; i < representationRelationships.length; i++) {
+  for (let i = 0; i < representationRelationships.length; i += 1) {
     const representation = representationRelationships[i];
-    const input = await mapRecord(context, user, record, representation, results);
+    const input = await mapRecord(context, user, record, representation, results, refEntities);
     if (input) {
       results.set(representation.id, input);
     }
