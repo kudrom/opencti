@@ -2,15 +2,16 @@ import { describe, it, expect } from 'vitest';
 import moment from 'moment';
 import {
   BUILT_IN_DECAY_RULES,
+  computeLiveScore,
   computeNextScoreReactionDate,
   computeScoreFromExpectedTime,
   computeTimeFromExpectedScore,
-  type DecayRule,
   FALLBACK_DECAY_RULE,
   findDecayRuleForIndicator
 } from '../../../src/modules/indicator/decay-domain';
 import { computeIndicatorDecayPatch, type IndicatorPatch } from '../../../src/modules/indicator/indicator-domain';
 import type { BasicStoreEntityIndicator } from '../../../src/modules/indicator/indicator-types';
+import type { DecayRule } from '../../../src/generated/graphql';
 
 describe('Decay formula testing', () => {
   it('should compute score', () => {
