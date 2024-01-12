@@ -3,11 +3,10 @@ import { MARKING_TLP_AMBER, MARKING_TLP_AMBER_STRICT, MARKING_TLP_CLEAR, MARKING
 import { getEntitiesMapFromCache } from '../../database/cache';
 import { ENTITY_TYPE_MARKING_DEFINITION } from '../../schema/stixMetaObject';
 import type { AuthContext, AuthUser } from '../../types/user';
-import type { IndicatorAddInput } from '../../generated/graphql';
+import type { DecayRule, IndicatorAddInput } from '../../generated/graphql';
 import type { BasicStoreEntity } from '../../types/store';
 import { isNotEmptyField } from '../../database/utils';
 import { utcDate } from '../../utils/format';
-import { type DecayRule } from './decay-domain';
 
 interface TTL_DEFINITION {
   target: Array<string>;

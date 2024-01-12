@@ -12,23 +12,36 @@ import Paper from '@mui/material/Paper';
 import { useTheme } from '@mui/styles';
 import { Theme } from '@mui/material/styles/createTheme';
 import { IndicatorDetails_indicator$data } from '@components/observations/indicators/__generated__/IndicatorDetails_indicator.graphql';
+import { graphql, PreloadedQuery, usePreloadedQuery } from 'react-relay';
+import { DecayDialogLiveDetailQuery } from '@components/observations/indicators/__generated__/DecayDialogLiveDetailQuery.graphql';
 import { useFormatter } from '../../../../components/i18n';
 
 interface DecayDialogContentProps {
   indicator: IndicatorDetails_indicator$data,
+  queryRef: PreloadedQuery<DecayDialogLiveDetailQuery>,
 }
 
-const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indicator }) => {
+export const decayLiveDetailsQuery = graphql`
+  query DecayDialogLiveDetailQuery($id: String!) {
+    indicatorDecayDetails(id: $id) {
+      live_score
+      live_points {
+        score
+        updated_at
+      }
+    }
+  }
+`;
+
+const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indicator, queryRef }) => {
   const theme = useTheme<Theme>();
   const { t, fldt } = useFormatter();
-  /* const series = [{ name: 'Live score', data: [100, 80, 60, 40, 20, 0], type: 'line' }];
-  const chartOptions: ApexOptions = {
-    chart: { id: 'Decay graph' },
-    xaxis: { type: 'datetime' },
-    yaxis: { min: 0, max: 100 },
-  }; */
+
+  const { indicatorDecayDetails } = usePreloadedQuery(decayLiveDetailsQuery, queryRef);
 
   const decayHistory = indicator.x_opencti_decay_history ? [...indicator.x_opencti_decay_history] : [];
+  const decayLivePoints = indicatorDecayDetails?.live_points ? [...indicatorDecayDetails.live_points] : [];
+
   decayHistory.sort((a, b) => {
     return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
   });
@@ -63,6 +76,12 @@ const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indic
                     <TableCell sx={index === 0 ? currentScoreLineStyle : {}}>{fldt(history.updated_at)}</TableCell>
                   </TableRow>
                 ))}
+                {decayLivePoints.map((onePoint, index) => (
+                  <TableRow key={index}>
+                    <TableCell sx={index === 0 ? currentScoreLineStyle : {}}>{onePoint.score} *</TableCell>
+                    <TableCell sx={index === 0 ? currentScoreLineStyle : {}}>{fldt(onePoint.updated_at)}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
@@ -77,6 +96,7 @@ const DecayDialogContent : FunctionComponent<DecayDialogContentProps> = ({ indic
             <li>{t('Pound factor:')} { indicator.x_opencti_decay_rule?.decay_pound ?? 'Not set'}</li>
             <li>{t('Revoke score:')} { indicator.x_opencti_decay_rule?.decay_revoke_score ?? 'Not set'}</li>
             <li>{t('Reaction points:')} {decayReactionPoints.join(', ')}</li>
+            <li>{t('Live score:')} {indicatorDecayDetails?.live_score}</li>
           </ul>
         </Grid>
       </Grid>

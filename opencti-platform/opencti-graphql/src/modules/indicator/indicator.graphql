@@ -44,6 +44,11 @@ type DecayRule {
   enabled: Boolean
 }
 
+type DecayLiveDetails {
+  live_score: Int
+  live_points: [DecayHistory!]
+}
+
 type Indicator implements BasicObject & StixObject & StixCoreObject & StixDomainObject {
   id: ID! # internal_id
   standard_id: String!
@@ -150,6 +155,7 @@ type Indicator implements BasicObject & StixObject & StixCoreObject & StixDomain
   valid_until: DateTime
   x_opencti_score: Int
   x_opencti_base_score: Int
+  x_opencti_base_score_date: DateTime
   x_opencti_detection: Boolean
   x_opencti_main_observable_type: String
   x_mitre_platforms: [String]
@@ -234,6 +240,7 @@ type Query {
     endDate: DateTime
     dateAttribute: String
   ): [Distribution] @auth(for: [KNOWLEDGE])
+  indicatorDecayDetails(id: String!): DecayLiveDetails @auth(for: [KNOWLEDGE])
 }
 
 type Mutation {

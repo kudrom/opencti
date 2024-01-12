@@ -3,11 +3,12 @@ import {
   batchObservables,
   findAll,
   findById,
+  getDecayDetails,
   indicatorsDistributionByEntity,
   indicatorsNumber,
   indicatorsNumberByEntity,
   indicatorsTimeSeries,
-  indicatorsTimeSeriesByEntity,
+  indicatorsTimeSeriesByEntity
 } from './indicator-domain';
 import {
   stixDomainObjectAddRelation,
@@ -47,6 +48,7 @@ const indicatorResolvers: Resolvers = {
       }
       return distributionEntities(context, context.user, [ENTITY_TYPE_INDICATOR], args);
     },
+    indicatorDecayDetails: (_, { id }, context) => getDecayDetails(context, context.user, id),
   },
   Indicator: {
     killChainPhases: (indicator, _, context) => killChainPhasesLoader.load(indicator.id, context, context.user),

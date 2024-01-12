@@ -16,9 +16,10 @@ import { InformationOutline } from 'mdi-material-ui';
 import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DecayDialogContent from '@components/observations/indicators/DecayDialog';
+import DecayDialogContent, { decayLiveDetailsQuery } from '@components/observations/indicators/DecayDialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
+import { DecayDialogLiveDetailQuery } from '@components/observations/indicators/__generated__/DecayDialogLiveDetailQuery.graphql';
 import ItemScore from '../../../../components/ItemScore';
 import IndicatorObservables from './IndicatorObservables';
 import ExpandableMarkdown from '../../../../components/ExpandableMarkdown';
@@ -28,6 +29,7 @@ import StixCoreObjectKillChainPhasesView from '../../common/stix_core_objects/St
 import { useFormatter } from '../../../../components/i18n';
 import type { Theme } from '../../../../components/Theme';
 import Transition from '../../../../components/Transition';
+import useQueryLoading from '../../../../utils/hooks/useQueryLoading';
 
 const useStyles = makeStyles<Theme>((theme) => ({
   paper: {
@@ -57,6 +59,7 @@ const IndicatorDetailsComponent: FunctionComponent<IndicatorDetailsComponentProp
 }) => {
   const { t, fldt } = useFormatter();
   const [isLifecycleOpen, setIsLifecycleOpen] = useState(false);
+  const decayLiveDetailqueryRef = useQueryLoading<DecayDialogLiveDetailQuery>(decayLiveDetailsQuery, { id: indicator.id });
 
   const classes = useStyles();
   const onDecayLifecycleClose = () => {
@@ -90,15 +93,18 @@ const IndicatorDetailsComponent: FunctionComponent<IndicatorDetailsComponentProp
             />
             <Grid container columnSpacing={1} style={{ marginTop: 20 }}>
               <Grid item xs={4}>
+
                 <Typography variant="h3" gutterBottom={true}>
-                  {t('Score')}
-                  <Tooltip
-                    title={t(
-                      'This score is updated with the decay rule applied to this indicator.',
-                    )}
-                  >
-                    <InformationOutline fontSize="small" color="primary" />
-                  </Tooltip>
+                  <div style = {{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div>{t('Score')}</div>
+                    <Tooltip
+                      title={t(
+                        'This score is updated with the decay rule applied to this indicator.',
+                      )}
+                    >
+                      <InformationOutline fontSize="small" color="primary" />
+                    </Tooltip>
+                  </div>
                 </Typography>
                 <ItemScore score={indicator.x_opencti_score} />
               </Grid>
@@ -122,7 +128,9 @@ const IndicatorDetailsComponent: FunctionComponent<IndicatorDetailsComponentProp
                   maxWidth="md"
                 >
                   <DialogTitle>{t('Lifecycle details')}</DialogTitle>
-                  <DecayDialogContent indicator={ indicator } />
+                  {decayLiveDetailqueryRef && (
+                  <DecayDialogContent indicator={ indicator } queryRef={decayLiveDetailqueryRef} />
+                  )}
                   <DialogActions>
                     <Button onClick={onDecayLifecycleClose}>
                       {t('Close')}

@@ -16,11 +16,21 @@ const BATCH_SIZE = conf.get('indicator_decay_manager:batch_size') || 10000;
 export const indicatorDecayHandler = async () => {
   const context = executionContext('indicator_decay_manager');
   const indicatorsToUpdate = await findIndicatorsForDecay(context, SYSTEM_USER, BATCH_SIZE);
+  let errorCount = 0;
   for (let i = 0; i < indicatorsToUpdate.length; i += 1) {
-    const indicator = indicatorsToUpdate[i];
-    await updateIndicatorDecayScore(context, SYSTEM_USER, indicator);
+    try {
+      const indicator = indicatorsToUpdate[i];
+      await updateIndicatorDecayScore(context, SYSTEM_USER, indicator);
+    } catch (e: any) {
+      logApp.warn(`[OPENCTI-MODULE] Error when processing decay for ${indicatorsToUpdate[i].id}, skipping.`);
+      errorCount += 1;
+    }
   }
-  logApp.info(`[OPENCTI-MODULE] Indicator decay manager updated ${indicatorsToUpdate.length} indicators`);
+  if (errorCount > 0) {
+    logApp.error(`[OPENCTI-MODULE] Indicator decay manager got ${errorCount} error for ${indicatorsToUpdate.length} indicators. Please have a look to previous warning.`);
+  } else {
+    logApp.info(`[OPENCTI-MODULE] Indicator decay manager updated ${indicatorsToUpdate.length} indicators`);
+  }
 };
 
 const INDICATOR_DECAY_MANAGER_DEFINITION: ManagerDefinition = {

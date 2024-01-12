@@ -26,7 +26,15 @@ import type { AuthContext, AuthUser } from '../../types/user';
 import { type BasicStoreEntityIndicator, ENTITY_TYPE_INDICATOR, type StoreEntityIndicator } from './indicator-types';
 import type { IndicatorAddInput, QueryIndicatorsArgs, QueryIndicatorsNumberArgs } from '../../generated/graphql';
 import type { NumberResult } from '../../types/store';
-import { BUILT_IN_DECAY_RULES, computeNextScoreReactionDate, type DecayHistory, findDecayRuleForIndicator } from './decay-domain';
+import {
+  BUILT_IN_DECAY_RULES,
+  computeLivePoints,
+  computeLiveScore,
+  computeNextScoreReactionDate,
+  type DecayHistory,
+  type DecayLiveDetails,
+  findDecayRuleForIndicator
+} from './decay-domain';
 import { prepareDate } from '../../utils/format';
 import { FilterMode, FilterOperator, OrderingMode } from '../../generated/graphql';
 
@@ -36,6 +44,21 @@ export const findById = (context: AuthContext, user: AuthUser, indicatorId: stri
 
 export const findAll = (context: AuthContext, user: AuthUser, args: QueryIndicatorsArgs) => {
   return listEntitiesPaginated<BasicStoreEntityIndicator>(context, user, [ENTITY_TYPE_INDICATOR], args);
+};
+
+/**
+ * Compute live decay detail for an indicator.
+ * @param context
+ * @param user
+ * @param indicatorId
+ */
+export const getDecayDetails = async (context: AuthContext, user: AuthUser, indicatorId: string) => {
+  const indicator = await findById(context, user, indicatorId);
+  const details: DecayLiveDetails = {
+    live_score: computeLiveScore(indicator),
+    live_points: computeLivePoints(indicator),
+  };
+  return details;
 };
 
 export const findIndicatorsForDecay = (context: AuthContext, user: AuthUser, maxSize: number) => {
@@ -122,12 +145,12 @@ export const addIndicator = async (context: AuthContext, user: AuthUser, indicat
   }
   // save decay rule
   const decayRule = findDecayRuleForIndicator(observableType, BUILT_IN_DECAY_RULES);
-  const indicatorDecayRule = {
+  /* const indicatorDecayRule = {
     decay_lifetime: decayRule.decay_lifetime,
     decay_pound: decayRule.decay_pound,
     decay_points: [...decayRule.decay_points],
     decay_revoke_score: decayRule.decay_revoke_score,
-  };
+  }; */
   const { validFrom, validUntil, revoked, validPeriod } = await computeValidPeriod(indicator, decayRule);
   const indicatorBaseScore = indicator.x_opencti_score ?? 50;
   const nextScoreReactionDate = computeNextScoreReactionDate(indicatorBaseScore, indicatorBaseScore, decayRule, validFrom);
@@ -140,12 +163,13 @@ export const addIndicator = async (context: AuthContext, user: AuthUser, indicat
     R.dissoc('createObservables'),
     R.dissoc('basedOn'),
     R.assoc('pattern', formattedPattern),
-    R.assoc('x_opencti_decay_rule', indicatorDecayRule),
+    R.assoc('x_opencti_decay_rule', decayRule),
     R.assoc('next_score_reaction_date', nextScoreReactionDate),
     R.assoc('x_opencti_decay_history', decayHistory),
     R.assoc('x_opencti_main_observable_type', observableType),
     R.assoc('x_opencti_score', indicatorBaseScore),
     R.assoc('x_opencti_base_score', indicatorBaseScore),
+    R.assoc('x_opencti_base_score_date', validFrom.toISOString()),
     R.assoc('x_opencti_detection', indicator.x_opencti_detection ?? false),
     R.assoc('valid_from', validFrom.toISOString()),
     R.assoc('valid_until', validUntil.toISOString()),
@@ -185,26 +209,30 @@ export const computeIndicatorDecayPatch = (indicator: BasicStoreEntityIndicator)
   // update x_opencti_score
   let patch: IndicatorPatch = {};
   const model = indicator.x_opencti_decay_rule;
-  if (!model) {
+  if (!model || !model.decay_points || !model.decay_revoke_score) {
     return null;
   }
-  const newStableScore = model.decay_points.find((p) => p < indicator.x_opencti_score) || model.decay_revoke_score;
-  const decayHistory: DecayHistory[] = [...(indicator.x_opencti_decay_history ?? [])];
-  decayHistory.push({
-    updated_at: new Date(),
-    score: newStableScore,
-  });
-  patch = {
-    x_opencti_score: newStableScore,
-    x_opencti_decay_history: decayHistory,
-  };
-  if (newStableScore <= model.decay_revoke_score) {
-    // revoke
-    patch = { ...patch, revoked: true };
-  } else {
-    // compute next_score_reaction_date
-    const nextScoreReactionDate = computeNextScoreReactionDate(indicator.x_opencti_base_score, newStableScore, model, moment(indicator.valid_from));
-    patch = { ...patch, next_score_reaction_date: nextScoreReactionDate };
+  const newStableScore = model.decay_points.find((p) => (p || indicator.x_opencti_score) < indicator.x_opencti_score) || model.decay_revoke_score;
+  if (newStableScore) {
+    const decayHistory: DecayHistory[] = [...(indicator.x_opencti_decay_history ?? [])];
+    decayHistory.push({
+      updated_at: new Date(),
+      score: newStableScore,
+    });
+    patch = {
+      x_opencti_score: newStableScore,
+      x_opencti_decay_history: decayHistory,
+    };
+    if (newStableScore <= model.decay_revoke_score) {
+      // revoke
+      patch = { ...patch, revoked: true };
+    } else {
+      // compute next_score_reaction_date
+      const nextScoreReactionDate = computeNextScoreReactionDate(indicator.x_opencti_base_score, newStableScore, model, moment(indicator.valid_from));
+      if (nextScoreReactionDate) {
+        patch = { ...patch, next_score_reaction_date: nextScoreReactionDate };
+      }
+    }
   }
   return patch;
 };
