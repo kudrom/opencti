@@ -14,7 +14,7 @@ import { usePaginationLocalStorage } from '../../../utils/hooks/useLocalStorage'
 import useEntityToggle from '../../../utils/hooks/useEntityToggle';
 import useQueryLoading from '../../../utils/hooks/useQueryLoading';
 import { emptyFilterGroup, injectEntityTypeFilterInFilterGroup } from '../../../utils/filters/filtersUtils';
-import { loadQuery, useFragment, usePreloadedQuery } from 'react-relay';
+import { loadQuery, useFragment, useMutation, usePreloadedQuery } from 'react-relay';
 import { environment } from '../../../relay/environment';
 import {
   ColumnDef,
@@ -30,12 +30,20 @@ import { AccessorColumnDef, AccessorKeyColumnDef, AccessorKeyColumnDefBase } fro
 import Button from '@mui/material/Button';
 import ItemMarkings from '../../../components/ItemMarkings';
 import StixCoreObjectLabels from '@components/common/stix_core_objects/StixCoreObjectLabels';
+import { graphql } from 'react-relay';
+import { TextField } from '@mui/material';
 
 const LOCAL_STORAGE_KEY = 'entities';
 
-interface Tutu extends ColumnDef<any> {
-  render: (data: any) => any,
-}
+const fieldPatch = graphql`
+  mutation EntitiesEditMutation($id: ID!, $input: [EditInput]!)  {
+    stixDomainObjectEdit(id: $id) {
+      fieldPatch(input: $input) {
+        ...EntitiesStixDomainObjectLine_node
+      }
+    }
+  }
+`;
 
 const Entities = () => {
   const {
@@ -73,6 +81,9 @@ const Entities = () => {
   } = useEntityToggle<EntitiesStixDomainObjectLine_node$data>(LOCAL_STORAGE_KEY);
 
   const toolBarFilters = injectEntityTypeFilterInFilterGroup(filters, 'Stix-Domain-Object');
+
+  const [commit] = useMutation(fieldPatch);
+
   const renderLines = () => {
     const isRuntimeSort = isRuntimeFieldEnable() ?? false;
 
@@ -91,7 +102,17 @@ const Entities = () => {
         header: 'Name',
         flexSize: '25',
         enableSorting: true,
-        render: (data) => data.name,
+        render: (data) => (
+          <TextField
+            fullWidth
+            defaultValue={data.name}
+            onBlur={(e) => {
+              if (e.currentTarget.value !== data.name){
+                commit({ variables: { id: data.id, input: [{ key: 'name', value: [e.currentTarget.value] }] } });
+              }
+            }}
+          />
+        ),
       },
       createdBy: {
         header: 'Author',
@@ -150,33 +171,22 @@ const Entities = () => {
             dataColumns={dataColumns}
             sortBy={sortBy}
             orderAsc={orderAsc}
-            handleSort={storageHelpers.handleSort}
-            searchComponent={storageHelpers.handleSearch && (
-              <SearchInput
-                variant={'small'}
-                onSubmit={storageHelpers.handleSearch}
-                keyword={searchTerm}
-              />
-            )}
-            filterComponent={(
-              <DataTableFilters
-                helpers={storageHelpers}
-                filters={filters}
-                searchContextFinal={filters}
-                availableEntityTypes={['Stix-Domain-Object']}
-                availableFilterKeys={[
-                  'entity_type',
-                  'objectLabel',
-                  'objectMarking',
-                  'createdBy',
-                  'source_reliability',
-                  'confidence',
-                  'creator_id',
-                  'created',
-                  'created_at',
-                ]}
-              />
-            )}
+            helpers={storageHelpers}
+            filters={filters}
+            availableFilterKeys={[
+              'entity_type',
+              'objectLabel',
+              'objectMarking',
+              'createdBy',
+              'source_reliability',
+              'confidence',
+              'creator_id',
+              'created',
+              'created_at',
+            ]}
+            availableEntityTypes={['Stix-Domain-Object']}
+            numberOfElements={numberOfElements}
+            searchTerm={searchTerm}
           />
         )}
       </>

@@ -22,7 +22,7 @@ const DataTableCell = ({ cell, data }) => {
         alignItems: 'center',
       }}
     >
-      <span style={{ paddingLeft: 6 }}>
+      <span style={{ paddingLeft: 6, flex: 1 }}>
         {cell.render?.(data, helpers) ?? (<div>TODO</div>)}
       </span>
     </div>
