@@ -168,11 +168,11 @@ const handleDirectAttribute = (
 const handleBasedOnAttribute = (
   attribute: CsvMapperRepresentationAttribute,
   input: Record<string, InputType>,
-  definition: AttributeDefinition,
+  definition: AttributeDefinition | null,
   otherEntities: Map<string, Record<string, InputType>>,
   refEntities: Record<string, BasicStoreObject>
 ) => {
-  if (attribute.default_values && attribute.default_values.length > 0) {
+  if (definition && attribute.default_values && attribute.default_values.length > 0) {
     if (definition.multiple) {
       input[attribute.key] = attribute.default_values.flatMap((id) => {
         const entity = refEntities[id];
@@ -196,7 +196,7 @@ const handleBasedOnAttribute = (
     if (entities.length > 0) {
       const entity_type = input[entityType.name] as string;
       // Is relation from or to (stix-core || stix-sighting)
-      if (isStixRelationshipExceptRef(entity_type) && (['from', 'to'].includes(attribute.key))) {
+      if (isStixRelationshipExceptRef(entity_type) && ['from', 'to'].includes(attribute.key)) {
         if (attribute.key === 'from') {
           const entity = entities[0];
           if (isNotEmptyField(entity)) {
@@ -211,7 +211,7 @@ const handleBasedOnAttribute = (
           }
         }
         // Is relation ref
-      } else {
+      } else if (definition) {
         const refs = definition.multiple ? entities : entities[0];
         if (isNotEmptyField(refs)) {
           input[attribute.key] = refs;
@@ -235,11 +235,11 @@ const handleAttributes = (
     if (attributeDef) {
       // Handle column attribute
       handleDirectAttribute(attribute, input, record, attributeDef);
-    } else if (refDef) {
+    } else if (refDef || ['from', 'to'].includes(attribute.key)) {
       // Handle based_on attribute
       handleBasedOnAttribute(attribute, input, refDef, otherEntities, refEntities);
     } else {
-      throw UnsupportedError('Unknown attribute schema for attribute:', { key: attribute.key });
+      throw UnsupportedError('Unknown schema for attribute:', { attribute });
     }
   });
 };
