@@ -16913,6 +16913,25 @@ export type PublicDashboardAddInput = {
   name: Scalars['String']['input'];
 };
 
+export type PublicDashboardConnection = {
+  __typename?: 'PublicDashboardConnection';
+  edges: Array<PublicDashboardEdge>;
+  pageInfo: PageInfo;
+};
+
+export type PublicDashboardEdge = {
+  __typename?: 'PublicDashboardEdge';
+  cursor: Scalars['String']['output'];
+  node: PublicDashboard;
+};
+
+export enum PublicDashboardsOrdering {
+  CreatedAt = 'created_at',
+  Creator = 'creator',
+  Name = 'name',
+  UpdatedAt = 'updated_at'
+}
+
 export type Query = {
   __typename?: 'Query';
   about?: Maybe<AppInfo>;
@@ -17083,6 +17102,7 @@ export type Query = {
   positions?: Maybe<PositionConnection>;
   publicDashboard?: Maybe<PublicDashboard>;
   publicDashboardPublic?: Maybe<PublicDashboard>;
+  publicDashboards?: Maybe<PublicDashboardConnection>;
   publicStixCoreObjectsMultiTimeSeries?: Maybe<Array<Maybe<MultiTimeSeries>>>;
   rabbitMQMetrics?: Maybe<RabbitMqMetrics>;
   region?: Maybe<Region>;
@@ -18386,6 +18406,17 @@ export type QueryPublicDashboardArgs = {
 
 export type QueryPublicDashboardPublicArgs = {
   uri_key: Scalars['String']['input'];
+};
+
+
+export type QueryPublicDashboardsArgs = {
+  after?: InputMaybe<Scalars['ID']['input']>;
+  filters?: InputMaybe<FilterGroup>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  includeAuthorities?: InputMaybe<Scalars['Boolean']['input']>;
+  orderBy?: InputMaybe<PublicDashboardsOrdering>;
+  orderMode?: InputMaybe<OrderingMode>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -27668,6 +27699,9 @@ export type ResolversTypes = ResolversObject<{
   Provider: ResolverTypeWrapper<Provider>;
   PublicDashboard: ResolverTypeWrapper<BasicStoreEntityPublicDashboard>;
   PublicDashboardAddInput: PublicDashboardAddInput;
+  PublicDashboardConnection: ResolverTypeWrapper<Omit<PublicDashboardConnection, 'edges'> & { edges: Array<ResolversTypes['PublicDashboardEdge']> }>;
+  PublicDashboardEdge: ResolverTypeWrapper<Omit<PublicDashboardEdge, 'node'> & { node: ResolversTypes['PublicDashboard'] }>;
+  PublicDashboardsOrdering: PublicDashboardsOrdering;
   Query: ResolverTypeWrapper<{}>;
   QueryTask: ResolverTypeWrapper<QueryTask>;
   QueryTaskAddInput: QueryTaskAddInput;
@@ -28345,6 +28379,8 @@ export type ResolversParentTypes = ResolversObject<{
   Provider: Provider;
   PublicDashboard: BasicStoreEntityPublicDashboard;
   PublicDashboardAddInput: PublicDashboardAddInput;
+  PublicDashboardConnection: Omit<PublicDashboardConnection, 'edges'> & { edges: Array<ResolversParentTypes['PublicDashboardEdge']> };
+  PublicDashboardEdge: Omit<PublicDashboardEdge, 'node'> & { node: ResolversParentTypes['PublicDashboard'] };
   Query: {};
   QueryTask: QueryTask;
   QueryTaskAddInput: QueryTaskAddInput;
@@ -33814,6 +33850,18 @@ export type PublicDashboardResolvers<ContextType = any, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PublicDashboardConnectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['PublicDashboardConnection'] = ResolversParentTypes['PublicDashboardConnection']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['PublicDashboardEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<ResolversTypes['PageInfo'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PublicDashboardEdgeResolvers<ContextType = any, ParentType extends ResolversParentTypes['PublicDashboardEdge'] = ResolversParentTypes['PublicDashboardEdge']> = ResolversObject<{
+  cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['PublicDashboard'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   about?: Resolver<Maybe<ResolversTypes['AppInfo']>, ParentType, ContextType>;
   administrativeArea?: Resolver<Maybe<ResolversTypes['AdministrativeArea']>, ParentType, ContextType, RequireFields<QueryAdministrativeAreaArgs, 'id'>>;
@@ -33983,6 +34031,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   positions?: Resolver<Maybe<ResolversTypes['PositionConnection']>, ParentType, ContextType, Partial<QueryPositionsArgs>>;
   publicDashboard?: Resolver<Maybe<ResolversTypes['PublicDashboard']>, ParentType, ContextType, RequireFields<QueryPublicDashboardArgs, 'id'>>;
   publicDashboardPublic?: Resolver<Maybe<ResolversTypes['PublicDashboard']>, ParentType, ContextType, RequireFields<QueryPublicDashboardPublicArgs, 'uri_key'>>;
+  publicDashboards?: Resolver<Maybe<ResolversTypes['PublicDashboardConnection']>, ParentType, ContextType, Partial<QueryPublicDashboardsArgs>>;
   publicStixCoreObjectsMultiTimeSeries?: Resolver<Maybe<Array<Maybe<ResolversTypes['MultiTimeSeries']>>>, ParentType, ContextType, RequireFields<QueryPublicStixCoreObjectsMultiTimeSeriesArgs, 'dashboardId' | 'interval' | 'startDate' | 'widgetId'>>;
   rabbitMQMetrics?: Resolver<Maybe<ResolversTypes['RabbitMQMetrics']>, ParentType, ContextType, Partial<QueryRabbitMqMetricsArgs>>;
   region?: Resolver<Maybe<ResolversTypes['Region']>, ParentType, ContextType, RequireFields<QueryRegionArgs, 'id'>>;
@@ -37059,6 +37108,8 @@ export type Resolvers<ContextType = any> = ResolversObject<{
   Process?: ProcessResolvers<ContextType>;
   Provider?: ProviderResolvers<ContextType>;
   PublicDashboard?: PublicDashboardResolvers<ContextType>;
+  PublicDashboardConnection?: PublicDashboardConnectionResolvers<ContextType>;
+  PublicDashboardEdge?: PublicDashboardEdgeResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   QueryTask?: QueryTaskResolvers<ContextType>;
   QueueArguments?: QueueArgumentsResolvers<ContextType>;

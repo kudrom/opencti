@@ -1,9 +1,10 @@
 import type { Resolvers } from '../../generated/graphql';
-import { addPublicDashboard, findById, publicDashboardDelete, publicDashboardEditField, publicDashboardPublic } from './publicDashboard-domain';
+import { addPublicDashboard, findById, findAll, publicDashboardDelete, publicDashboardEditField, publicDashboardPublic } from './publicDashboard-domain';
 
 const publicDashboardResolvers: Resolvers = {
   Query: {
     publicDashboard: (_, { id }, context) => findById(context, context.user, id),
+    publicDashboards: (_, args, context) => findAll(context, context.user, args),
     publicDashboardPublic: (_, { uri_key }, context) => publicDashboardPublic(context, context.user, uri_key),
   },
   Mutation: {

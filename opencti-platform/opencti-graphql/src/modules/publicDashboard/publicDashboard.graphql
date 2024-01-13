@@ -18,10 +18,38 @@ type PublicDashboard implements InternalObject & BasicObject {
   editContext: [EditUserContext!]  @auth(for: [KNOWLEDGE, EXPLORE])
 }
 
+# Ordering
+enum PublicDashboardsOrdering {
+  name
+  created_at
+  updated_at
+  creator
+}
+
+# Relay connections
+type PublicDashboardConnection {
+  pageInfo: PageInfo!
+  edges: [PublicDashboardEdge!]!
+}
+
 # Queries
 type Query {
   publicDashboard(id: String!): PublicDashboard  @auth(for: [KNOWLEDGE, EXPLORE])
+  publicDashboards(
+    first: Int
+    after: ID
+    orderBy: PublicDashboardsOrdering
+    orderMode: OrderingMode
+    filters: FilterGroup
+    includeAuthorities: Boolean
+    search: String
+  ): PublicDashboardConnection @auth(for: [EXPLORE])
   publicDashboardPublic(uri_key: String!): PublicDashboard
+}
+
+type PublicDashboardEdge {
+  cursor: String!
+  node: PublicDashboard!
 }
 
 # Mutation

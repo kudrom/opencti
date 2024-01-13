@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { AuthContext, AuthUser } from '../../types/user';
-import { storeLoadById } from '../../database/middleware-loader';
+import { listEntitiesPaginated, storeLoadById } from '../../database/middleware-loader';
 import { ENTITY_TYPE_PUBLIC_DASHBOARD, type BasicStoreEntityPublicDashboard } from './publicDashboard-types';
 import { createEntity, deleteElementById, updateAttribute } from '../../database/middleware';
 import { type BasicStoreEntityWorkspace, ENTITY_TYPE_WORKSPACE } from '../workspace/workspace-types';
 import { fromBase64, toBase64 } from '../../database/utils';
 import { notify } from '../../database/redis';
 import { BUS_TOPICS } from '../../config/conf';
-import type { EditInput, PublicDashboardAddInput } from '../../generated/graphql';
+import type { EditInput, PublicDashboardAddInput, QueryPublicDashboardsArgs } from '../../generated/graphql';
 
 export const findById = (
   context: AuthContext,
@@ -19,6 +19,19 @@ export const findById = (
     user,
     id,
     ENTITY_TYPE_PUBLIC_DASHBOARD,
+  );
+};
+
+export const findAll = (
+  context: AuthContext,
+  user: AuthUser,
+  args: QueryPublicDashboardsArgs,
+) => {
+  return listEntitiesPaginated<BasicStoreEntityPublicDashboard>(
+    context,
+    user,
+    [ENTITY_TYPE_PUBLIC_DASHBOARD],
+    args,
   );
 };
 
