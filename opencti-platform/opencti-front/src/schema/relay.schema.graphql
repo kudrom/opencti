@@ -7279,7 +7279,7 @@ type Query {
   csvMappers(first: Int, after: ID, orderBy: CsvMapperOrdering, orderMode: OrderingMode, filters: FilterGroup, search: String): CsvMapperConnection
   csvMapperTest(configuration: String!, content: String!): CsvMapperTestResult
   publicDashboard(id: String!): PublicDashboard
-  publicDashboards(first: Int, after: ID, orderBy: PublicDashboardsOrdering, orderMode: OrderingMode, filters: FilterGroup, includeAuthorities: Boolean, search: String): PublicDashboardConnection
+  publicDashboards(first: Int, after: ID, orderBy: PublicDashboardsOrdering, orderMode: OrderingMode, filters: FilterGroup, search: String): PublicDashboardConnection
   publicDashboardPublic(uri_key: String!): PublicDashboard
 }
 

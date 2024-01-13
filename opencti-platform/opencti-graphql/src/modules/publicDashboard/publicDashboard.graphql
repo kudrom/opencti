@@ -41,7 +41,6 @@ type Query {
     orderBy: PublicDashboardsOrdering
     orderMode: OrderingMode
     filters: FilterGroup
-    includeAuthorities: Boolean
     search: String
   ): PublicDashboardConnection @auth(for: [EXPLORE])
   publicDashboardPublic(uri_key: String!): PublicDashboard
