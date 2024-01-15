@@ -202,3 +202,32 @@ describe('Decay update testing', () => {
     expect(patchResult, 'No database operation should be done.').toBeNull();
   });
 });
+
+describe('Decay live detailed data testing (subset of indicatorDecayDetails query)', () => {
+  it('should compute live score correctly', () => {
+    const indicator: Partial<BasicStoreEntityIndicator> = {
+      x_opencti_score: 100,
+      x_opencti_base_score: 100,
+      x_opencti_base_score_date: moment().subtract('5', 'days').toDate(),
+      x_opencti_decay_rule: FALLBACK_DECAY_RULE,
+      valid_from: moment().subtract('5', 'days').toDate(),
+      valid_until: moment().add('5', 'days').toDate()
+    };
+
+    const liveScore = computeLiveScore(indicator as BasicStoreEntityIndicator);
+    expect(liveScore).toBeCloseTo(76.07, 1);
+  });
+
+  it('should live score be equals to stable when x_opencti_base_score_date is missing', () => {
+    const indicator: Partial<BasicStoreEntityIndicator> = {
+      x_opencti_score: 42,
+      x_opencti_base_score: 100,
+      x_opencti_base_score_date: undefined,
+      x_opencti_decay_history: [],
+      valid_from: moment().subtract('5', 'days').toDate(),
+      valid_until: moment().add('5', 'days').toDate()
+    };
+    const liveScore = computeLiveScore(indicator as BasicStoreEntityIndicator);
+    expect(liveScore, 'The live score should be = score when data required for computation are missing.').toBe(42);
+  });
+});

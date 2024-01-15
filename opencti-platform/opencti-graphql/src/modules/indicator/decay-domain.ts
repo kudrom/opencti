@@ -118,8 +118,8 @@ export const findDecayRuleForIndicator = (indicatorObservableType: string, enabl
  * @param indicator
  */
 export const computeLiveScore = (indicator: BasicStoreEntityIndicator) => {
-  if (indicator.x_opencti_decay_history && indicator.x_opencti_decay_history.length > 0 && indicator.x_opencti_base_score && indicator.x_opencti_decay_rule) {
-    const daysSinceDecayStart = moment().diff(moment(indicator.x_opencti_decay_history[0].updated_at));
+  if (indicator.x_opencti_base_score_date && indicator.x_opencti_base_score && indicator.x_opencti_decay_rule) {
+    const daysSinceDecayStart = moment().diff(moment(indicator.x_opencti_base_score_date), 'days');
     return computeScoreFromExpectedTime(indicator.x_opencti_base_score, daysSinceDecayStart, indicator.x_opencti_decay_rule);
   }
   return indicator.x_opencti_score;
