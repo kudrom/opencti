@@ -159,7 +159,9 @@ const handleDirectAttribute = (attributeKey: string, column: AttributeColumn, in
   if (computedValue !== null && computedValue !== undefined) {
     if (attributeKey === 'hashes') {
       // input[attributeKey] =  {...input[attributeKey], [attributeKeyOldOne]: computedValue } -> verification si input[attributeKey] = null alors qu'est ce qui se passe ?
-      input[attributeKey] = { [attributeKeyOldOne]: computedValue };
+      // input[attributeKey] = { [attributeKeyOldOne]: computedValue };
+      input.from = computedValue;
+      input.fromType = attributeKeyOldOne;
     }
     input[attributeKey] = computedValue;
   }
